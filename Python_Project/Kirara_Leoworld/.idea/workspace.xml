@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="eb3f1d6e-2746-4c58-87a9-1226d5a537e1" name="Default" comment="" />
+    <list default="true" id="eb3f1d6e-2746-4c58-87a9-1226d5a537e1" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GIRLS.txt" beforeDir="false" afterPath="$PROJECT_DIR$/GIRLS.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kirara_figure.py" beforeDir="false" afterPath="$PROJECT_DIR$/kirara_figure.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kirara_function.py" beforeDir="false" afterPath="$PROJECT_DIR$/kirara_function.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kirara_write_girls_init.py" beforeDir="false" afterPath="$PROJECT_DIR$/kirara_write_girls_init.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,11 +41,16 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
   <component name="ProjectId" id="1RioACp2JE3mrdOs4qAk3OEjyTX" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js-jscs-nodeInterpreter" value="C:\Program Files\nodejs\node.exe" />
     <property name="js.eslint.eslintPackage" value="" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path" value="C:/Program Files/nodejs/node" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Color Scheme Font" />
   </component>
@@ -218,13 +229,30 @@
       <workItem from="1570159142752" duration="42000" />
       <workItem from="1570159213838" duration="8651000" />
       <workItem from="1570238655663" duration="23055000" />
+      <workItem from="1570272471356" duration="621000" />
+      <workItem from="1570341580589" duration="19093000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Kirara_Leoworld$kirara_write_girls_init.coverage" NAME="kirara_write_girls_init Coverage Results" MODIFIED="1570368920194" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Kirara_Leoworld$kirara_mean.coverage" NAME="kirara_mean Coverage Results" MODIFIED="1570376402406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Pycharm_python$kirara_write_girls_init.coverage" NAME="kirara_write_girls_init Coverage Results" MODIFIED="1570269901166" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Pycharm_python$rumen.coverage" NAME="rumen Coverage Results" MODIFIED="1570242345997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Pycharm_python$figure.coverage" NAME="figure Coverage Results" MODIFIED="1570183555726" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

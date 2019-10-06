@@ -31,10 +31,6 @@ class Figure():
     def level_up(self):
         self.level += 1
 
-    # love up one & multi
-    def love_up_one(self):
-        self.love += 1
-
     def love_up_multi(self, diff):
         self.love += diff
 
@@ -80,7 +76,6 @@ class Weapon():
         print("武器名: " + str(self.name))
         print("等级限制: " + str(self.level))
         print("技能: " + str(self.level))
-
 
 
 # 创建按钮类
@@ -197,11 +192,58 @@ class GirlBasic():
                                            True, self.text_color, self.bg_color)
         self.msg2_image_rect = pygame.Rect(self.positionX + 140,
                                            self.positionY + 20, 50, 50)
-
-        self.msg3_image = self.font.render('星级: ' + self.girl.grade,
+        if self.girl.grade == 'A':
+            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
+                                               '  好感: '
+                                               + str(self.girl.love) + "/50",
                                            True, self.text_color, self.bg_color)
+        elif self.girl.grade == 'S':
+            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
+                                               '  好感: '
+                                               + str(self.girl.love) + "/150",
+                                              True, self.text_color,
+                                              self.bg_color)
+        elif self.girl.grade == 'SS':
+            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
+                                               '  好感: '
+                                               + str(self.girl.love) + "/350",
+                                              True, self.text_color,
+                                              self.bg_color)
+        elif self.girl.grade == 'SSS':
+            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
+                                               '  好感: '
+                                               + str(self.girl.love) + "/650",
+                                              True, self.text_color,
+                                              self.bg_color)
+        elif self.girl.grade == 'EX':
+            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
+                                               '  好感: '
+                                               + str(self.girl.love) + "/1000",
+                                              True, self.text_color,
+                                              self.bg_color)
+        elif self.girl.grade == 'MX':
+            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
+                                               '  好感: '
+                                               + str(self.girl.love) + "/MAX",
+                                               True, self.text_color,
+                                               self.bg_color)
         self.msg3_image_rect = pygame.Rect(self.positionX + 140,
                                            self.positionY + 60, 100, 50)
+
+        self.msg4_image = self.font.render('武器: '+ self.girl.weapon, True,
+                                           self.text_color, self.bg_color)
+        self.msg4_image_rect = pygame.Rect(self.positionX + 230,
+                                           self.positionY + 20, 50, 50)
+
+        self.msg5_image = self.font.render('眼色: ' + self.girl.eyecolor, True,
+                                           self.text_color, self.bg_color)
+        self.msg5_image_rect = pygame.Rect(self.positionX + 370,
+                                           self.positionY + 20, 50, 50)
+
+        self.msg6_image = self.font.render('发色: ' + self.girl.haircolor, True,
+                                           self.text_color, self.bg_color)
+        self.msg6_image_rect = pygame.Rect(self.positionX + 370,
+                                           self.positionY + 60, 50, 50)
 
     # 绘制基础文字块
     def draw_textbasic(self):
@@ -209,3 +251,15 @@ class GirlBasic():
         self.screen.blit(self.msg1_image, self.msg1_image_rect)
         self.screen.blit(self.msg2_image, self.msg2_image_rect)
         self.screen.blit(self.msg3_image, self.msg3_image_rect)
+        self.screen.blit(self.msg4_image, self.msg4_image_rect)
+        self.screen.blit(self.msg5_image, self.msg5_image_rect)
+        self.screen.blit(self.msg6_image, self.msg6_image_rect)
+
+    def draw_infolottery(self):
+        self.screen.fill(self.bg_color, self.rect)
+        self.screen.blit(self.msg1_image, self.msg1_image_rect)
+        self.screen.blit(self.msg2_image, self.msg2_image_rect)
+        self.screen.blit(self.msg3_image, self.msg3_image_rect)
+        self.screen.blit(self.msg4_image, self.msg4_image_rect)
+        self.screen.blit(self.msg5_image, self.msg5_image_rect)
+        self.screen.blit(self.msg6_image, self.msg6_image_rect)

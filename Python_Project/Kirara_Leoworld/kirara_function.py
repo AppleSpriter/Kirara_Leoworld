@@ -1,10 +1,19 @@
 import pygame
 import sys
-import  json
+import json
+import random
+import MySQLdb
 from kirara_figure import *
 
 mouse_rollup = 0
 text_len = 30
+lottery_mouse_x = 0
+lottery_mouse_y = 0
+
+# 连接数据库
+db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
+                     charset='utf8')
+cursor = db.cursor()
 
 # 监视鼠标和键盘事件
 def check_events(button_list):
@@ -12,16 +21,18 @@ def check_events(button_list):
         if event.type == pygame.QUIT:
             sys.exit()
         # 按下button事件
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            # if mouse_x > 100 and mouse_x < 500 and mouse_y > 50 and mouse_y < 150:
+            # if mouse_x > 100 and mouse_x < 500 and mouse_y > 50 and
+            # mouse_y < 150:
             tmp = 0
+            # 查看鼠标点击在哪个范围内，使用tmp确定是第几个按钮
             for button in button_list:
                 tmp += 1
                 if button.rect.collidepoint(mouse_x, mouse_y) and tmp == 1:
                     click_button_girls()
                 elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 2:
-                    click_button_mission()
+                    click_button_works()
                 elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 3:
                     click_button_lottery()
                 elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 4:
@@ -31,89 +42,172 @@ def check_events(button_list):
 # 按下girls按钮事件
 def click_button_girls():
     # 列出女孩子的列表
-    girls = []
-    read_girls(girls)
+    read_girls()
+
 
 # 女孩子打印
-def read_girls(girls):
-    with open("GIRLS.txt") as file_object:
-        read_list = json.load(file_object)
+def read_girls():
+    query_sql = "Select * from figure"
+    cursor.execute(query_sql)
 
+    tuple_tmp = cursor.fetchall()
     girls_list = []
-    for content in read_list:
-        girls_list.append(Figure(content['name'], content['root'],
-                                 content['grade'], content['level'],
-                                 content['weapon'], content['sound'],
-                                 content['skilllevel'], content['love'],
-                                 content['eyecolor'], content['haircolor']))
+    for girls in tuple_tmp:
+        print(girls)
+        girls_list.append(Figure(girls[1], girls[2], girls[3], girls[4],
+                            girls[5], girls[6], girls[7], girls[8],
+                            girls[9], girls[10]))
 
-    screen_works = pygame.display.set_mode((600,800))
+
+    screen_works = pygame.display.set_mode((600, 800))
     button_back = Button(150, 100, screen_works, "返回", 50, 650)
     button_list = [button_back]
     work_setting = Settings()
     # 进入girls查看页面
     while True:
         # 返回主菜单,检测鼠标滑轮
-        click_to_index(button_back)
+        click_lottery_and_index(button_back)
         # 屏幕更新
         update_screen(screen_works, work_setting, button_list, girls_list,
                       'girl')
 
+
 # 按下mission按钮事件
-def click_button_mission():
-    print("mission button")
+# 10.06修改为作品按钮
+def click_button_works():
+    read_works()
+
 
 # 按下lottery按钮事件
 def click_button_lottery():
-    print("lottery button")
+    sig = random.randint(1, 100)
+    if 1 <= sig <= 5:
+        print("恭喜你获得S角色卡！")
+    elif 6 <= sig <= 15:
+        print("恭喜你获得New角色！")
+    elif 16 <= sig <= 50:
+        print("恭喜你获得A角色卡！")
+    elif 61 <= sig <= 100:
+        print("好感度+1！")
+
 
 # 按下achievement按钮事件
 def click_button_achievement():
     print("achievement button")
 
+
 # 更新屏幕函数
 def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
-                  type=''):
+                  typed=''):
     # 全局变量声明
     global text_len
     global mouse_rollup
+    global lottery_mouse_y
+    global lottery_mouse_x
     # 绘制背景色
     screen.fill(setting.bg_color)
     # 绘制button1
     for button in button_list:
         button.draw_button()
 
-    if type == 'work':
+    if typed == 'work':
         # 绘制文字
         if text_list:
-            positionX = 30
-            positionY = 0
+            positionx = 30
+            positiony = 0
             width = 500
             height = 100
             for text in text_list:
-                tb = TextBasic(width, height, screen, positionX,
-                               positionY - mouse_rollup, text['name'],
+                tb = TextBasic(width, height, screen, positionx,
+                               positiony - mouse_rollup, text['name'],
                                text['year'], text['company'])
                 tb.draw_textbasic()
-                positionY += 110
+                positiony += 110
 
-    if type == 'girl':
+    if typed == 'girl':
+        positionx = 30
+        positiony = 0
+        width = 500
+        height = 100
         # 绘制女孩
         if text_list:
-            positionX = 30
-            positionY = 0
-            width = 500
-            height = 100
             for girl in text_list:
-                tb = GirlBasic(width, height, screen, positionX,
-                               positionY - mouse_rollup, girl)
-                tb.draw_textbasic()
-                positionY += 110
+                tb = GirlBasic(width, height, screen, positionx,
+                               positiony - mouse_rollup, girl)
+
+                # 点击某一个具体女孩后跳转
+                if positionx < lottery_mouse_x < positionx + width and \
+                    positiony < lottery_mouse_y < positiony + height:
+                    click_to_one_girl(girl)
+                else:
+                    tb.draw_textbasic()
+                positiony += 110
+
 
     text_len = len(text_list) * 130
 
     # 显示窗口
     pygame.display.flip()
+
+# 进入单个女孩页面,可以完成抽卡升级操作
+def click_to_one_girl(girl):
+    # 全局变量声明
+    global text_len
+    global mouse_rollup
+
+    screen_works = pygame.display.set_mode((600, 800))
+    button_back = Button(150, 100, screen_works, "返回", 50, 650)
+    button_lottery = Button(150, 100, screen_works, "抽卡", 50, 450)
+    button_level = Button(150, 100, screen_works, "Level Up", 350, 450)
+    button_list = [button_back]
+    work_setting = Settings()
+    # 进入girls查看页面
+    while True:
+        # 监视器
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            # 按下button事件
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if button_back.rect.collidepoint(mouse_x,
+                                            mouse_y) and event.button == 1:
+                    mouse_rollup = 0
+                    read_girls()
+                elif button_lottery.rect.collidepoint(mouse_x,
+                                             mouse_y) and event.button == 1:
+                    sig = random.randint(1, 100)
+                    increment = 0
+
+                    if 1 <= sig <= 5:
+                        print("恭喜你获得S角色卡！")
+                        increment = 30
+                    elif 6 <= sig <= 15:
+                        print("恭喜你获得New角色！")
+                    elif 16 <= sig <= 50:
+                        print("恭喜你获得A角色卡！")
+                        increment = 18
+                    elif 61 <= sig <= 100:
+                        print("好感度+1！")
+                        increment = 1
+
+                    query_sql = "Select love from figure where name=%s"
+                    cursor.execute(query_sql, [girl.name])
+                    oldlove = cursor.fetchall() + increment
+
+                    query_sql = "update figure set love=%s where name=%s"
+                    cursor.execute(query_sql,[oldlove, girl.name])
+
+
+                elif button_level.rect.collidepoint(mouse_x,
+                                            mouse_y) and event.button == 1:
+                    girl.levelup()
+
+                if event.button == 5 and mouse_rollup < (text_len - 800):
+                    mouse_rollup += 40
+                elif event.button == 4 and mouse_rollup >= 0:
+                    mouse_rollup -= 40
+
 
 # 返回主页面函数
 def click_to_index(button):
@@ -125,15 +219,46 @@ def click_to_index(button):
         if event.type == pygame.QUIT:
             sys.exit()
         # 按下button事件
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+        elif event.type == pygame.MOUSEBUTTONDOWN :
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            if button.rect.collidepoint(mouse_x, mouse_y):
+            if button.rect.collidepoint(mouse_x, mouse_y) and event.button == 1:
                 mouse_rollup = 0
                 run_game()
             if event.button == 5 and mouse_rollup < (text_len - 800):
                 mouse_rollup += 40
-            elif event.button == 4 and mouse_rollup >=0:
+            elif event.button == 4 and mouse_rollup >= 0:
                 mouse_rollup -= 40
+
+
+# 抽奖和返回主页面监视器
+def click_lottery_and_index(button):
+    # 全局变量声明
+    global text_len
+    global mouse_rollup
+    global lottery_mouse_x
+    global lottery_mouse_y
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        # 按下button事件
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
+            # 按下左键,先判断是否返回,没有返回记录鼠标点击位置
+            if event.button == 1:
+                if button.rect.collidepoint(mouse_x, mouse_y):
+                    mouse_rollup = 0
+                    run_game()
+                else:
+                    lottery_mouse_x = mouse_x
+                    lottery_mouse_y = mouse_y
+
+            if event.button == 5 and mouse_rollup < (text_len - 800):
+                mouse_rollup += 40
+            elif event.button == 4 and mouse_rollup >= 0:
+                mouse_rollup -= 40
+
 
 # 返回girls页面函数
 def click_to_girls(button):
@@ -142,17 +267,27 @@ def click_to_girls(button):
         if event.type == pygame.QUIT:
             sys.exit()
         # 按下button事件
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if button.rect.collidepoint(mouse_x, mouse_y):
                 click_button_girls()
 
-# 读取作品列表
-def read_works(works):
-    with open("WORKS.txt") as file_object:
-        work_list = json.load(file_object)
 
-    screen_works = pygame.display.set_mode((600,800))
+# 读取作品列表
+def read_works():
+    # with open("WORKS.txt") as file_object:
+    #     work_list = json.load(file_object)
+
+    query_sql = "Select * from work"
+    cursor.execute(query_sql)
+
+    tuple_tmp = cursor.fetchall()
+    work_list = []
+    for works in tuple_tmp:
+        work_list.append({'name': works[1], 'year': str(works[2]),
+                          'company': works[3]})
+
+    screen_works = pygame.display.set_mode((600, 800))
     button_back = Button(150, 100, screen_works, "返回", 50, 650)
     button_list = [button_back]
     work_setting = Settings()
@@ -172,15 +307,18 @@ def run_game():
     # 加载设置
     ki_setting = Settings()
     # 设置窗口长宽
-    screen = pygame.display.set_mode((ki_setting.screen_width, ki_setting.screen_height))
+    screen = pygame.display.set_mode(
+        (ki_setting.screen_width, ki_setting.screen_height))
     # 设置窗口名称
     pygame.display.set_caption("Kirara Leoworld")
     # 创建首页四个button列表
     button_girls = Button(400, 100, screen, "girls", 100, 50)
-    button_mission = Button(400, 100, screen, "任务", 700, 50)
+    button_works = Button(400, 100, screen, "works", 700, 50)
     button_lottery = Button(400, 100, screen, "抽卡", 100, 250)
     button_achievement = Button(400, 100, screen, "成就", 700, 250)
-    button_list = [button_girls, button_mission, button_lottery, button_achievement]
+    button_list = [button_girls, button_works, button_lottery,
+                   button_achievement]
+
 
     # 开始游戏
     while True:
