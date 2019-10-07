@@ -166,6 +166,8 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                                positiony - mouse_rollup, updated_girl)
                 tb.draw_textbasic()
 
+    text_len = len(text_list) * 130
+
     # 显示窗口
     pygame.display.flip()
 
