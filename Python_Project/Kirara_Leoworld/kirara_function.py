@@ -15,6 +15,7 @@ db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
                      charset='utf8')
 cursor = db.cursor()
 
+
 # 监视鼠标和键盘事件
 def check_events(button_list):
     for event in pygame.event.get():
@@ -45,19 +46,28 @@ def click_button_girls():
     read_girls()
 
 
+# 更新查询figure列中某一项
+def sql_update_one(girl):
+    query_sql = "Select * from figure where name=%s"
+    cursor.execute(query_sql,[girl.name])
+    tuple_tmp = cursor.fetchall()
+    for girls in tuple_tmp:
+        this_girl = Figure(girls[1], girls[2], girls[3], girls[4],
+                                 girls[5], girls[6], girls[7], girls[8],
+                                 girls[9], girls[10])
+    return this_girl
+
+
 # 女孩子打印
 def read_girls():
     query_sql = "Select * from figure"
     cursor.execute(query_sql)
-
     tuple_tmp = cursor.fetchall()
     girls_list = []
     for girls in tuple_tmp:
-        print(girls)
         girls_list.append(Figure(girls[1], girls[2], girls[3], girls[4],
-                            girls[5], girls[6], girls[7], girls[8],
-                            girls[9], girls[10]))
-
+                                 girls[5], girls[6], girls[7], girls[8],
+                                 girls[9], girls[10]))
 
     screen_works = pygame.display.set_mode((600, 800))
     button_back = Button(150, 100, screen_works, "返回", 50, 650)
@@ -137,30 +147,44 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
 
                 # 点击某一个具体女孩后跳转
                 if positionx < lottery_mouse_x < positionx + width and \
-                    positiony < lottery_mouse_y < positiony + height:
+                        positiony < lottery_mouse_y < positiony + height:
                     click_to_one_girl(girl)
                 else:
                     tb.draw_textbasic()
                 positiony += 110
 
-
-    text_len = len(text_list) * 130
+    if typed == 'one':
+        positionx = 30
+        positiony = 0
+        width = 500
+        height = 100
+        # 绘制女孩
+        if text_list:
+            for girl in text_list:
+                updated_girl = sql_update_one(girl)
+                tb = GirlBasic(width, height, screen, positionx,
+                               positiony - mouse_rollup, updated_girl)
+                tb.draw_textbasic()
 
     # 显示窗口
     pygame.display.flip()
+
 
 # 进入单个女孩页面,可以完成抽卡升级操作
 def click_to_one_girl(girl):
     # 全局变量声明
     global text_len
     global mouse_rollup
+    global lottery_mouse_x
+    global lottery_mouse_y
 
-    screen_works = pygame.display.set_mode((600, 800))
-    button_back = Button(150, 100, screen_works, "返回", 50, 650)
-    button_lottery = Button(150, 100, screen_works, "抽卡", 50, 450)
-    button_level = Button(150, 100, screen_works, "Level Up", 350, 450)
-    button_list = [button_back]
-    work_setting = Settings()
+    screen_one = pygame.display.set_mode((600, 800))
+    button_back = Button(150, 100, screen_one, "返回", 50, 650)
+    button_lottery = Button(150, 100, screen_one, "抽卡", 50, 450)
+    button_level = Button(150, 100, screen_one, "升级", 350, 450)
+    button_list = [button_back, button_lottery, button_level]
+    one_setting = Settings()
+    text_list = [girl]
     # 进入girls查看页面
     while True:
         # 监视器
@@ -170,43 +194,73 @@ def click_to_one_girl(girl):
             # 按下button事件
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                if button_back.rect.collidepoint(mouse_x,
-                                            mouse_y) and event.button == 1:
+                if button_back.rect.collidepoint(mouse_x, mouse_y) and \
+                        event.button == 1:
                     mouse_rollup = 0
-                    read_girls()
-                elif button_lottery.rect.collidepoint(mouse_x,
-                                             mouse_y) and event.button == 1:
+                    lottery_mouse_x = 0
+                    lottery_mouse_y = 0
+                    click_button_girls()
+                elif button_lottery.rect.collidepoint(mouse_x, mouse_y) \
+                        and event.button == 1:
                     sig = random.randint(1, 100)
                     increment = 0
 
                     if 1 <= sig <= 5:
-                        print("恭喜你获得S角色卡！")
-                        increment = 30
+                        print("恭喜你获得S角色卡！好感度+70")
+                        increment = 70
                     elif 6 <= sig <= 15:
                         print("恭喜你获得New角色！")
                     elif 16 <= sig <= 50:
-                        print("恭喜你获得A角色卡！")
+                        print("恭喜你获得A角色卡！好感度+18")
                         increment = 18
                     elif 61 <= sig <= 100:
                         print("好感度+1！")
                         increment = 1
 
+                    # 查询好感度并设置其值增加increment
                     query_sql = "Select love from figure where name=%s"
                     cursor.execute(query_sql, [girl.name])
-                    oldlove = cursor.fetchall() + increment
+                    for old_love in cursor.fetchall():
+                        new_love = int(old_love[0]) + increment
 
-                    query_sql = "update figure set love=%s where name=%s"
-                    cursor.execute(query_sql,[oldlove, girl.name])
+                    if 0 <= new_love < 50:
+                        query_sql = "update figure set love=%s, grade=%s " \
+                                    "where name=%s"
+                        cursor.execute(query_sql,[new_love, "A", girl.name])
+                    elif 50 <= new_love < 150:
+                        query_sql = "update figure set love=%s, grade=%s " \
+                                    "where name=%s"
+                        cursor.execute(query_sql, [new_love, "S", girl.name])
+                    elif 150 <= new_love < 350:
+                        query_sql = "update figure set love=%s, grade=%s " \
+                                    "where name=%s"
+                        cursor.execute(query_sql, [new_love, "SS", girl.name])
+                    elif 350 <= new_love < 650:
+                        query_sql = "update figure set love=%s, grade=%s " \
+                                    "where name=%s"
+                        cursor.execute(query_sql, [new_love, "SSS", girl.name])
+                    elif 650 <= new_love < 1000:
+                        query_sql = "update figure set love=%s, grade=%s " \
+                                    "where name=%s"
+                        cursor.execute(query_sql, [new_love, "EX", girl.name])
+                    elif 1000 <= new_love :
+                        query_sql = "update figure set love=%s, grade=%s " \
+                                    "where name=%s"
+                        cursor.execute(query_sql, [new_love, "MAX", girl.name])
+                    db.commit()
 
+                elif button_level.rect.collidepoint(mouse_x, mouse_y) and \
+                        event.button == 1:
+                    # 查询好感度并设置其值增加increment
+                    query_sql = "Select level from figure where name=%s"
+                    cursor.execute(query_sql, [girl.name])
+                    for old_level in cursor.fetchall():
+                        new_level = int(old_level[0]) + 1
+                    query_sql = "update figure set level=%s where name = %s"
+                    cursor.execute(query_sql, [new_level, girl.name])
+                    db.commit()
 
-                elif button_level.rect.collidepoint(mouse_x,
-                                            mouse_y) and event.button == 1:
-                    girl.levelup()
-
-                if event.button == 5 and mouse_rollup < (text_len - 800):
-                    mouse_rollup += 40
-                elif event.button == 4 and mouse_rollup >= 0:
-                    mouse_rollup -= 40
+        update_screen(screen_one, one_setting, button_list, text_list, "one")
 
 
 # 返回主页面函数
@@ -219,7 +273,7 @@ def click_to_index(button):
         if event.type == pygame.QUIT:
             sys.exit()
         # 按下button事件
-        elif event.type == pygame.MOUSEBUTTONDOWN :
+        elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if button.rect.collidepoint(mouse_x, mouse_y) and event.button == 1:
                 mouse_rollup = 0
@@ -319,9 +373,7 @@ def run_game():
     button_list = [button_girls, button_works, button_lottery,
                    button_achievement]
 
-
     # 开始游戏
     while True:
         check_events(button_list)
         update_screen(screen, ki_setting, button_list)
-

@@ -188,49 +188,49 @@ class GirlBasic():
         self.msg1_image_rect = pygame.Rect(self.positionX + 20,
                                            self.positionY + 20, 120, 50)
 
-        self.msg2_image = self.font.render('等级: ' + str(self.girl.level),
+        self.msg2_image = self.font.render('等级:' + str(self.girl.level),
                                            True, self.text_color, self.bg_color)
         self.msg2_image_rect = pygame.Rect(self.positionX + 140,
                                            self.positionY + 20, 50, 50)
         if self.girl.grade == 'A':
-            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
-                                               '  好感: '
+            self.msg3_image = self.font.render('星级:' + self.girl.grade +
+                                               '  好感:'
                                                + str(self.girl.love) + "/50",
                                            True, self.text_color, self.bg_color)
         elif self.girl.grade == 'S':
-            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
-                                               '  好感: '
+            self.msg3_image = self.font.render('星级:' + self.girl.grade +
+                                               '  好感:'
                                                + str(self.girl.love) + "/150",
                                               True, self.text_color,
                                               self.bg_color)
         elif self.girl.grade == 'SS':
-            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
-                                               '  好感: '
+            self.msg3_image = self.font.render('星级:' + self.girl.grade +
+                                               '  好感:'
                                                + str(self.girl.love) + "/350",
                                               True, self.text_color,
                                               self.bg_color)
         elif self.girl.grade == 'SSS':
-            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
-                                               '  好感: '
+            self.msg3_image = self.font.render('星级:' + self.girl.grade +
+                                               '  好感:'
                                                + str(self.girl.love) + "/650",
                                               True, self.text_color,
                                               self.bg_color)
         elif self.girl.grade == 'EX':
-            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
-                                               '  好感: '
+            self.msg3_image = self.font.render('星级:' + self.girl.grade +
+                                               '  好感:'
                                                + str(self.girl.love) + "/1000",
                                               True, self.text_color,
                                               self.bg_color)
-        elif self.girl.grade == 'MX':
-            self.msg3_image = self.font.render('星级: ' + self.girl.grade +
-                                               '  好感: '
+        elif self.girl.grade == 'MAX':
+            self.msg3_image = self.font.render('星级:' + self.girl.grade +
+                                               '  好感:'
                                                + str(self.girl.love) + "/MAX",
                                                True, self.text_color,
                                                self.bg_color)
         self.msg3_image_rect = pygame.Rect(self.positionX + 140,
                                            self.positionY + 60, 100, 50)
 
-        self.msg4_image = self.font.render('武器: '+ self.girl.weapon, True,
+        self.msg4_image = self.font.render('武器:'+ self.girl.weapon, True,
                                            self.text_color, self.bg_color)
         self.msg4_image_rect = pygame.Rect(self.positionX + 230,
                                            self.positionY + 20, 50, 50)

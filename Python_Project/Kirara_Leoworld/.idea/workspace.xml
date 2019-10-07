@@ -3,10 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="eb3f1d6e-2746-4c58-87a9-1226d5a537e1" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GIRLS.txt" beforeDir="false" afterPath="$PROJECT_DIR$/GIRLS.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kirara_figure.py" beforeDir="false" afterPath="$PROJECT_DIR$/kirara_figure.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kirara_function.py" beforeDir="false" afterPath="$PROJECT_DIR$/kirara_function.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kirara_write_girls_init.py" beforeDir="false" afterPath="$PROJECT_DIR$/kirara_write_girls_init.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -231,6 +229,7 @@
       <workItem from="1570238655663" duration="23055000" />
       <workItem from="1570272471356" duration="621000" />
       <workItem from="1570341580589" duration="19093000" />
+      <workItem from="1570426419871" duration="4410000" />
     </task>
     <servers />
   </component>
@@ -252,7 +251,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Kirara_Leoworld$kirara_write_girls_init.coverage" NAME="kirara_write_girls_init Coverage Results" MODIFIED="1570368920194" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Kirara_Leoworld$kirara_mean.coverage" NAME="kirara_mean Coverage Results" MODIFIED="1570376402406" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Kirara_Leoworld$kirara_mean.coverage" NAME="kirara_mean Coverage Results" MODIFIED="1570430698774" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Pycharm_python$kirara_write_girls_init.coverage" NAME="kirara_write_girls_init Coverage Results" MODIFIED="1570269901166" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Pycharm_python$rumen.coverage" NAME="rumen Coverage Results" MODIFIED="1570242345997" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Pycharm_python$figure.coverage" NAME="figure Coverage Results" MODIFIED="1570183555726" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
