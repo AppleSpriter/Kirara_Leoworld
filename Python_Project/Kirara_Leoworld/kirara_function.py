@@ -2,6 +2,7 @@ import pygame
 import sys
 import json
 import random
+import time
 import MySQLdb
 from kirara_figure import *
 
@@ -220,11 +221,34 @@ def click_to_one_girl(girl):
                         print("好感度+1！")
                         increment = 1
 
+
                     # 查询好感度并设置其值增加increment
                     query_sql = "Select love from figure where name=%s"
                     cursor.execute(query_sql, [girl.name])
                     for old_love in cursor.fetchall():
                         new_love = int(old_love[0]) + increment
+
+                    # 写入log文件
+                    file_w = open("kirara.log", 'a+')
+                    write_time = time.strftime('%Y-%m-%d %H:%M:%S',
+                                               time.localtime(time.time()))
+                    # 判断increment并写入日志
+                    if increment == 70:
+                        file_w.write(write_time + " " + girl.name +
+                                     ": 获得S角色卡！好感度+70  当前好感度: "
+                                     + str(new_love) + "\n")
+                    elif increment == 18:
+                        file_w.write(write_time + " " + str(girl.name) +
+                               ": 获得A角色卡！好感度+18  当前好感度: "
+                                     + str(new_love) + "\n")
+                    elif increment == 1:
+                        file_w.write(write_time + " " + str(girl.name) +
+                                     ": 好感度+1  当前好感度: "
+                                     + str(new_love) + "\n")
+                    elif increment == 0:
+                        file_w.write(write_time + " 恭喜你获得New角色！\n")
+
+                    file_w.close()
 
                     if 0 <= new_love < 50:
                         query_sql = "update figure set love=%s, grade=%s " \
@@ -269,6 +293,7 @@ def click_to_one_girl(girl):
                     elif 36 <= sig <= 100:
                         print("训练完成！等级+1")
                         increment = 1
+                    file_w.close()
 
                     # 查询好感度并设置其值增加increment
                     query_sql = "Select level from figure where name=%s"
@@ -278,6 +303,30 @@ def click_to_one_girl(girl):
                     query_sql = "update figure set level=%s where name = %s"
                     cursor.execute(query_sql, [new_level, girl.name])
                     db.commit()
+
+                    # 写入log文件
+                    file_w = open("kirara.log", 'a+')
+                    write_time = time.strftime('%Y-%m-%d %H:%M:%S',
+                                               time.localtime(time.time()))
+                    # 判断increment并写入日志
+                    if increment == 10:
+                        file_w.write(write_time + " " + girl.name +
+                                     ": 等级+10  当前等级: "
+                                     + str(new_level) + "\n")
+                    elif increment == 5:
+                        file_w.write(write_time + " " + girl.name +
+                                     ": 等级+5  当前等级: "
+                                     + str(new_level) + "\n")
+                    elif increment == 2:
+                        file_w.write(write_time + " " + girl.name +
+                                     ": 等级+2  当前等级: "
+                                     + str(new_level) + "\n")
+                    elif increment == 1:
+                        file_w.write(write_time + " " + girl.name +
+                                     ": 等级+1  当前等级: "
+                                     + str(new_level) + "\n")
+
+                    file_w.close()
 
                 elif button_skill.rect.collidepoint(mouse_x, mouse_y) and \
                     event.button == 1:
@@ -305,6 +354,30 @@ def click_to_one_girl(girl):
                     query_sql = "update figure set skilllevel=%s where name = %s"
                     cursor.execute(query_sql, [new_level, girl.name])
                     db.commit()
+
+                    # 写入log文件
+                    file_w = open("kirara.log", 'a+')
+                    write_time = time.strftime('%Y-%m-%d %H:%M:%S',
+                                               time.localtime(time.time()))
+                    # 判断increment并写入日志
+                    if increment == 3:
+                        file_w.write(write_time + " " + girl.name +
+                                     ": 技能等级+3  当前技能等级: "
+                                     + str(new_level) + "\n")
+                    elif increment == 5:
+                        file_w.write(write_time + " " + girl.name +
+                                     ": 技能等级+5  当前技能等级: "
+                                     + str(new_level) + "\n")
+                    elif increment == 2:
+                        file_w.write(write_time + " " + girl.name +
+                                     ": 技能等级+2  当前技能等级: "
+                                     + str(new_level) + "\n")
+                    elif increment == 1:
+                        file_w.write(write_time + " " + girl.name +
+                                     ": 技能等级+1  当前技能等级: "
+                                     + str(new_level) + "\n")
+
+                    file_w.close()
 
         update_screen(screen_one, one_setting, button_list, text_list, "one")
 
