@@ -184,7 +184,8 @@ def click_to_one_girl(girl):
     button_back = Button(150, 100, screen_one, "返回", 50, 650)
     button_lottery = Button(150, 100, screen_one, "抽卡", 50, 450)
     button_level = Button(150, 100, screen_one, "升级", 350, 450)
-    button_list = [button_back, button_lottery, button_level]
+    button_skill = Button(250, 100, screen_one, "技能升级", 350, 600)
+    button_list = [button_back, button_lottery, button_level, button_skill]
     one_setting = Settings()
     text_list = [girl]
     # 进入girls查看页面
@@ -253,12 +254,55 @@ def click_to_one_girl(girl):
 
                 elif button_level.rect.collidepoint(mouse_x, mouse_y) and \
                         event.button == 1:
+                    sig = random.randint(1, 100)
+                    increment = 0
+
+                    if 1 <= sig <= 5:
+                        print("极限训练！等级+10！")
+                        increment = 10
+                    elif 6 <= sig <= 15:
+                        print("高效充实的训练！等级+5")
+                        increment = 5
+                    elif 16 <= sig <= 35:
+                        print("注意力集中的训练！等级+2")
+                        increment = 2
+                    elif 36 <= sig <= 100:
+                        print("训练完成！等级+1")
+                        increment = 1
+
                     # 查询好感度并设置其值增加increment
                     query_sql = "Select level from figure where name=%s"
                     cursor.execute(query_sql, [girl.name])
                     for old_level in cursor.fetchall():
-                        new_level = int(old_level[0]) + 1
+                        new_level = int(old_level[0]) + increment
                     query_sql = "update figure set level=%s where name = %s"
+                    cursor.execute(query_sql, [new_level, girl.name])
+                    db.commit()
+
+                elif button_skill.rect.collidepoint(mouse_x, mouse_y) and \
+                    event.button == 1:
+                    sig = random.randint(1, 100)
+                    increment = 0
+
+                    if 1 <= sig <= 5:
+                        print("极限训练！技能等级+5！")
+                        increment = 5
+                    elif 6 <= sig <= 15:
+                        print("高效充实的训练！技能等级+3")
+                        increment = 3
+                    elif 16 <= sig <= 35:
+                        print("注意力集中的训练！技能等级+2")
+                        increment = 2
+                    elif 36 <= sig <= 100:
+                        print("训练完成！技能等级+1")
+                        increment = 1
+
+                    # 查询好感度并设置其值增加increment
+                    query_sql = "Select skilllevel from figure where name=%s"
+                    cursor.execute(query_sql, [girl.name])
+                    for old_level in cursor.fetchall():
+                        new_level = int(old_level[0]) + increment
+                    query_sql = "update figure set skilllevel=%s where name = %s"
                     cursor.execute(query_sql, [new_level, girl.name])
                     db.commit()
 
