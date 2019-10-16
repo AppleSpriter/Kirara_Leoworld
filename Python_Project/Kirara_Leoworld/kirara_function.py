@@ -148,7 +148,8 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
 
                 # 点击某一个具体女孩后跳转
                 if positionx < lottery_mouse_x < positionx + width and \
-                        positiony < lottery_mouse_y < positiony + height:
+                        positiony - mouse_rollup < lottery_mouse_y < \
+                        positiony - mouse_rollup + height:
                     click_to_one_girl(girl)
                 else:
                     tb.draw_textbasic()
@@ -164,7 +165,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
             for girl in text_list:
                 updated_girl = sql_update_one(girl)
                 tb = GirlBasic(width, height, screen, positionx,
-                               positiony - mouse_rollup, updated_girl)
+                               positiony , updated_girl)
                 tb.draw_textbasic()
 
     text_len = len(text_list) * 130
@@ -248,6 +249,7 @@ def click_to_one_girl(girl):
                     elif increment == 0:
                         file_w.write(write_time + " 恭喜你获得New角色！\n")
 
+                    # 关闭log文件写入
                     file_w.close()
 
                     if 0 <= new_love < 50:
@@ -293,7 +295,6 @@ def click_to_one_girl(girl):
                     elif 36 <= sig <= 100:
                         print("训练完成！等级+1")
                         increment = 1
-                    file_w.close()
 
                     # 查询好感度并设置其值增加increment
                     query_sql = "Select level from figure where name=%s"
@@ -308,6 +309,7 @@ def click_to_one_girl(girl):
                     file_w = open("kirara.log", 'a+')
                     write_time = time.strftime('%Y-%m-%d %H:%M:%S',
                                                time.localtime(time.time()))
+
                     # 判断increment并写入日志
                     if increment == 10:
                         file_w.write(write_time + " " + girl.name +
