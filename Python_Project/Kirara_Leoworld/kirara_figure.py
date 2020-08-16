@@ -164,6 +164,86 @@ class TextBasic():
         self.screen.blit(self.msg2_image, self.msg2_image_rect)
         self.screen.blit(self.msg3_image, self.msg3_image_rect)
 
+# 绘制抽卡块
+class LotteryBasic():
+    def __init__(self, screen, msg1=''):
+        self.screen = screen
+        self.screen_rect = screen.get_rect()
+        # 剩余次数提示
+        self.bg_color = (240,128,128)
+        self.text_color = (255, 255, 255)
+        self.font = pygame.font.SysFont('KaiTi', 20)
+        self.tip_rect = pygame.Rect(400, 40, 160, 25)
+        self.msg1 = msg1
+        # 卡背
+        self.bg_image = pygame.image.load(r"image//back.png")
+        self.bgbig_image = pygame.image.load(r"image//back_big.png")
+        self.back_positionX = 150
+        self.back_positionY = 130
+        self.back_width = 300
+        self.back_height = 400
+        self.back_rect = pygame.Rect(self.back_positionX, self.back_positionY, 
+                                     self.back_width, self.back_height)
+        self.backbig_rect = pygame.Rect(self.back_positionX - 30, self.back_positionY - 40, 
+                                     self.back_width, self.back_height)
+        # 奖励参数
+        self.reward_font = pygame.font.SysFont('KaiTi', 40)
+        self.reward_color = (255, 255, 255)
+
+        # 文字、卡背标签
+        self.prep_msg()
+
+
+    # 渲染剩余次数为图像
+    def prep_msg(self):
+        self.msg1_image = self.font.render(self.msg1, True, self.text_color,
+                                          self.bg_color)
+        self.msg1_image_rect = pygame.Rect(400, 40, 200, 50)
+
+    # 绘制卡背
+    def draw_lotteryback(self):
+        # 绘制剩余次数
+        self.screen.fill(self.bg_color, self.tip_rect)
+        self.screen.blit(self.msg1_image, self.msg1_image_rect)
+        # 绘制卡背位图
+        self.screen.blit(self.bg_image, self.back_rect)
+
+    # 鼠标悬停离开效果
+    def draw_mouseeffect(self, mouse, reward="", color=0):
+        # Mouse 0 无效果. 1 悬停效果. 2 离开效果. 3 点击效果
+        if mouse == 1:
+            # 图像向外扩大
+            # 绘制卡背位图
+            self.screen.blit(self.bgbig_image, self.backbig_rect)
+        if mouse == 2:
+            # 图像恢复原来大小
+            # 绘制卡背位图
+            self.screen.blit(self.bg_image, self.back_rect)
+
+        if mouse == 3:
+            # 判断奖励颜色
+            if color == 0:
+                self.reward_color = (240,248,255)
+            elif color == 1:
+                self.reward_color = (30,144,255)
+            elif color == 2:
+                self.reward_color = (153,50,204)
+            elif color == 3:
+                self.reward_color = (255,130,71)
+
+            # 图像转化为奖励,利用big_image的颜色框，里面一个背景框框着奖励文字
+            self.screen.fill(self.reward_color, self.backbig_rect)
+            msg3 = self.reward_font.render(reward, True, self.reward_color, (205, 201,165))
+            msg3_rect = pygame.Rect(self.back_positionX + 30,
+                                           self.back_positionY + 100, 100, 50)
+            # 显示奖励文字
+            self.screen.blit(msg3, msg3_rect)
+
+        # 绘制剩余次数
+        self.screen.fill(self.bg_color, self.tip_rect)
+        self.screen.blit(self.msg1_image, self.msg1_image_rect)
+
+
 # 显示基础女孩类，左一右二
 class GirlBasic():
     def __init__(self, width, height, screen, positionX, positionY, girl):

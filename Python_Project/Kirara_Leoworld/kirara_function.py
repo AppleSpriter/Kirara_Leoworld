@@ -91,20 +91,49 @@ def click_button_works():
 
 # 按下lottery按钮事件
 def click_button_lottery():
-    sig = random.randint(1, 100)
-    if 1 <= sig <= 5:
-        print("恭喜你获得S角色卡！")
-    elif 6 <= sig <= 15:
-        print("恭喜你获得New角色！")
-    elif 16 <= sig <= 50:
-        print("恭喜你获得A角色卡！")
-    elif 61 <= sig <= 100:
-        print("好感度+1！")
+    # 查询数据库
+    query_sql = "Select lottery_num from lottery"
+    cursor.execute(query_sql)
+    # 取出抽奖次数
+    tuple_tmp = cursor.fetchall()
+    lottery_num = []
+    lottery_num.append(tuple_tmp[0][0])
+
+    screen_lottery = pygame.display.set_mode((600, 800))
+    button_back = Button(150, 100, screen_lottery, "返回", 50, 650)
+    button_list = [button_back]
+    work_setting = Settings()
+    # 抽奖页面
+    while True:
+        # 屏幕更新
+        update_screen(screen_lottery, work_setting, button_list, lottery_num,
+                      "lottery")
+
 
 
 # 按下achievement按钮事件
 def click_button_achievement():
-    print("achievement button")
+    # 抽奖次数+1
+    set_sql = "update lottery set lottery_num=lottery_num+1"
+    cursor.execute(set_sql)
+    # 查询数据库
+    query_sql = "Select lottery_num from lottery"
+    cursor.execute(query_sql)
+    # 取出抽奖次数
+    tuple_tmp = cursor.fetchall()[0][0]
+    # 提交数据库
+    db.commit()
+    print("增加后抽奖次数为:" + str(tuple_tmp))
+
+    # 写入log文件
+    file_w = open("kirara_lottery.log", 'a+')
+    write_time = time.strftime('%Y-%m-%d %H:%M:%S',
+                               time.localtime(time.time()))
+    # 写入日志
+    file_w.write(write_time + " 因为努力工作获得了一次抽奖！剩余抽奖次数： " + str(tuple_tmp) + "\n")
+
+    # 关闭log文件写入
+    file_w.close()
 
 
 # 更新屏幕函数
@@ -134,6 +163,136 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                                text['year'], text['company'])
                 tb.draw_textbasic()
                 positiony += 110
+
+    if typed == 'lottery':
+        # 抽奖页面
+        # 显示剩余抽奖次数
+        lottery_num_text = "剩余抽奖次数：" + str(text_list[0])
+        # 绘制抽卡图像
+        lottery_lb = LotteryBasic(screen, lottery_num_text)  
+        positionx = 150
+        positiony = 100
+        width = 300
+        height = 400
+        # 鼠标事件
+        clicked = False
+        is_hover = False
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+
+                # 鼠标位置
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if pygame.Rect(positionx, positiony, width, height).collidepoint(mouse_x, mouse_y) and clicked == False:
+                    lottery_lb.draw_mouseeffect(1)
+                    is_hover = True
+                elif pygame.Rect(positionx - 30, positiony - 40, width + 60, height + 80).collidepoint(mouse_x, mouse_y)\
+                     and is_hover == True and clicked == False:
+                    # 刷新screen
+                    screen.fill(setting.bg_color)
+                    lottery_lb.draw_mouseeffect(2)
+                    is_hover = False
+                elif clicked == False:
+                    lottery_lb.draw_lotteryback()
+
+
+                # 绘制button1
+                for button in button_list:
+                    button.draw_button()
+                # 按下button事件
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # 先判断是否返回
+                    if button.rect.collidepoint(mouse_x, mouse_y):
+                        mouse_rollup = 0
+                        run_game()
+
+                    # 抽奖主程序
+                    if text_list[0] > 0 and clicked == False and \
+                       pygame.Rect(positionx, positiony, width, height).collidepoint(mouse_x, mouse_y):
+                        # 刷新screen
+                        screen.fill(setting.bg_color)
+                        # 减去一个抽奖次数
+                        set_sql = "update lottery set lottery_num=lottery_num-1"
+                        cursor.execute(set_sql)
+                        # 提交数据库
+                        db.commit()
+
+                        # 设置为打开状态
+                        clicked = True
+
+                        # 抽奖动画主程序
+                        # 0 白色. 1 蓝色. 2 紫色. 3 橙色
+                        #   事件        概率 对应颜色
+                        # 看一集番       100  蓝色
+                        # 看两集番       50   紫色
+                        # 看三集番       10   橙色
+                        # MD两局         300  白色
+                        # MD十局         50   紫色
+                        # 炉石战旗一局   100  蓝色
+                        # 炉石战旗三局   20   紫色
+                        # 一百现金       3    橙色
+                        # 十元现金       30   紫色
+                        # 三元现金       200  白色
+                        # 半小时其他     100  蓝色
+                        # 一小时其他     30   紫色
+                        # 三小时其他     7    橙色
+                        game_point = random.randint(1, 1000)
+                        if game_point <= 100:
+                            color = 1
+                            reward_text = "看一集番"
+                        elif game_point <= 150:
+                            color = 2
+                            reward_text = "看两集番"
+                        elif game_point <= 160:
+                            color = 3
+                            reward_text = "看三集番"
+                        elif game_point <= 460:
+                            color = 0
+                            reward_text = "MD两局"
+                        elif game_point <= 510:
+                            color = 2
+                            reward_text = "MD十局"
+                        elif game_point <= 610:
+                            color = 1
+                            reward_text = "炉石战旗一局"
+                        elif game_point <= 630:
+                            color = 2
+                            reward_text = "炉石战旗三局"
+                        elif game_point <= 633:
+                            color = 3
+                            reward_text = "一百现金"
+                        elif game_point <= 663:
+                            color = 2
+                            reward_text = "十元现金"
+                        elif game_point <= 863:
+                            color = 0
+                            reward_text = "三元现金"
+                        elif game_point <= 963:
+                            color = 1
+                            reward_text = "半小时其他"
+                        elif game_point <= 993:
+                            color = 2
+                            reward_text = "一小时其他"
+                        elif game_point <= 1000:
+                            color = 3
+                            reward_text = "三小时其他"
+                        lottery_lb.draw_mouseeffect(3, reward_text, color)
+
+                        # 写入log文件
+                        file_w = open("kirara_lottery.log", 'a+')
+                        write_time = time.strftime('%Y-%m-%d %H:%M:%S',
+                                                   time.localtime(time.time()))
+                        # 写入日志
+                        file_w.write(write_time + " 获得奖励：" + reward_text +
+                                     "; 剩余抽奖次数： " + str(text_list[0] - 1) + "\n")
+
+                        # 关闭log文件写入
+                        file_w.close()
+
+                pygame.display.flip()
+
 
     if typed == 'girl':
         positionx = 30
@@ -489,8 +648,8 @@ def run_game():
     # 创建首页四个button列表
     button_girls = Button(400, 100, screen, "girls", 100, 50)
     button_works = Button(400, 100, screen, "works", 700, 50)
-    button_lottery = Button(400, 100, screen, "抽卡", 100, 250)
-    button_achievement = Button(400, 100, screen, "成就", 700, 250)
+    button_lottery = Button(400, 100, screen, "Lottery", 100, 250)
+    button_achievement = Button(400, 100, screen, "+1", 700, 250)
     button_list = [button_girls, button_works, button_lottery,
                    button_achievement]
 
