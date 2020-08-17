@@ -239,7 +239,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         # 三小时其他     7    橙色
                         # 判断金色
                         golden = 0
-                        if random.randint(1, 100) >= 50:
+                        if random.randint(1, 100) == 1:
                             golden = 1
                         # 判断奖励
                         game_point = random.randint(1, 1000)
