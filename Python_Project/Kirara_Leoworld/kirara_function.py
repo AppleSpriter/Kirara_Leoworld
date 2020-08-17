@@ -1,9 +1,8 @@
 import pygame
-import sys
 import json
 import random
-import time
 import MySQLdb
+from win10toast import ToastNotifier
 from kirara_figure import *
 
 mouse_rollup = 0
@@ -113,27 +112,20 @@ def click_button_lottery():
 
 # 按下achievement按钮事件
 def click_button_achievement():
-    # 抽奖次数+1
-    set_sql = "update lottery set lottery_num=lottery_num+1"
-    cursor.execute(set_sql)
-    # 查询数据库
-    query_sql = "Select lottery_num from lottery"
-    cursor.execute(query_sql)
-    # 取出抽奖次数
-    tuple_tmp = cursor.fetchall()[0][0]
-    # 提交数据库
-    db.commit()
-    print("增加后抽奖次数为:" + str(tuple_tmp))
 
-    # 写入log文件
-    file_w = open("kirara_lottery.log", 'a+')
-    write_time = time.strftime('%Y-%m-%d %H:%M:%S',
-                               time.localtime(time.time()))
-    # 写入日志
-    file_w.write(write_time + " 因为努力工作获得了一次抽奖！剩余抽奖次数： " + str(tuple_tmp) + "\n")
-
-    # 关闭log文件写入
-    file_w.close()
+    screen_achievement = pygame.display.set_mode((600, 800))
+    button_paper = Button(500, 100, screen_achievement, "看论文做实验", 50, 50)
+    button_learn = Button(500, 100, screen_achievement, "读书整理书爱培", 50, 200)
+    button_language = Button(500, 100, screen_achievement, "语言学习", 50, 350)
+    button_play = Button(500, 100, screen_achievement, "玩游戏看视频", 50, 500)
+    button_back = Button(150, 100, screen_achievement, "返回", 50, 650)
+    button_list = [button_paper, button_learn, button_language, button_play, button_back]
+    work_setting = Settings()
+    # 抽奖页面
+    while True:
+        # 屏幕更新
+        update_screen(screen_achievement, work_setting, button_list, [],
+                      "achievement")
 
 
 # 更新屏幕函数
@@ -199,7 +191,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                 for button in button_list:
                     button.draw_button()
                 # 按下按钮事件
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     # 先判断是否返回
                     if button.rect.collidepoint(mouse_x, mouse_y):
                         mouse_rollup = 0
@@ -301,6 +293,174 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
 
                 pygame.display.flip()
 
+    if typed == 'achievement':
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                # 鼠标位置
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+
+                # 按下按钮事件
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+
+                    # 设置标题
+                    pygame.display.set_caption("倒计时……")
+                    before_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                    # 看论文做实验,50分钟倒计时
+                    if button_list[0].rect.collidepoint(mouse_x, mouse_y):
+                        # 倒计时3000s
+                        achievement_dt = DecTime(screen, 3000) 
+                        # 倒计时更新页面
+                        while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
+                            ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
+                            achievement_dt.draw_timedec("看论文做实验", ch)
+                            achievement_dt.subTime()
+                            # 休眠1秒刷新屏幕
+                            time.sleep(1)
+                            pygame.display.flip()
+                        # 判断成功完成
+                        if achievement_dt.sec == -1:
+                            # 抽奖次数+1
+                            set_sql = "update lottery set lottery_num=lottery_num+1"
+                            cursor.execute(set_sql)
+                            # 查询数据库
+                            query_sql = "Select lottery_num from lottery"
+                            cursor.execute(query_sql)
+                            # 取出抽奖次数
+                            tuple_tmp = cursor.fetchall()[0][0]
+                            # 提交数据库
+                            db.commit()
+                            # 输出到控制台
+                            after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                            print(before_time + "-" + after_time + \
+                                " 看论文做实验成功！剩余抽卡次数： " + str(tuple_tmp))
+                            # 写入log文件
+                            file_w = open("kirara_lottery.log", 'a+')
+                            # 写入日志
+                            file_w.write(before_time + " - " + after_time + \
+                                " 因 看论文做实验50min 获得了一次抽奖！剩余抽奖次数： " + str(tuple_tmp) + "\n")
+                            # 关闭log文件写入
+                            file_w.close()
+                            # 弹出气泡进行通知
+                            toaster = ToastNotifier()
+                            toaster.show_toast(u'番茄完成！', u'你已经完成了一次看论文做实验！')
+
+                    # 读书整理书爱培,50分钟倒计时
+                    if button_list[1].rect.collidepoint(mouse_x, mouse_y):
+                        # 倒计时3000s
+                        achievement_dt = DecTime(screen, 3000) 
+                        # 倒计时更新页面
+                        while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
+                            ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
+                            achievement_dt.draw_timedec("读书整理书爱培", ch)
+                            achievement_dt.subTime()
+                            # 休眠1秒刷新屏幕
+                            time.sleep(1)
+                            pygame.display.flip()
+                        # 判断成功完成
+                        if achievement_dt.sec == -1:
+                            # 抽奖次数+1
+                            set_sql = "update lottery set lottery_num=lottery_num+1"
+                            cursor.execute(set_sql)
+                            # 查询数据库
+                            query_sql = "Select lottery_num from lottery"
+                            cursor.execute(query_sql)
+                            # 取出抽奖次数
+                            tuple_tmp = cursor.fetchall()[0][0]
+                            # 提交数据库
+                            db.commit()
+                            # 输出到控制台
+                            after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                            print(before_time + "-" + after_time + \
+                                " 读书整理书爱培成功！剩余抽卡次数： " + str(tuple_tmp))
+                            # 写入log文件
+                            file_w = open("kirara_lottery.log", 'a+')
+                            # 写入日志
+                            file_w.write(before_time + " - " + after_time + \
+                                " 因 读书整理书爱培 获得了一次抽奖！剩余抽奖次数： " + str(tuple_tmp) + "\n")
+                            # 关闭log文件写入
+                            file_w.close()
+                            # 弹出气泡进行通知
+                            toaster = ToastNotifier()
+                            toaster.show_toast(u'番茄完成！', u'你已经完成了一次读书整理书爱培！')
+
+                    # 语言学习,50分钟倒计时
+                    if button_list[2].rect.collidepoint(mouse_x, mouse_y):
+                        # 倒计时3000s
+                        achievement_dt = DecTime(screen, 3000) 
+                        # 倒计时更新页面
+                        while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
+                            ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
+                            achievement_dt.draw_timedec("语言学习", ch)
+                            achievement_dt.subTime()
+                            # 休眠1秒刷新屏幕
+                            time.sleep(1)
+                            pygame.display.flip()
+                        # 判断成功完成
+                        if achievement_dt.sec == -1:
+                            # 抽奖次数+1
+                            set_sql = "update lottery set lottery_num=lottery_num+1"
+                            cursor.execute(set_sql)
+                            # 查询数据库
+                            query_sql = "Select lottery_num from lottery"
+                            cursor.execute(query_sql)
+                            # 取出抽奖次数
+                            tuple_tmp = cursor.fetchall()[0][0]
+                            # 提交数据库
+                            db.commit()
+                            # 输出到控制台
+                            after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                            print(before_time + "-" + after_time + \
+                                " 语言学习成功！剩余抽卡次数： " + str(tuple_tmp))
+                            # 写入log文件
+                            file_w = open("kirara_lottery.log", 'a+')
+                            # 写入日志
+                            file_w.write(before_time + " - " + after_time + \
+                                " 因 语言学习 获得了一次抽奖！剩余抽奖次数： " + str(tuple_tmp) + "\n")
+                            # 关闭log文件写入
+                            file_w.close()
+                            # 弹出气泡进行通知
+                            toaster = ToastNotifier()
+                            toaster.show_toast(u'番茄完成！', u'你已经完成了一次语言学习！')
+
+                    # 游戏娱乐,30分钟倒计时
+                    if button_list[3].rect.collidepoint(mouse_x, mouse_y):
+                        # 倒计时3000s
+                        achievement_dt = DecTime(screen, 1800) 
+                        # 倒计时更新页面
+                        while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
+                            ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
+                            achievement_dt.draw_timedec("娱乐时间", ch)
+                            achievement_dt.subTime()
+                            # 休眠1秒刷新屏幕
+                            time.sleep(1)
+                            pygame.display.flip()
+                        # 判断成功完成
+                        if achievement_dt.sec == -1:
+                            # 输出到控制台
+                            after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                            print(before_time + "-" + after_time + \
+                                " 娱乐时间！")
+                            # 写入log文件
+                            file_w = open("kirara_lottery.log", 'a+')
+                            # 写入日志
+                            file_w.write(before_time + " - " + after_time + \
+                                " 进行了娱乐时间！" + "\n")
+                            # 关闭log文件写入
+                            file_w.close()
+                            # 弹出气泡进行通知
+                            toaster = ToastNotifier()
+                            toaster.show_toast(u'番茄完成！', u'你已经完成了一次娱乐时间！')
+
+                    if button_list[4].rect.collidepoint(mouse_x, mouse_y):
+                        mouse_rollup = 0
+                        run_game()
+
+                # 返回主页面按钮绘制
+                button.draw_button()
+
+                pygame.display.flip()
 
     if typed == 'girl':
         positionx = 30

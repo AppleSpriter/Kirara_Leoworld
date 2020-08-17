@@ -4,6 +4,9 @@ Date = 19.10.04
 Subscription = to store class
 '''
 import pygame
+import time
+import sys
+import datetime
 
 # 作品集，程序设定
 class Work():
@@ -168,7 +171,6 @@ class TextBasic():
 class LotteryBasic():
     def __init__(self, screen, lottery_times):
         self.screen = screen
-        self.screen_rect = screen.get_rect()
         # 剩余次数提示
         self.bg_color = (240,128,128)
         self.text_color = (255, 255, 255)
@@ -213,7 +215,7 @@ class LotteryBasic():
         # 绘制卡背位图
         self.screen.blit(self.bg_image, self.back_rect)
 
-    # 鼠标悬停离开效果
+    # 鼠标悬停离开点击效果
     def draw_mouseeffect(self, mouse, reward="", color=0, golden=0):
         # Mouse 0 无效果. 1 悬停效果. 2 离开效果. 3 点击效果
         if mouse == 1:
@@ -287,6 +289,41 @@ class LotteryBasic():
             # 绘制剩余次数
             self.screen.fill(self.bg_color, self.tip_rect)
             self.screen.blit(self.msg2_image, self.msg_image_rect)
+
+# 倒计时类
+class DecTime(object):
+    def __init__(self, screen, totalTime):
+        self.screen = screen
+        self.bg_color = (255, 236, 139)
+        self.font1 = pygame.font.SysFont('KaiTi', 60)
+        self.font2 = pygame.font.SysFont('KaiTi', 70)
+        # 将秒转化为时分秒
+        self.sec = totalTime
+        self.hour = int(self.sec / 3600)
+        self.sec = self.sec % 3600
+        self.minute = int(self.sec / 60)
+        self.sec = int(self.sec % 60)
+
+    def draw_timedec(self, text, ch):
+        self.screen.fill(self.bg_color)
+        self.screen.blit(self.font1.render(text, True,(238, 99, 99)), (170, 200))
+        self.screen.blit(self.font2.render(ch, True,(238, 99, 99)), (200, 400))
+
+    # 时间减    
+    def subTime(self):
+        if self.sec > 0:
+            self.sec -=  1
+        else:
+            if self.minute > 0:
+                self.minute -= 1
+                self.sec = 59
+            else:
+                if self.hour > 0:
+                    self.hour -= 1
+                    self.minute = 59
+                    self.sec = 59
+                else:
+                    self.sec = -1
 
 
 # 显示基础女孩类，左一右二
