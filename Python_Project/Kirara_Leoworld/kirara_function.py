@@ -166,10 +166,8 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
 
     if typed == 'lottery':
         # 抽奖页面
-        # 显示剩余抽奖次数
-        lottery_num_text = "剩余抽奖次数：" + str(text_list[0])
         # 绘制抽卡图像
-        lottery_lb = LotteryBasic(screen, lottery_num_text)  
+        lottery_lb = LotteryBasic(screen, text_list[0])  
         positionx = 150
         positiony = 100
         width = 300
@@ -286,6 +284,8 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         # 金卡效果
                         if golden == 1:
                             reward_text = reward_text + "(金卡翻倍)"
+                            
+                        # 页面更新
                         lottery_lb.draw_mouseeffect(3, reward_text, color, golden)
 
                         # 写入log文件

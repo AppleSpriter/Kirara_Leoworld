@@ -166,7 +166,7 @@ class TextBasic():
 
 # 绘制抽卡块
 class LotteryBasic():
-    def __init__(self, screen, msg1=''):
+    def __init__(self, screen, lottery_times):
         self.screen = screen
         self.screen_rect = screen.get_rect()
         # 剩余次数提示
@@ -174,7 +174,8 @@ class LotteryBasic():
         self.text_color = (255, 255, 255)
         self.font = pygame.font.SysFont('KaiTi', 20)
         self.tip_rect = pygame.Rect(400, 40, 160, 25)
-        self.msg1 = msg1
+        self.msg1 = "剩余抽奖次数：" + str(lottery_times)
+        self.msg2 = "剩余抽奖次数：" + str(lottery_times - 1)
         # 卡背
         self.bg_image = pygame.image.load(r"image//back.png")
         self.bgbig_image = pygame.image.load(r"image//back_big.png")
@@ -196,18 +197,19 @@ class LotteryBasic():
         # 文字、卡背标签
         self.prep_msg()
 
-
     # 渲染剩余次数为图像
     def prep_msg(self):
         self.msg1_image = self.font.render(self.msg1, True, self.text_color,
                                           self.bg_color)
-        self.msg1_image_rect = pygame.Rect(400, 40, 200, 50)
+        self.msg2_image = self.font.render(self.msg2, True, self.text_color,
+                                          self.bg_color)
+        self.msg_image_rect = pygame.Rect(400, 40, 200, 50)
 
     # 绘制卡背
     def draw_lotteryback(self):
         # 绘制剩余次数
         self.screen.fill(self.bg_color, self.tip_rect)
-        self.screen.blit(self.msg1_image, self.msg1_image_rect)
+        self.screen.blit(self.msg1_image, self.msg_image_rect)
         # 绘制卡背位图
         self.screen.blit(self.bg_image, self.back_rect)
 
@@ -221,12 +223,20 @@ class LotteryBasic():
             # 播放音效
             self.unopen_sound.set_volume(0.01)
             self.unopen_sound.play()
+
+            # 绘制剩余次数
+            self.screen.fill(self.bg_color, self.tip_rect)
+            self.screen.blit(self.msg1_image, self.msg_image_rect)
         if mouse == 2:
             # 图像恢复原来大小
             # 绘制卡背位图
             self.screen.blit(self.bg_image, self.back_rect)
             # 停止音效
             self.unopen_sound.stop()
+
+            # 绘制剩余次数
+            self.screen.fill(self.bg_color, self.tip_rect)
+            self.screen.blit(self.msg1_image, self.msg_image_rect)
         if mouse == 3:
             # 停止播放音效
             self.unopen_sound.stop()
@@ -274,9 +284,9 @@ class LotteryBasic():
                 self.card_sound.play()
             self.over_sound.play()
 
-        # 绘制剩余次数
-        self.screen.fill(self.bg_color, self.tip_rect)
-        self.screen.blit(self.msg1_image, self.msg1_image_rect)
+            # 绘制剩余次数
+            self.screen.fill(self.bg_color, self.tip_rect)
+            self.screen.blit(self.msg2_image, self.msg_image_rect)
 
 
 # 显示基础女孩类，左一右二
