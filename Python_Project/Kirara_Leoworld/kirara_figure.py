@@ -189,7 +189,10 @@ class LotteryBasic():
         # 奖励参数
         self.reward_font = pygame.font.SysFont('KaiTi', 40)
         self.reward_color = (255, 255, 255)
-
+        # 声音参数
+        self.unopen_sound = pygame.mixer.Sound("sound//unopened_pack.ogg")
+        self.card_sound = pygame.mixer.Sound("sound//rare.ogg")
+        self.over_sound = pygame.mixer.Sound("sound//card_over_rare.ogg")
         # 文字、卡背标签
         self.prep_msg()
 
@@ -209,27 +212,55 @@ class LotteryBasic():
         self.screen.blit(self.bg_image, self.back_rect)
 
     # 鼠标悬停离开效果
-    def draw_mouseeffect(self, mouse, reward="", color=0):
+    def draw_mouseeffect(self, mouse, reward="", color=0, golden=0):
         # Mouse 0 无效果. 1 悬停效果. 2 离开效果. 3 点击效果
         if mouse == 1:
             # 图像向外扩大
             # 绘制卡背位图
             self.screen.blit(self.bgbig_image, self.backbig_rect)
+            # 播放音效
+            self.unopen_sound.set_volume(0.01)
+            self.unopen_sound.play()
         if mouse == 2:
             # 图像恢复原来大小
             # 绘制卡背位图
             self.screen.blit(self.bg_image, self.back_rect)
-
+            # 停止音效
+            self.unopen_sound.stop()
         if mouse == 3:
-            # 判断奖励颜色
-            if color == 0:
+            # 停止播放音效
+            self.unopen_sound.stop()
+            # 判断奖励颜色和音效
+            if color == 0 and golden == 0:
                 self.reward_color = (240,248,255)
-            elif color == 1:
+                self.card_sound = False
+                self.over_sound = pygame.mixer.Sound("sound//card_over_normal.ogg")
+            elif color == 1 and golden == 0:
                 self.reward_color = (30,144,255)
-            elif color == 2:
+            elif color == 2 and golden == 0:
                 self.reward_color = (153,50,204)
-            elif color == 3:
+                self.card_sound = pygame.mixer.Sound("sound//epic.ogg")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_epic.ogg")
+            elif color == 3 and golden == 0:
                 self.reward_color = (255,130,71)
+                self.card_sound = pygame.mixer.Sound("sound//legend.ogg")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_legend.ogg")
+            elif color == 0 and golden == 1:
+                self.reward_color = (240,248,255)
+                self.card_sound = pygame.mixer.Sound("sound//golden_C.ogg")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_normal.ogg")
+            elif color == 1 and golden == 1:
+                self.reward_color = (30,144,255)
+                self.card_sound = pygame.mixer.Sound("sound//golden_R.ogg")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_rare.ogg")
+            elif color == 2 and golden == 1:
+                self.reward_color = (153,50,204)
+                self.card_sound = pygame.mixer.Sound("sound//golden_E.ogg")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_epic.ogg")
+            elif color == 3 and golden == 1:
+                self.reward_color = (255,130,71)
+                self.card_sound = pygame.mixer.Sound("sound//golden_L.ogg")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_legend.ogg")
 
             # 图像转化为奖励,利用big_image的颜色框，里面一个背景框框着奖励文字
             self.screen.fill(self.reward_color, self.backbig_rect)
@@ -238,6 +269,10 @@ class LotteryBasic():
                                            self.back_positionY + 100, 100, 50)
             # 显示奖励文字
             self.screen.blit(msg3, msg3_rect)
+            # 显示卡牌和翻面声音
+            if self.card_sound:
+                self.card_sound.play()
+            self.over_sound.play()
 
         # 绘制剩余次数
         self.screen.fill(self.bg_color, self.tip_rect)

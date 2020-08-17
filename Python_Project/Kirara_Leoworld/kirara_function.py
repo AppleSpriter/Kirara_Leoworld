@@ -197,11 +197,10 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                 elif clicked == False:
                     lottery_lb.draw_lotteryback()
 
-
-                # 绘制button1
+                # 绘制返回按钮
                 for button in button_list:
                     button.draw_button()
-                # 按下button事件
+                # 按下按钮事件
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     # 先判断是否返回
                     if button.rect.collidepoint(mouse_x, mouse_y):
@@ -223,7 +222,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         clicked = True
 
                         # 抽奖动画主程序
-                        # 0 白色. 1 蓝色. 2 紫色. 3 橙色
+                        # 0 白色. 1 蓝色. 2 紫色. 3 橙色. 金卡翻倍
                         #   事件        概率 对应颜色
                         # 看一集番       100  蓝色
                         # 看两集番       50   紫色
@@ -238,6 +237,11 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         # 半小时其他     100  蓝色
                         # 一小时其他     30   紫色
                         # 三小时其他     7    橙色
+                        # 判断金色
+                        golden = 0
+                        if random.randint(1, 100) >= 50:
+                            golden = 1
+                        # 判断奖励
                         game_point = random.randint(1, 1000)
                         if game_point <= 100:
                             color = 1
@@ -278,7 +282,11 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         elif game_point <= 1000:
                             color = 3
                             reward_text = "三小时其他"
-                        lottery_lb.draw_mouseeffect(3, reward_text, color)
+
+                        # 金卡效果
+                        if golden == 1:
+                            reward_text = reward_text + "(金卡翻倍)"
+                        lottery_lb.draw_mouseeffect(3, reward_text, color, golden)
 
                         # 写入log文件
                         file_w = open("kirara_lottery.log", 'a+')
