@@ -25,8 +25,6 @@ def check_events(button_list):
             # 按下button事件
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                # if mouse_x > 100 and mouse_x < 500 and mouse_y > 50 and
-                # mouse_y < 150:
                 tmp = 0
                 # 查看鼠标点击在哪个范围内，使用tmp确定是第几个按钮
                 for button in button_list:
@@ -92,7 +90,6 @@ def read_girls():
 def click_button_works():
     read_works()
 
-
 # 按下lottery按钮事件
 def click_button_lottery():
     # 查询数据库
@@ -113,8 +110,6 @@ def click_button_lottery():
         update_screen(screen_lottery, work_setting, button_list, lottery_num,
                       "lottery")
 
-
-
 # 按下achievement按钮事件
 def click_button_achievement():
     screen_achievement = pygame.display.set_mode((600, 800))
@@ -131,84 +126,103 @@ def click_button_achievement():
         update_screen(screen_achievement, work_setting, button_list, [],
                       "achievement")
 
-# 按下checkin按钮事件
-def click_button_checkin():
-    nowtime = datetime.datetime.now()
-    nowtime_str = nowtime.strftime('%Y-%m-%d %H:%M:%S')
-
+# 可签到判断函数
+def checkin_check():
     # 设置三个签到时间段,6:30-8:10   13:00-13:30    22:30-23:00
     morning_t1 = datetime.time(6, 30, 0, 0)
     morning_t2 = datetime.time(8, 10, 0, 0)
-    noon_t1 = datetime.time(13, 0, 0, 0)
-    noon_t2 = datetime.time(13, 30, 0, 0)
+    noon_t1 = datetime.time(14, 0, 0, 0)
+    noon_t2 = datetime.time(16, 30, 0, 0)
     night_t1 = datetime.time(22, 30, 0, 0)
     night_t2 = datetime.time(23, 0, 0, 0)
 
+    nowtime = datetime.datetime.now()
     # 查询上次签到时间
     select_checkdate_sql = "Select check_date from lottery"
-    select_lottery_sql = "Select lottery_num from lottery"
-    update_checkdate_sql = "update lottery set check_date=%s"
-    update_lottery_sql = "update lottery set lottery_num=lottery_num+1"
     cursor.execute(select_checkdate_sql)
     tuple_tmp = cursor.fetchall()
     last_checkin_time = tuple_tmp[0][0]
-    cursor.execute(select_lottery_sql)
-    tuple_tmp = cursor.fetchall()
-    lottery_num = tuple_tmp[0][0]
-
     # 早间签到
     if nowtime.time().__ge__(morning_t1) and nowtime.time().__le__(morning_t2):
         # 判断是否重复签到
         if last_checkin_time.date().__eq__(nowtime.date()) and \
             last_checkin_time.time().__ge__(morning_t1) and \
             last_checkin_time.time().__le__(morning_t2):
-            print("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
+            return last_checkin_time
         else:
-            # 更新checkdate
-            cursor.execute(update_checkdate_sql, (str(nowtime), ))
-            cursor.execute(update_lottery_sql)
-            print("已经于" + str(nowtime_str) + "早间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
-            # 写入log文件
-            file_w = open("kirara_lottery.log", 'a+')
-            file_w.write(str(nowtime_str) + "早间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num+1) + "\n")
-            file_w.close()
+            return 2    # 早间可签到
     # 午间签到
     elif nowtime.time().__ge__(noon_t1) and nowtime.time().__le__(noon_t2):
         # 判断是否重复签到
         if last_checkin_time.date().__eq__(nowtime.date()) and \
             last_checkin_time.time().__ge__(noon_t1) and \
             last_checkin_time.time().__le__(noon_t2):
-            print("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
+            return last_checkin_time
         else:
-            # 更新checkdate
-            cursor.execute(update_checkdate_sql, (str(nowtime), ))
-            cursor.execute(update_lottery_sql)
-            print("已经于" + str(nowtime_str) + "午间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
-            # 写入log文件
-            file_w = open("kirara_lottery.log", 'a+')
-            file_w.write(str(nowtime_str) + "午间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num+1) + "\n")
-            file_w.close()
+            return 3    # 午间可签到
     # 夜间签到
     elif nowtime.time().__ge__(night_t1) and nowtime.time().__le__(night_t2):
         # 判断是否重复签到
         if last_checkin_time.date().__eq__(nowtime.date()) and \
             last_checkin_time.time().__ge__(night_t1) and \
             last_checkin_time.time().__le__(night_t2):
-            print("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
+            return last_checkin_time
         else:
-            # 更新checkdate
-            cursor.execute(update_checkdate_sql, (str(nowtime), ))
-            cursor.execute(update_lottery_sql)
-            print("已经于" + str(nowtime_str) + "夜间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
-            # 写入log文件
-            file_w = open("kirara_lottery.log", 'a+')
-            file_w.write(str(nowtime_str) + "夜间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num+1) + "\n")
-            file_w.close()
+            return 4    # 夜间可签到
     else:
-        print("目前不在签到时间内~")
+        return 5    # 不在签到时间段
 
+# 按下checkin按钮事件
+def click_button_checkin():
+    nowtime = datetime.datetime.now()
+    nowtime_str = nowtime.strftime('%Y-%m-%d %H:%M:%S')
+
+    select_lottery_sql = "Select lottery_num from lottery"
+    update_checkdate_sql = "update lottery set check_date=%s"
+    update_lottery_sql = "update lottery set lottery_num=lottery_num+1"
+    cursor.execute(select_lottery_sql)
+    tuple_tmp = cursor.fetchall()
+    lottery_num = tuple_tmp[0][0]
+
+    last_checkin_time=checkin_check()
+    # 早间签到
+    if last_checkin_time == 2:
+        # 更新checkdate
+        cursor.execute(update_checkdate_sql, (str(nowtime), ))
+        cursor.execute(update_lottery_sql)
+        print("已经于" + str(nowtime_str) + "早间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
+        # 写入log文件
+        file_w = open("kirara_lottery.log", 'a+')
+        file_w.write(str(nowtime_str) + "早间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num+1) + "\n")
+        file_w.close()
+    # 午间签到
+    elif last_checkin_time == 3:
+        # 更新checkdate
+        cursor.execute(update_checkdate_sql, (str(nowtime), ))
+        cursor.execute(update_lottery_sql)
+        print("已经于" + str(nowtime_str) + "午间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
+        # 写入log文件
+        file_w = open("kirara_lottery.log", 'a+')
+        file_w.write(str(nowtime_str) + "午间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num+1) + "\n")
+        file_w.close()
+    # 夜间签到
+    elif last_checkin_time == 4:
+        # 更新checkdate
+        cursor.execute(update_checkdate_sql, (str(nowtime), ))
+        cursor.execute(update_lottery_sql)
+        print("已经于" + str(nowtime_str) + "夜间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
+        # 写入log文件
+        file_w = open("kirara_lottery.log", 'a+')
+        file_w.write(str(nowtime_str) + "夜间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num+1) + "\n")
+        file_w.close()
+    elif last_checkin_time == 5:
+        print("目前不在签到时间内~")
+    else:
+        print("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
     # 提交数据库
     db.commit()
+    # 刷新页面
+    run_game()
 
 
 # 更新屏幕函数
@@ -905,7 +919,11 @@ def run_game():
     button_works = Button(400, 100, screen, "works", 700, 50)
     button_lottery = Button(400, 100, screen, "lottery", 100, 250)
     button_achievement = Button(400, 100, screen, "selfstudy", 700, 250)
-    button_checkin = Button(400, 100, screen, "checkin", 100, 450)
+    # 判断是否可签到,不可签设置Button clickable=0
+    if checkin_check() == 2 or checkin_check() == 3 or checkin_check() == 4:
+        button_checkin = Button(400, 100, screen, "checkin", 100, 450)
+    else:
+        button_checkin = Button(400, 100, screen, "checkin", 100, 450, 0)
     button_list = [button_girls, button_works, button_lottery,
                    button_achievement, button_checkin]
     # 开始游戏

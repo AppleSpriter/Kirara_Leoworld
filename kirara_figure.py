@@ -83,7 +83,7 @@ class Weapon():
 
 # 创建按钮类
 class Button():
-    def __init__(self, width, height, screen, msg, positionX, positionY):
+    def __init__(self, width, height, screen, msg, positionX, positionY, clickable=1):
         # 初始化按钮属性
         self.screen = screen
         self.screen_rect = screen.get_rect()
@@ -92,6 +92,7 @@ class Button():
         self.button_color = (205,133,63)
         self.text_color = (255, 255, 255)
         self.font = pygame.font.SysFont('KaiTi', 58)
+        self.clickable = clickable
         '''
             宋体：simsunnsimsun 
             黑体：SimHei
@@ -105,6 +106,9 @@ class Button():
 
     # Button类函数，将标签渲染为图像并居中
     def prep_msg(self, msg):
+        # 无法点击状态
+        if self.clickable == 0:
+            self.button_color = (105, 105, 105)
         self.msg_image = self.font.render(msg, True, self.text_color,
                                           self.button_color)
         self.msg_image_rect = self.msg_image.get_rect()
@@ -112,6 +116,9 @@ class Button():
 
     # 绘制按钮
     def draw_button(self):
+        # 无法点击状态
+        if self.clickable == 0:
+            self.button_color = (105, 105, 105)
         self.screen.fill(self.button_color, self.rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)
 
