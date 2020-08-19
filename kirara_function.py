@@ -2,6 +2,7 @@ import pygame
 import json
 import random
 import MySQLdb
+import os
 from win10toast import ToastNotifier
 from kirara_figure import *
 
@@ -39,15 +40,17 @@ def check_events(button_list):
                         click_button_achievement()
                     elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 5:
                         click_button_checkin()
+                    elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 6:
+                        click_button_log("kirara")
+                    elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 7:
+                        click_button_log("lottery")
         # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
         pygame.time.delay(1000)
-
 
 # 按下girls按钮事件
 def click_button_girls():
     # 列出女孩子的列表
     read_girls()
-
 
 # 更新查询figure列中某一项
 def sql_update_one(girl):
@@ -59,7 +62,6 @@ def sql_update_one(girl):
                                  girls[5], girls[6], girls[7], girls[8],
                                  girls[9], girls[10])
     return this_girl
-
 
 # 女孩子打印
 def read_girls():
@@ -83,7 +85,6 @@ def read_girls():
         # 屏幕更新
         update_screen(screen_works, work_setting, button_list, girls_list,
                       'girl')
-
 
 # 按下mission按钮事件
 # 10.06修改为作品按钮
@@ -185,11 +186,14 @@ def click_button_checkin():
     lottery_num = tuple_tmp[0][0]
 
     last_checkin_time=checkin_check()
+    # 气泡通知
+    toaster = ToastNotifier()
     # 早间签到
     if last_checkin_time == 2:
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_lottery_sql)
+        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
         print("已经于" + str(nowtime_str) + "早间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
@@ -200,6 +204,7 @@ def click_button_checkin():
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_lottery_sql)
+        toaster.show_toast(u'午间签到', u"已经于" + str(nowtime_str) + "午间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
         print("已经于" + str(nowtime_str) + "午间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
@@ -210,20 +215,29 @@ def click_button_checkin():
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_lottery_sql)
+        toaster.show_toast(u'夜间签到', u"已经于" + str(nowtime_str) + "夜间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
         print("已经于" + str(nowtime_str) + "夜间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
         file_w.write(str(nowtime_str) + "夜间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num+1) + "\n")
         file_w.close()
     elif last_checkin_time == 5:
+        toaster.show_toast(u'签到提示', u"目前不在签到时间内~")
         print("目前不在签到时间内~")
     else:
+        toaster.show_toast(u'签到提示', u"已经于" + str(last_checkin_time) + "签到,无法重复签到！")
         print("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
     # 提交数据库
     db.commit()
     # 刷新页面
     run_game()
 
+# 打开lottery_log文件
+def click_button_log(log):
+    if log == 'kirara':
+        file = os.system(r'kirara.log')
+    elif log == 'lottery':
+        file = os.system(r'kirara_lottery.log')
 
 # 更新屏幕函数
 def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
@@ -264,7 +278,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
         # 鼠标事件
         clicked = False
         is_hover = False
-
+        toaster = ToastNotifier()
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -372,10 +386,15 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         # 输出到控制台
                         write_time = time.strftime('%Y-%m-%d %H:%M:%S',
                                                    time.localtime(time.time()))
-                        print(write_time + " 获得奖励：" + reward_text +
-                                     "; 剩余抽奖次数： " + str(text_list[0] - 1))
                         # 页面更新
                         lottery_lb.draw_mouseeffect(3, reward_text, color, golden)
+                        # 提前刷新一下奖励页面
+                        pygame.display.flip()
+                        # 气泡以及控制台输出提示
+                        toaster.show_toast(u'抽卡提示', u'' + write_time + " 获得奖励：" + reward_text +
+                                     "; 剩余抽奖次数： " + str(text_list[0] - 1))
+                        print(write_time + " 获得奖励：" + reward_text +
+                                     "; 剩余抽奖次数： " + str(text_list[0] - 1))
                         # 写入log文件
                         file_w = open("kirara_lottery.log", 'a+')
                         file_w.write(write_time + " 获得奖励：" + reward_text +
@@ -385,6 +404,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                 pygame.display.flip()
 
     if typed == 'achievement':
+        toaster = ToastNotifier()
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -425,8 +445,6 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             db.commit()
                             # 输出到控制台
                             after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                            print(before_time + "-" + after_time + \
-                                " 看论文做实验成功！剩余抽卡次数： " + str(tuple_tmp))
                             # 写入log文件
                             file_w = open("kirara_lottery.log", 'a+')
                             # 写入日志
@@ -435,8 +453,9 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 关闭log文件写入
                             file_w.close()
                             # 弹出气泡进行通知
-                            toaster = ToastNotifier()
                             toaster.show_toast(u'番茄完成！', u'你已经完成了一次看论文做实验！')
+                            print(before_time + "-" + after_time + \
+                                " 看论文做实验成功！剩余抽卡次数： " + str(tuple_tmp))
 
                     # 读书整理书爱培,50分钟倒计时
                     if button_list[1].rect.collidepoint(mouse_x, mouse_y):
@@ -467,8 +486,6 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             db.commit()
                             # 输出到控制台
                             after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                            print(before_time + "-" + after_time + \
-                                " 读书整理书爱培成功！剩余抽卡次数： " + str(tuple_tmp))
                             # 写入log文件
                             file_w = open("kirara_lottery.log", 'a+')
                             # 写入日志
@@ -477,8 +494,9 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 关闭log文件写入
                             file_w.close()
                             # 弹出气泡进行通知
-                            toaster = ToastNotifier()
                             toaster.show_toast(u'番茄完成！', u'你已经完成了一次读书整理书爱培！')
+                            print(before_time + "-" + after_time + \
+                                " 读书整理书爱培成功！剩余抽卡次数： " + str(tuple_tmp))
 
                     # 语言学习,50分钟倒计时
                     if button_list[2].rect.collidepoint(mouse_x, mouse_y):
@@ -509,8 +527,6 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             db.commit()
                             # 输出到控制台
                             after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                            print(before_time + "-" + after_time + \
-                                " 语言学习成功！剩余抽卡次数： " + str(tuple_tmp))
                             # 写入log文件
                             file_w = open("kirara_lottery.log", 'a+')
                             # 写入日志
@@ -519,8 +535,9 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 关闭log文件写入
                             file_w.close()
                             # 弹出气泡进行通知
-                            toaster = ToastNotifier()
                             toaster.show_toast(u'番茄完成！', u'你已经完成了一次语言学习！')
+                            print(before_time + "-" + after_time + \
+                                " 语言学习成功！剩余抽卡次数： " + str(tuple_tmp))
 
                     # 游戏娱乐,30分钟倒计时
                     if button_list[3].rect.collidepoint(mouse_x, mouse_y):
@@ -541,8 +558,6 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         if achievement_dt.sec == -1:
                             # 输出到控制台
                             after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                            print(before_time + "-" + after_time + \
-                                " 娱乐时间！")
                             # 写入log文件
                             file_w = open("kirara_lottery.log", 'a+')
                             # 写入日志
@@ -551,8 +566,9 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 关闭log文件写入
                             file_w.close()
                             # 弹出气泡进行通知
-                            toaster = ToastNotifier()
                             toaster.show_toast(u'番茄完成！', u'你已经完成了一次娱乐时间！')
+                            print(before_time + "-" + after_time + \
+                                " 娱乐时间！")
 
                     if button_list[4].rect.collidepoint(mouse_x, mouse_y):
                         mouse_rollup = 0
@@ -618,6 +634,7 @@ def click_to_one_girl(girl):
     button_list = [button_back, button_lottery, button_level, button_skill]
     one_setting = Settings()
     text_list = [girl]
+    toaster = ToastNotifier()
     # 进入girls查看页面
     while True:
         # 监视器
@@ -639,14 +656,18 @@ def click_to_one_girl(girl):
                     increment = 0
 
                     if 1 <= sig <= 5:
+                        toaster.show_toast(u'抽卡提示', u'恭喜你获得S角色卡！好感度+70')
                         print("恭喜你获得S角色卡！好感度+70")
                         increment = 70
                     elif 6 <= sig <= 15:
+                        toaster.show_toast(u'抽卡提示', u'恭喜你获得New角色！')
                         print("恭喜你获得New角色！")
                     elif 16 <= sig <= 50:
+                        toaster.show_toast(u'抽卡提示', u'恭喜你获得A角色卡！好感度+18')
                         print("恭喜你获得A角色卡！好感度+18")
                         increment = 18
                     elif 61 <= sig <= 100:
+                        toaster.show_toast(u'抽卡提示', u'好感度+1！')
                         print("好感度+1！")
                         increment = 1
 
@@ -712,15 +733,19 @@ def click_to_one_girl(girl):
                     increment = 0
 
                     if 1 <= sig <= 5:
+                        toaster.show_toast(u'升级提示', u'极限训练！等级+10！')
                         print("极限训练！等级+10！")
                         increment = 10
                     elif 6 <= sig <= 15:
+                        toaster.show_toast(u'抽卡提示', u'高效充实的训练！等级+5')
                         print("高效充实的训练！等级+5")
                         increment = 5
                     elif 16 <= sig <= 35:
+                        toaster.show_toast(u'抽卡提示', u'注意力集中的训练！等级+2')
                         print("注意力集中的训练！等级+2")
                         increment = 2
                     elif 36 <= sig <= 100:
+                        toaster.show_toast(u'抽卡提示', u'训练完成！等级+1')
                         print("训练完成！等级+1")
                         increment = 1
 
@@ -764,15 +789,19 @@ def click_to_one_girl(girl):
                     increment = 0
 
                     if 1 <= sig <= 5:
+                        toaster.show_toast(u'技能提升提示', u'极限训练！技能等级+5！')
                         print("极限训练！技能等级+5！")
                         increment = 5
                     elif 6 <= sig <= 15:
+                        toaster.show_toast(u'技能提升提示', u'高效充实的训练！技能等级+3')
                         print("高效充实的训练！技能等级+3")
                         increment = 3
                     elif 16 <= sig <= 35:
+                        toaster.show_toast(u'技能提升提示', u'意力集中的训练！技能等级+2')
                         print("注意力集中的训练！技能等级+2")
                         increment = 2
                     elif 36 <= sig <= 100:
+                        toaster.show_toast(u'技能提升提示', u'训练完成！技能等级+1')
                         print("训练完成！技能等级+1")
                         increment = 1
 
@@ -924,8 +953,11 @@ def run_game():
         button_checkin = Button(400, 100, screen, "checkin", 100, 450)
     else:
         button_checkin = Button(400, 100, screen, "checkin", 100, 450, 0)
+    button_kirara_log = Button(195, 100, screen, "klog", 700, 450)
+    button_lottery_log =  Button(195, 100, screen, "llog", 905, 450)
     button_list = [button_girls, button_works, button_lottery,
-                   button_achievement, button_checkin]
+                   button_achievement, button_checkin, button_kirara_log,
+                   button_lottery_log]
     # 开始游戏
     update_screen(screen, ki_setting, button_list)
     check_events(button_list)
