@@ -18,26 +18,31 @@ cursor = db.cursor()
 
 # 监视鼠标和键盘事件
 def check_events(button_list):
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-        # 按下button事件
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            # if mouse_x > 100 and mouse_x < 500 and mouse_y > 50 and
-            # mouse_y < 150:
-            tmp = 0
-            # 查看鼠标点击在哪个范围内，使用tmp确定是第几个按钮
-            for button in button_list:
-                tmp += 1
-                if button.rect.collidepoint(mouse_x, mouse_y) and tmp == 1:
-                    click_button_girls()
-                elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 2:
-                    click_button_works()
-                elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 3:
-                    click_button_lottery()
-                elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 4:
-                    click_button_achievement()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            # 按下button事件
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                # if mouse_x > 100 and mouse_x < 500 and mouse_y > 50 and
+                # mouse_y < 150:
+                tmp = 0
+                # 查看鼠标点击在哪个范围内，使用tmp确定是第几个按钮
+                for button in button_list:
+                    tmp += 1
+                    if button.rect.collidepoint(mouse_x, mouse_y) and tmp == 1:
+                        click_button_girls()
+                    elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 2:
+                        click_button_works()
+                    elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 3:
+                        click_button_lottery()
+                    elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 4:
+                        click_button_achievement()
+                    elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 5:
+                        click_button_checkin()
+        # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
+        pygame.time.delay(1000)
 
 
 # 按下girls按钮事件
@@ -112,7 +117,6 @@ def click_button_lottery():
 
 # 按下achievement按钮事件
 def click_button_achievement():
-
     screen_achievement = pygame.display.set_mode((600, 800))
     button_paper = Button(500, 100, screen_achievement, "看论文做实验", 50, 50)
     button_learn = Button(500, 100, screen_achievement, "读书整理书爱培", 50, 200)
@@ -126,6 +130,85 @@ def click_button_achievement():
         # 屏幕更新
         update_screen(screen_achievement, work_setting, button_list, [],
                       "achievement")
+
+# 按下checkin按钮事件
+def click_button_checkin():
+    nowtime = datetime.datetime.now()
+    nowtime_str = nowtime.strftime('%Y-%m-%d %H:%M:%S')
+
+    # 设置三个签到时间段,6:30-8:10   13:00-13:30    22:30-23:00
+    morning_t1 = datetime.time(6, 30, 0, 0)
+    morning_t2 = datetime.time(8, 10, 0, 0)
+    noon_t1 = datetime.time(13, 0, 0, 0)
+    noon_t2 = datetime.time(13, 30, 0, 0)
+    night_t1 = datetime.time(22, 30, 0, 0)
+    night_t2 = datetime.time(23, 0, 0, 0)
+
+    # 查询上次签到时间
+    select_checkdate_sql = "Select check_date from lottery"
+    select_lottery_sql = "Select lottery_num from lottery"
+    update_checkdate_sql = "update lottery set check_date=%s"
+    update_lottery_sql = "update lottery set lottery_num=lottery_num+1"
+    cursor.execute(select_checkdate_sql)
+    tuple_tmp = cursor.fetchall()
+    last_checkin_time = tuple_tmp[0][0]
+    cursor.execute(select_lottery_sql)
+    tuple_tmp = cursor.fetchall()
+    lottery_num = tuple_tmp[0][0]
+
+    # 早间签到
+    if nowtime.time().__ge__(morning_t1) and nowtime.time().__le__(morning_t2):
+        # 判断是否重复签到
+        if last_checkin_time.date().__eq__(nowtime.date()) and \
+            last_checkin_time.time().__ge__(morning_t1) and \
+            last_checkin_time.time().__le__(morning_t2):
+            print("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
+        else:
+            # 更新checkdate
+            cursor.execute(update_checkdate_sql, (str(nowtime), ))
+            cursor.execute(update_lottery_sql)
+            print("已经于" + str(nowtime_str) + "早间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
+            # 写入log文件
+            file_w = open("kirara_lottery.log", 'a+')
+            file_w.write(str(nowtime_str) + "早间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num+1) + "\n")
+            file_w.close()
+    # 午间签到
+    elif nowtime.time().__ge__(noon_t1) and nowtime.time().__le__(noon_t2):
+        # 判断是否重复签到
+        if last_checkin_time.date().__eq__(nowtime.date()) and \
+            last_checkin_time.time().__ge__(noon_t1) and \
+            last_checkin_time.time().__le__(noon_t2):
+            print("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
+        else:
+            # 更新checkdate
+            cursor.execute(update_checkdate_sql, (str(nowtime), ))
+            cursor.execute(update_lottery_sql)
+            print("已经于" + str(nowtime_str) + "午间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
+            # 写入log文件
+            file_w = open("kirara_lottery.log", 'a+')
+            file_w.write(str(nowtime_str) + "午间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num+1) + "\n")
+            file_w.close()
+    # 夜间签到
+    elif nowtime.time().__ge__(night_t1) and nowtime.time().__le__(night_t2):
+        # 判断是否重复签到
+        if last_checkin_time.date().__eq__(nowtime.date()) and \
+            last_checkin_time.time().__ge__(night_t1) and \
+            last_checkin_time.time().__le__(night_t2):
+            print("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
+        else:
+            # 更新checkdate
+            cursor.execute(update_checkdate_sql, (str(nowtime), ))
+            cursor.execute(update_lottery_sql)
+            print("已经于" + str(nowtime_str) + "夜间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num + 1))
+            # 写入log文件
+            file_w = open("kirara_lottery.log", 'a+')
+            file_w.write(str(nowtime_str) + "夜间签到,抽卡次数+1；剩余抽奖次数：" + str(lottery_num+1) + "\n")
+            file_w.close()
+    else:
+        print("目前不在签到时间内~")
+
+    # 提交数据库
+    db.commit()
 
 
 # 更新屏幕函数
@@ -196,7 +279,6 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                     if button.rect.collidepoint(mouse_x, mouse_y):
                         mouse_rollup = 0
                         run_game()
-
                     # 抽奖主程序
                     if text_list[0] > 0 and clicked == False and \
                        pygame.Rect(positionx, positiony, width, height).collidepoint(mouse_x, mouse_y):
@@ -207,10 +289,8 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         cursor.execute(set_sql)
                         # 提交数据库
                         db.commit()
-
                         # 设置为打开状态
                         clicked = True
-
                         # 抽奖动画主程序
                         # 0 白色. 1 蓝色. 2 紫色. 3 橙色. 金卡翻倍
                         #   事件        概率 对应颜色
@@ -272,23 +352,20 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         elif game_point <= 1000:
                             color = 3
                             reward_text = "三小时其他"
-
                         # 金卡效果
                         if golden == 1:
                             reward_text = reward_text + "(金卡翻倍)"
-                            
-                        # 页面更新
-                        lottery_lb.draw_mouseeffect(3, reward_text, color, golden)
-
-                        # 写入log文件
-                        file_w = open("kirara_lottery.log", 'a+')
+                        # 输出到控制台
                         write_time = time.strftime('%Y-%m-%d %H:%M:%S',
                                                    time.localtime(time.time()))
-                        # 写入日志
+                        print(write_time + " 获得奖励：" + reward_text +
+                                     "; 剩余抽奖次数： " + str(text_list[0] - 1))
+                        # 页面更新
+                        lottery_lb.draw_mouseeffect(3, reward_text, color, golden)
+                        # 写入log文件
+                        file_w = open("kirara_lottery.log", 'a+')
                         file_w.write(write_time + " 获得奖励：" + reward_text +
                                      "; 剩余抽奖次数： " + str(text_list[0] - 1) + "\n")
-
-                        # 关闭log文件写入
                         file_w.close()
 
                 pygame.display.flip()
@@ -300,10 +377,8 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                     sys.exit()
                 # 鼠标位置
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-
                 # 按下按钮事件
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-
                     # 设置标题
                     pygame.display.set_caption("倒计时……")
                     before_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
@@ -313,11 +388,14 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         achievement_dt = DecTime(screen, 3000) 
                         # 倒计时更新页面
                         while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    sys.exit()
                             ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
                             achievement_dt.draw_timedec("看论文做实验", ch)
                             achievement_dt.subTime()
                             # 休眠1秒刷新屏幕
-                            time.sleep(1)
+                            pygame.time.delay(1000)
                             pygame.display.flip()
                         # 判断成功完成
                         if achievement_dt.sec == -1:
@@ -352,11 +430,14 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         achievement_dt = DecTime(screen, 3000) 
                         # 倒计时更新页面
                         while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    sys.exit()
                             ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
                             achievement_dt.draw_timedec("读书整理书爱培", ch)
                             achievement_dt.subTime()
                             # 休眠1秒刷新屏幕
-                            time.sleep(1)
+                            pygame.time.delay(1000)
                             pygame.display.flip()
                         # 判断成功完成
                         if achievement_dt.sec == -1:
@@ -391,11 +472,14 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         achievement_dt = DecTime(screen, 3000) 
                         # 倒计时更新页面
                         while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    sys.exit()
                             ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
                             achievement_dt.draw_timedec("语言学习", ch)
                             achievement_dt.subTime()
                             # 休眠1秒刷新屏幕
-                            time.sleep(1)
+                            pygame.time.delay(1000)
                             pygame.display.flip()
                         # 判断成功完成
                         if achievement_dt.sec == -1:
@@ -430,11 +514,14 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         achievement_dt = DecTime(screen, 1800) 
                         # 倒计时更新页面
                         while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    sys.exit()
                             ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
                             achievement_dt.draw_timedec("娱乐时间", ch)
                             achievement_dt.subTime()
                             # 休眠1秒刷新屏幕
-                            time.sleep(1)
+                            pygame.time.delay(1000)
                             pygame.display.flip()
                         # 判断成功完成
                         if achievement_dt.sec == -1:
@@ -816,12 +903,12 @@ def run_game():
     # 创建首页四个button列表
     button_girls = Button(400, 100, screen, "girls", 100, 50)
     button_works = Button(400, 100, screen, "works", 700, 50)
-    button_lottery = Button(400, 100, screen, "Lottery", 100, 250)
-    button_achievement = Button(400, 100, screen, "+1", 700, 250)
+    button_lottery = Button(400, 100, screen, "lottery", 100, 250)
+    button_achievement = Button(400, 100, screen, "selfstudy", 700, 250)
+    button_checkin = Button(400, 100, screen, "checkin", 100, 450)
     button_list = [button_girls, button_works, button_lottery,
-                   button_achievement]
-
+                   button_achievement, button_checkin]
     # 开始游戏
-    while True:
-        check_events(button_list)
-        update_screen(screen, ki_setting, button_list)
+    update_screen(screen, ki_setting, button_list)
+    check_events(button_list)
+
