@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50528
 File Encoding         : 65001
 
-Date: 2020-08-16 15:40:16
+Date: 2020-08-19 12:22:48
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -56,13 +56,14 @@ INSERT INTO `figure` VALUES ('9', '犬山葵', '摇曳露营△', 'A', '1', 'non
 -- ----------------------------
 DROP TABLE IF EXISTS `lottery`;
 CREATE TABLE `lottery` (
-  `lottery_num` int(11) NOT NULL DEFAULT '0'
+  `lottery_num` int(11) NOT NULL DEFAULT '0',
+  `check_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of lottery
 -- ----------------------------
-INSERT INTO `lottery` VALUES ('0');
+INSERT INTO `lottery` VALUES ('1', '2020-08-18 11:34:08');
 
 -- ----------------------------
 -- Table structure for `work`
