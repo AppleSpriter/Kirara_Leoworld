@@ -176,15 +176,15 @@ class TextBasic():
 
 # 绘制抽卡块
 class LotteryBasic():
-    def __init__(self, screen, lottery_times):
+    def __init__(self, screen, lottery_crytstal):
         self.screen = screen
         # 剩余次数提示
         self.bg_color = (240,128,128)
         self.text_color = (255, 255, 255)
         self.font = pygame.font.SysFont('KaiTi', 20)
         self.tip_rect = pygame.Rect(400, 40, 160, 25)
-        self.msg1 = "剩余抽奖次数：" + str(lottery_times)
-        self.msg2 = "剩余抽奖次数：" + str(lottery_times - 1)
+        self.msg1 = "剩余水晶：" + str(lottery_crytstal)
+        self.msg2 = "剩余水晶：" + str(lottery_crytstal - 280)
         # 卡背
         self.bg_image = pygame.image.load(r"image//back.png")
         self.bgbig_image = pygame.image.load(r"image//back_big.png")
