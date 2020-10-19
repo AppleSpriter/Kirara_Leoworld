@@ -10,10 +10,35 @@ Target Server Type    : MYSQL
 Target Server Version : 50528
 File Encoding         : 65001
 
-Date: 2020-08-19 12:22:48
+Date: 2020-10-19 18:04:25
 */
 
 SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for `achievement`
+-- ----------------------------
+DROP TABLE IF EXISTS `achievement`;
+CREATE TABLE `achievement` (
+  `achievementid` varchar(48) NOT NULL,
+  `name` varchar(96) NOT NULL,
+  `startdate` datetime NOT NULL,
+  `enddate` datetime DEFAULT NULL,
+  `planinvest` bigint(20) NOT NULL,
+  `nowinvest` bigint(20) NOT NULL,
+  PRIMARY KEY (`achievementid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of achievement
+-- ----------------------------
+INSERT INTO `achievement` VALUES ('1', '完成开题报告', '2020-10-19 14:47:56', null, '1680', '0');
+INSERT INTO `achievement` VALUES ('2', '番剧鉴赏', '2020-10-19 17:48:07', null, '6000', '0');
+INSERT INTO `achievement` VALUES ('3', '音游入门', '2020-10-19 17:53:24', null, '1800', '0');
+INSERT INTO `achievement` VALUES ('4', '写作提升', '2020-10-19 17:56:56', null, '6000', '0');
+INSERT INTO `achievement` VALUES ('5', '理解TF（第二期）', '2020-10-19 17:58:46', null, '2400', '0');
+INSERT INTO `achievement` VALUES ('6', '阅读晋升', '2020-10-19 18:01:48', null, '2000', '0');
+INSERT INTO `achievement` VALUES ('7', '语言同化', '2020-10-19 18:03:02', null, '4800', '0');
 
 -- ----------------------------
 -- Table structure for `figure`
@@ -56,14 +81,14 @@ INSERT INTO `figure` VALUES ('9', '犬山葵', '摇曳露营△', 'A', '1', 'non
 -- ----------------------------
 DROP TABLE IF EXISTS `lottery`;
 CREATE TABLE `lottery` (
-  `lottery_num` int(11) NOT NULL DEFAULT '0',
+  `lottery_crystal` int(11) NOT NULL DEFAULT '0',
   `check_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of lottery
 -- ----------------------------
-INSERT INTO `lottery` VALUES ('1', '2020-08-18 11:34:08');
+INSERT INTO `lottery` VALUES ('4630', '2020-09-13 13:00:40');
 
 -- ----------------------------
 -- Table structure for `work`

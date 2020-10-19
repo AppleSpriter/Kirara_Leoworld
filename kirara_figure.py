@@ -174,6 +174,53 @@ class TextBasic():
         self.screen.blit(self.msg2_image, self.msg2_image_rect)
         self.screen.blit(self.msg3_image, self.msg3_image_rect)
 
+# 显示投入事件进度条文字块类，左一右二带左进度条
+class AchievementBasic():
+    def __init__(self, width, height, screen, positionX, positionY, name,
+                 startdate, planinvest, nowinvest):
+        self.screen = screen
+        self.screen_rect = screen.get_rect()
+        self.width, self.height = width, height
+        self.bg_color = (224,238,224)       # 颜色名: Honeydew2
+        self.text_color = (0, 0, 0)
+        self.font = pygame.font.SysFont('KaiTi', 20)
+        self.positionX = positionX
+        self.positionY = positionY
+        self.rect = pygame.Rect(positionX, positionY, self.width, self.height)
+        self.name = name
+        self.startdate = str(startdate)
+        self.planinvest = str(planinvest / 60) + "h"
+        self.percent = round(nowinvest * 100 / planinvest, 2)
+        self.prep_msg()                     # 文字标签
+
+    def prep_msg(self): # 将标签渲染为图像
+        self.name_image = self.font.render(self.name, True, self.text_color,
+                                          self.bg_color)
+        self.name_image_rect = pygame.Rect(self.positionX + 20,
+                                           self.positionY + 20, 150, 50)
+        self.startdate_image = self.font.render(self.startdate, True, self.text_color,
+                                           self.bg_color)
+        self.startdate_image_rect = pygame.Rect(self.positionX + 300,
+                                           self.positionY + 20, 150, 50)
+        self.planinvest_image = self.font.render(self.planinvest, True, self.text_color,
+                                           self.bg_color)
+        self.planinvest_image_rect = pygame.Rect(self.positionX + 440,
+                                           self.positionY + 60, 50, 50)
+        self.percent_image = self.font.render(str(self.percent) + "%", True, self.text_color,
+                                           self.bg_color)
+        self.percent_image_rect = pygame.Rect(self.positionX + 370,
+                                           self.positionY + 60, 50, 50)
+
+
+    def draw_textbasic(self):
+        self.screen.fill(self.bg_color, self.rect)
+        self.screen.blit(self.name_image, self.name_image_rect)
+        self.screen.blit(self.startdate_image, self.startdate_image_rect)
+        self.screen.blit(self.planinvest_image, self.planinvest_image_rect)
+        self.screen.blit(self.percent_image, self.percent_image_rect)
+        pygame.draw.rect(self.screen, (0,0,0), ((self.positionX + 20, self.positionY + 60),(340, 20)), 2)
+        pygame.draw.rect(self.screen, (240,128,128), ((self.positionX + 22, self.positionY + 62),(3.4*self.percent, 17)), 0)
+
 # 绘制抽卡块
 class LotteryBasic():
     def __init__(self, screen, lottery_crytstal):
@@ -313,7 +360,7 @@ class DecTime(object):
 
     def draw_timedec(self, text, ch):
         self.screen.fill(self.bg_color)
-        self.screen.blit(self.font1.render(text, True,(238, 99, 99)), (170, 200))
+        self.screen.blit(self.font1.render(text, True,(238, 99, 99)), (320-30*len(text), 200))  # 文字居中对齐
         self.screen.blit(self.font2.render(ch, True,(238, 99, 99)), (200, 400))
 
     # 时间减    
