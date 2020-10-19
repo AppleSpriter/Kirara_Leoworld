@@ -122,11 +122,18 @@ class Button():
         self.screen.fill(self.button_color, self.rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)
 
-# 存储游戏设置
+# 存储通用游戏设置
 class Settings():
     def __init__(self):
-        self.screen_width = 1200
+        self.screen_width = 1130
         self.screen_height = 800
+        self.bg_color = (255,222,173)
+
+# 存储小窗口游戏设置
+class Settingssmallwindow():
+    def __init__(self):
+        self.screen_width = 598
+        self.screen_height = 806
         self.bg_color = (255,222,173)
 
 # 显示基础文字块类，左一右二
@@ -145,10 +152,7 @@ class TextBasic():
         self.msg1 = msg1
         self.msg2 = msg2
         self.msg3 = msg3
-
-        # 文字标签
-        self.prep_msg()
-
+        self.prep_msg()     # 文字标签
 
     # 将标签渲染为图像
     def prep_msg(self):
@@ -189,7 +193,7 @@ class AchievementBasic():
         self.rect = pygame.Rect(positionX, positionY, self.width, self.height)
         self.name = name
         self.startdate = str(startdate)
-        self.planinvest = str(planinvest / 60) + "h"
+        self.planinvest = str(round(planinvest / 60,1)) + "h"
         self.percent = round(nowinvest * 100 / planinvest, 2)
         self.prep_msg()                     # 文字标签
 
@@ -349,8 +353,11 @@ class DecTime(object):
     def __init__(self, screen, totalTime):
         self.screen = screen
         self.bg_color = (255, 236, 139)
+        self.bg_image = pygame.image.load(r"image//79270076_46.jpg")
         self.font1 = pygame.font.SysFont('KaiTi', 60)
         self.font2 = pygame.font.SysFont('KaiTi', 70)
+        self.font1_color = (255, 0, 128)    # 亮粉色
+        self.font2_color = (181, 230, 29)   # 酸橙色
         # 将秒转化为时分秒
         self.sec = totalTime
         self.hour = int(self.sec / 3600)
@@ -360,8 +367,9 @@ class DecTime(object):
 
     def draw_timedec(self, text, ch):
         self.screen.fill(self.bg_color)
-        self.screen.blit(self.font1.render(text, True,(238, 99, 99)), (320-30*len(text), 200))  # 文字居中对齐
-        self.screen.blit(self.font2.render(ch, True,(238, 99, 99)), (200, 400))
+        self.screen.blit(self.bg_image, (0,0))
+        self.screen.blit(self.font1.render(text, True, self.font1_color), (320-30*len(text), 200))  # 文字居中对齐
+        self.screen.blit(self.font2.render(ch, True, self.font2_color), (200, 400))
 
     # 时间减    
     def subTime(self):

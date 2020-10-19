@@ -78,8 +78,8 @@ def read_girls():
         girls_list.append(Figure(girls[1], girls[2], girls[3], girls[4],
                                  girls[5], girls[6], girls[7], girls[8],
                                  girls[9], girls[10]))
-
-    screen_works = pygame.display.set_mode((600, 800))
+    girl_setting = Settingssmallwindow()
+    screen_works = pygame.display.set_mode((girl_setting.screen_width, girl_setting.screen_height))
     button_back = Button(150, 100, screen_works, "返回", 50, 650)
     button_list = [button_back]
     work_setting = Settings()
@@ -106,8 +106,8 @@ def click_button_lottery():
     tuple_tmp = cursor.fetchall()
     lottery_crystal = []
     lottery_crystal.append(tuple_tmp[0][0])
-
-    screen_lottery = pygame.display.set_mode((600, 800))
+    lottery_setting = Settingssmallwindow()
+    screen_lottery = pygame.display.set_mode((lottery_setting.screen_width, lottery_setting.screen_height))
     button_back = Button(150, 100, screen_lottery, "返回", 50, 650)
     button_list = [button_back]
     work_setting = Settings()
@@ -121,7 +121,8 @@ def click_button_lottery():
 
 # 按下achievement按钮事件
 def click_button_achievement(achi):
-    screen_achievement = pygame.display.set_mode((600, 800))
+    achieve_setting = Settingssmallwindow()
+    screen_achievement = pygame.display.set_mode((achieve_setting.screen_width, achieve_setting.screen_height))
     button_paper = Button(500, 100, screen_achievement, "看论文做实验", 50, 50)
     button_learn = Button(500, 100, screen_achievement, "读书整理书爱培", 50, 200)
     button_language = Button(500, 100, screen_achievement, "语言学习", 50, 350)
@@ -135,7 +136,6 @@ def click_button_achievement(achi):
         update_screen(screen_achievement, work_setting, button_list, [achi],
                       "achievement")
         
-
 # 可签到判断函数
 def checkin_check():
     # 设置三个签到时间段,6:30-8:10   13:00-13:30    22:30-23:00
@@ -257,9 +257,15 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
     global mouse_rollup
     global lottery_mouse_y
     global lottery_mouse_x
-    # 绘制背景色
-    screen.fill(setting.bg_color)
-    # 绘制button1
+
+    screen.fill(setting.bg_color)                              # 绘制背景色
+    if typed == 'work' or typed == 'achievements_previous' or typed == 'girl' or\
+       typed == 'one' or typed == 'achievement':
+        background = pygame.image.load(r"image//76182830.png")   # 小窗口背景图片
+    else:
+        background = pygame.image.load(r"image//73700395.png")   # 主窗口背景图片
+    screen.blit(background,(0,0))
+    # 绘制按钮列表(主要是返回按钮)
     for button in button_list:
         button.draw_button()
 
@@ -642,6 +648,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                 tb.draw_textbasic()
                 fpsClock.tick(highFPS)
     text_len = len(text_list) * 130
+    
     # 显示窗口
     pygame.display.flip()
 
@@ -653,7 +660,8 @@ def click_to_one_girl(girl):
     global lottery_mouse_x
     global lottery_mouse_y
 
-    screen_one = pygame.display.set_mode((600, 800))
+    onegirl_setting = Settingssmallwindow()
+    screen_one = pygame.display.set_mode((onegirl_setting.screen_width, onegirl_setting.screen_height))
     button_back = Button(150, 100, screen_one, "返回", 50, 650)
     button_lottery = Button(150, 100, screen_one, "抽卡", 50, 450)
     button_level = Button(150, 100, screen_one, "升级", 350, 450)
@@ -948,8 +956,8 @@ def read_works():
     for works in tuple_tmp:
         work_list.append({'name': works[1], 'year': str(works[2]),
                           'company': works[3]})
-
-    screen_works = pygame.display.set_mode((600, 800))
+    work_setting = Settingssmallwindow()
+    screen_works = pygame.display.set_mode((work_setting.screen_width, work_setting.screen_height))
     button_back = Button(150, 100, screen_works, "返回", 50, 650)
     button_list = [button_back]
     work_setting = Settings()
@@ -972,8 +980,8 @@ def read_achievements():   # 读取成就
             achi_list.append({'name': achievements[1], 'startdate': achievements[2],
                               'enddate': achievements[3], 'planinvest': achievements[4],
                               'nowinvest': achievements[5]})
-
-    screen_works = pygame.display.set_mode((600, 800))
+    achieve_setting = Settingssmallwindow()
+    screen_works = pygame.display.set_mode((achieve_setting.screen_width, achieve_setting.screen_height))
     button_back = Button(150, 100, screen_works, "返回", 50, 650)
     button_list = [button_back]
     work_setting = Settings()
@@ -985,17 +993,14 @@ def read_achievements():   # 读取成就
         update_screen(screen_works, work_setting, button_list, achi_list,
                       "achievements_previous")
 
-# 游戏运行主函
+# 游戏运行主函数
 def run_game():
-    # initialise the game
-    pygame.init()
-    # 加载设置
-    ki_setting = Settings()
-    # 设置窗口长宽
-    screen = pygame.display.set_mode(
-        (ki_setting.screen_width, ki_setting.screen_height))
-    # 设置窗口名称
-    pygame.display.set_caption("Kirara Leoworld")
+    pygame.init()                                           # 初始化游戏
+    os.environ['SDL_VIDEO_CENTERED'] = '1'                  # 屏幕居中显示
+    ki_setting = Settings()                                 # 加载通用设置
+    screen = pygame.display.set_mode(   
+        (ki_setting.screen_width, ki_setting.screen_height))# 设置窗口长宽
+    pygame.display.set_caption("Kirara Leoworld")           # 设置窗口名称
     # 创建首页四个button列表
     button_girls = Button(400, 100, screen, "girls", 100, 50)
     button_works = Button(400, 100, screen, "works", 700, 50)
@@ -1011,7 +1016,6 @@ def run_game():
     button_list = [button_girls, button_works, button_lottery,
                    button_achievement, button_checkin, button_kirara_log,
                    button_lottery_log]
-    # 开始游戏
-    update_screen(screen, ki_setting, button_list)
+    update_screen(screen, ki_setting, button_list)         # 开始游戏
     check_events(button_list)
 
