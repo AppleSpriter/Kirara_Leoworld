@@ -11,12 +11,12 @@ FPS = 30
 highFPS = 80
 fpsClock = pygame.time.Clock()
 
-mouse_rollup = 0
-text_len = 30
-lottery_mouse_x = 0
-lottery_mouse_y = 0
+mouse_rollup = 0        # 鼠标滑轮转动
+text_len = 30           # 单个字符长度
+lottery_mouse_x = 0     # 鼠标x坐标
+lottery_mouse_y = 0     # 鼠标y坐标
 
-# 连接数据库
+# mysqlclient连接数据库
 db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
                      charset='utf8')
 cursor = db.cursor()
@@ -91,6 +91,55 @@ def read_girls():
         update_screen(screen_works, work_setting, button_list, girls_list,
                       'girl')
         
+# 读取作品列表
+def read_works():
+    # with open("WORKS.txt") as file_object:
+    #     work_list = json.load(file_object)
+
+    query_sql = "Select * from work"
+    cursor.execute(query_sql)
+
+    tuple_tmp = cursor.fetchall()
+    work_list = []
+    for works in tuple_tmp:
+        work_list.append({'name': works[1], 'year': str(works[2]),
+                          'company': works[3]})
+    work_setting = Settingssmallwindow()
+    screen_works = pygame.display.set_mode((work_setting.screen_width, work_setting.screen_height))
+    button_back = Button(150, 100, screen_works, "返回", 50, 650)
+    button_list = [button_back]
+    work_setting = Settings()
+    # 进入作品查看页面
+    while True:
+        # 返回主菜单,检测鼠标滑轮
+        click_to_index(button_back)
+        # 屏幕更新
+        update_screen(screen_works, work_setting, button_list, work_list,
+                      "work")
+
+def read_achievements():   # 读取成就
+    query_sql = "Select * from achievement"
+    cursor.execute(query_sql)
+
+    tuple_tmp = cursor.fetchall()
+    achi_list = []
+    for achievements in tuple_tmp:
+        if achievements[5] < achievements[4]:       # 仅显示未完成事件
+            achi_list.append({'name': achievements[1], 'startdate': achievements[2],
+                              'enddate': achievements[3], 'planinvest': achievements[4],
+                              'nowinvest': achievements[5], 'achievementid': achievements[0]})
+    achieve_setting = Settingssmallwindow()
+    screen_works = pygame.display.set_mode((achieve_setting.screen_width, achieve_setting.screen_height))
+    button_back = Button(150, 100, screen_works, "返回", 50, 650)
+    button_list = [button_back]
+    work_setting = Settings()
+    # 进入作品查看页面
+    while True:
+        # 返回主菜单,检测鼠标滑轮
+        click_lottery_and_index(button_back)
+        # 屏幕更新
+        update_screen(screen_works, work_setting, button_list, achi_list,
+                      "achievements_previous")
 
 # 按下mission按钮事件
 # 10.06修改为作品按钮
@@ -125,7 +174,7 @@ def click_button_achievement(achi):
     screen_achievement = pygame.display.set_mode((achieve_setting.screen_width, achieve_setting.screen_height))
     button_paper = Button(500, 100, screen_achievement, "看论文做实验", 50, 50)
     button_learn = Button(500, 100, screen_achievement, "读书整理书爱培", 50, 200)
-    button_language = Button(500, 100, screen_achievement, "语言学习", 50, 350)
+    button_language = Button(500, 100, screen_achievement, "一个番茄钟", 50, 350)
     button_play = Button(500, 100, screen_achievement, "玩游戏看视频", 50, 500)
     button_back = Button(150, 100, screen_achievement, "返回", 50, 650)
     button_list = [button_paper, button_learn, button_language, button_play, button_back]
@@ -203,33 +252,33 @@ def click_button_checkin():
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到,水晶+80；剩余水晶：" + str(lottery_crystal))
-        print("已经于" + str(nowtime_str) + "早间签到,水晶+80；剩余水晶：" + str(lottery_crystal))
+        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
+        print("已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
-        file_w.write(str(nowtime_str) + "早间签到,水晶+80；剩余水晶：" + str(lottery_crystal) + "\n")
+        file_w.write(str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal) + "\n")
         file_w.close()
     # 午间签到
     elif last_checkin_time == 3:
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'午间签到', u"已经于" + str(nowtime_str) + "午间签到,水晶+80；剩余水晶：" + str(lottery_crystal))
-        print("已经于" + str(nowtime_str) + "午间签到,水晶+80；剩余水晶：" + str(lottery_crystal))
+        toaster.show_toast(u'午间签到', u"已经于" + str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
+        print("已经于" + str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
-        file_w.write(str(nowtime_str) + "午间签到,水晶+80；剩余水晶：" + str(lottery_crystal) + "\n")
+        file_w.write(str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal) + "\n")
         file_w.close()
     # 夜间签到
     elif last_checkin_time == 4:
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'夜间签到', u"已经于" + str(nowtime_str) + "夜间签到,水晶+80；剩余水晶：" + str(lottery_crystal))
-        print("已经于" + str(nowtime_str) + "夜间签到,水晶+80；剩余水晶：" + str(lottery_crystal))
+        toaster.show_toast(u'夜间签到', u"已经于" + str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
+        print("已经于" + str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
-        file_w.write(str(nowtime_str) + "夜间签到,水晶+80；剩余水晶：" + str(lottery_crystal) + "\n")
+        file_w.write(str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal) + "\n")
         file_w.close()
     elif last_checkin_time == 5:
         toaster.show_toast(u'签到提示', u"目前不在签到时间内~")
@@ -237,10 +286,8 @@ def click_button_checkin():
     else:
         toaster.show_toast(u'签到提示', u"已经于" + str(last_checkin_time) + "签到,无法重复签到！")
         print("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
-    # 提交数据库
-    db.commit()
-    # 刷新页面
-    run_game()
+    db.commit()      # 提交数据库
+    run_game()       # 刷新页面
 
 # 打开lottery_log文件
 def click_button_log(log):
@@ -248,6 +295,14 @@ def click_button_log(log):
         file = os.system(r'kirara.log')
     elif log == 'lottery':
         file = os.system(r'kirara_lottery.log')
+
+# 小窗口背景图随机
+def small_bg_random():
+    small_bg = ["48785626.png", "76182830.png", "79270076_46.jpg", "79630371.jpg", 
+                "79766498.png", "82730039.png", "82651099.png", "82778068.png", 
+                "82788872.png","82977478.png", "83408932(1).png", "83980327.png",
+                "85057160_p0.png", "85102162_p0.png"]
+    return random.choice(small_bg)
 
 # 更新屏幕函数
 def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
@@ -261,10 +316,12 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
     screen.fill(setting.bg_color)                              # 绘制背景色
     if typed == 'work' or typed == 'achievements_previous' or typed == 'girl' or\
        typed == 'one' or typed == 'achievement':
-        background = pygame.image.load(r"image//76182830.png")   # 小窗口背景图片
-    else:
+        small_bg = "85102162_p0.png"
+        background = pygame.image.load("image//" + small_bg)   # 小窗口背景图片
+        screen.blit(background,(0,0))
+    elif typed != 'lottery':
         background = pygame.image.load(r"image//73700395.png")   # 主窗口背景图片
-    screen.blit(background,(0,0))
+        screen.blit(background,(0,0))
     # 绘制按钮列表(主要是返回按钮)
     for button in button_list:
         button.draw_button()
@@ -295,7 +352,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                 ab = AchievementBasic(width, height, screen, positionx,
                                positiony - mouse_rollup, achi['name'],
                                achi['startdate'], achi['planinvest'], 
-                               achi['nowinvest'])
+                               achi['nowinvest'], achi['achievementid'])
                 # 点击某一个具体事件后跳转
                 if positionx < lottery_mouse_x < positionx + width and \
                         positiony - mouse_rollup < lottery_mouse_y < \
@@ -453,6 +510,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
     if typed == 'achievement':
         toaster = ToastNotifier()   # win10气泡提示
         finishAchievement = False   # 判断是否完成这一事件
+        small_bg = small_bg_random()
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -460,16 +518,12 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                 mouse_x, mouse_y = pygame.mouse.get_pos()   # 鼠标位置
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:      # 按下按钮事件
                     before_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                    '''
-                    看论文做实验   工作 一次完成 220氵
-                    读书整理书爱培 个人 一次完成 200氵
-                    语言学习       个人 一次完成 200氵
-                    娱乐时间       个人 一次完成 10氵
-                    '''
+                    duration_minutes = 0                    # 专注持续时间
                     # 看论文做实验,50分钟倒计时
                     if button_list[0].rect.collidepoint(mouse_x, mouse_y):
                         pygame.display.set_caption("倒计时……") # 设置标题
-                        achievement_dt = DecTime(screen, 3000)     # 倒计时3000s
+                        duration_minutes = 50
+                        achievement_dt = DecTime(screen, duration_minutes * 60, small_bg)     # 倒计时3000s
                         # 倒计时更新页面
                         while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
                             for event in pygame.event.get():
@@ -492,8 +546,8 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                     # 读书整理书爱培,50分钟倒计时
                     if button_list[1].rect.collidepoint(mouse_x, mouse_y):
                         pygame.display.set_caption("倒计时……") # 设置标题
-                        # 倒计时3000s
-                        achievement_dt = DecTime(screen, 3000) 
+                        duration_minutes = 50
+                        achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
                         # 倒计时更新页面
                         while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
                             for event in pygame.event.get():
@@ -513,18 +567,18 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 要说的话
                             achievement_str = "读书整理书爱培50min 获得了200水晶！剩余水晶："
 
-                    # 语言学习,50分钟倒计时
+                    # 一个番茄钟,25分钟倒计时
                     if button_list[2].rect.collidepoint(mouse_x, mouse_y):
                         pygame.display.set_caption("倒计时……") # 设置标题
-                        # 倒计时3000s
-                        achievement_dt = DecTime(screen, 3000) 
+                        duration_minutes = 25
+                        achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
                         # 倒计时更新页面
                         while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
                             for event in pygame.event.get():
                                 if event.type == pygame.QUIT:
                                     sys.exit()
                             ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
-                            achievement_dt.draw_timedec("语言学习", ch)
+                            achievement_dt.draw_timedec("一个番茄钟", ch)
                             achievement_dt.subTime()
                             # 休眠1秒刷新屏幕
                             pygame.time.delay(1000)
@@ -533,15 +587,15 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         if achievement_dt.sec == -1:
                             finishAchievement = True
                             # 水晶奖励
-                            crystal_add = 200
+                            crystal_add = 90
                             # 要说的话
-                            achievement_str = "语言学习50min 获得了200水晶！剩余水晶："
+                            achievement_str = "一个番茄钟25min 获得了90水晶！剩余水晶："
 
-                    # 游戏娱乐,30分钟倒计时
+                    # 游戏娱乐,20分钟倒计时
                     if button_list[3].rect.collidepoint(mouse_x, mouse_y):
                         pygame.display.set_caption("倒计时……") # 设置标题
-                        # 倒计时3000s
-                        achievement_dt = DecTime(screen, 1800) 
+                        duration_minutes = 20
+                        achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
                         # 倒计时更新页面
                         while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
                             for event in pygame.event.get():
@@ -559,7 +613,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 水晶奖励
                             crystal_add = 10
                             # 要说的话
-                            achievement_str = "进行了娱乐时间30min 获得了10水晶！剩余水晶："
+                            achievement_str = "进行了娱乐时间20min 获得了10水晶！剩余水晶："
 
                     # 返回按钮绘制
                     if button_list[4].rect.collidepoint(mouse_x, mouse_y):
@@ -577,13 +631,10 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         cursor.execute(set_crystal_sql)     # 提交数据库
                         cursor.execute(query_crystal_sql)
                         crystal_number = cursor.fetchall()[0][0] # 取出水晶数量
-                        if crystal_add == 10:
-                            invest_add = 30     # 娱乐时间投入30min
-                        else:
-                            invest_add = 50     # 其他事件投入50min
+
                         set_invest_sql = "update achievement set nowinvest=nowinvest+%s where name=%s"  # 投入时间增加
-                        cursor.execute(set_invest_sql,[invest_add, text_list[0]['name']])
-                        if (text_list[0]['nowinvest'] + invest_add) >= text_list[0]['planinvest']:
+                        cursor.execute(set_invest_sql,[duration_minutes, text_list[0]['name']])
+                        if (text_list[0]['nowinvest'] + duration_minutes) >= text_list[0]['planinvest']:
                             set_end_sql = "update achievement set enddate=%s where name=%s" # 结束事件时间
                             cursor.execute(set_end_sql,[after_time, text_list[0]['name']])
                             finish_one_achievement = "恭喜你已经于" + str(after_time) + "完成了事件" + text_list[0]['name'] +\
@@ -597,15 +648,16 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         # 写入日志
                         file_w.write(before_time + " - " + after_time + 
                             "因 " + achievement_str + " " + str(crystal_number)  + u' 已经为' + 
-                            text_list[0]['name'] + u'投资了' + str(invest_add) + '分钟' + "\n")
-                        file_w.write(finish_one_achievement + "\n")
+                            text_list[0]['name'] + u'投资了' + str(duration_minutes) + '分钟' + "\n")
+                        if finish_one_achievement != 'null':
+                            file_w.write(finish_one_achievement + "\n")
                         # 关闭log文件写入
                         file_w.close()
                         # 弹出气泡进行通知
                         toaster.show_toast(u'番茄完成！', u'' + achievement_str + str(crystal_number) 
-                            + u' 已经为' + text_list[0]['name'] + u'投资了' + str(invest_add) + '分钟')
+                            + u' 已经为' + text_list[0]['name'] + u'投资了' + str(duration_minutes) + '分钟')
                         print(before_time + "-" + after_time + achievement_str + str(crystal_number)
-                            + ' 已经为' + text_list[0]['name'] + '投资了' + str(invest_add) + '分钟')
+                            + ' 已经为' + text_list[0]['name'] + '投资了' + str(duration_minutes) + '分钟')
                         if finish_one_achievement != "null":    # 成就事件完成提示
                             toaster.show_toast(finish_one_achievement)
                             print(finish_one_achievement)
@@ -942,56 +994,37 @@ def click_to_girls(button):
             if button.rect.collidepoint(mouse_x, mouse_y):
                 click_button_girls()
 
-
-# 读取作品列表
-def read_works():
-    # with open("WORKS.txt") as file_object:
-    #     work_list = json.load(file_object)
-
-    query_sql = "Select * from work"
-    cursor.execute(query_sql)
-
+# 入场料收取
+def admission_fee():
+    fee = 1500                                              # 入场费用1500氵
+    select_addate_sql = "Select admission_date from lottery"# 查询上次入场时间
+    cursor.execute(select_addate_sql)
     tuple_tmp = cursor.fetchall()
-    work_list = []
-    for works in tuple_tmp:
-        work_list.append({'name': works[1], 'year': str(works[2]),
-                          'company': works[3]})
-    work_setting = Settingssmallwindow()
-    screen_works = pygame.display.set_mode((work_setting.screen_width, work_setting.screen_height))
-    button_back = Button(150, 100, screen_works, "返回", 50, 650)
-    button_list = [button_back]
-    work_setting = Settings()
-    # 进入作品查看页面
-    while True:
-        # 返回主菜单,检测鼠标滑轮
-        click_to_index(button_back)
-        # 屏幕更新
-        update_screen(screen_works, work_setting, button_list, work_list,
-                      "work")
+    last_admission_time = tuple_tmp[0][0]
+    today_date = datetime.datetime.now().date()
+    toaster = ToastNotifier()
 
-def read_achievements():   # 读取成就
-    query_sql = "Select * from achievement"
-    cursor.execute(query_sql)
-
-    tuple_tmp = cursor.fetchall()
-    achi_list = []
-    for achievements in tuple_tmp:
-        if achievements[5] < achievements[4]:       # 仅显示未完成事件
-            achi_list.append({'name': achievements[1], 'startdate': achievements[2],
-                              'enddate': achievements[3], 'planinvest': achievements[4],
-                              'nowinvest': achievements[5]})
-    achieve_setting = Settingssmallwindow()
-    screen_works = pygame.display.set_mode((achieve_setting.screen_width, achieve_setting.screen_height))
-    button_back = Button(150, 100, screen_works, "返回", 50, 650)
-    button_list = [button_back]
-    work_setting = Settings()
-    # 进入作品查看页面
-    while True:
-        # 返回主菜单,检测鼠标滑轮
-        click_lottery_and_index(button_back)
-        # 屏幕更新
-        update_screen(screen_works, work_setting, button_list, achi_list,
-                      "achievements_previous")
+    if today_date.__gt__(last_admission_time):              # 每日时间入场费
+        select_lottery_sql = "Select lottery_crystal from lottery"
+        cursor.execute(select_lottery_sql)
+        tuple_tmp = cursor.fetchall()
+        lottery_crystal = tuple_tmp[0][0]
+        if lottery_crystal - fee >= 0:                      # 付得起的情况
+            update_crystal_sql = "update lottery set lottery_crystal=lottery_crystal-%s"
+            update_addate_sql = "update lottery set admission_date=%s"
+            cursor.execute(update_crystal_sql, (str(fee), ))
+            cursor.execute(update_addate_sql, (str(today_date), ))
+                                                            # 通知和记录
+            toaster.show_toast(u'入场料收取', u"已经收取" + str(today_date) + "的费用,水晶-" + str(fee) + 
+                                "; 剩余水晶：" + str(lottery_crystal-fee))
+            file_w = open("kirara_lottery.log", 'a+')       # 写入log文件
+            file_w.write("\n" + str(today_date) + "入场收费收取,水晶-" + str(fee) + 
+                         "; 剩余水晶：" + str(lottery_crystal-fee) + "\n")
+            file_w.close()
+            db.commit()                                     # 提交数据库
+        else:                                               # 付不起的情况
+            toaster.show_toast(u'入场料收取失效', u"你于" + str(today_date) + "的费用已经付不起了,白嫖入场; 剩余水晶：" 
+                + str(lottery_crystal))
 
 # 游戏运行主函数
 def run_game():
@@ -1001,21 +1034,22 @@ def run_game():
     screen = pygame.display.set_mode(   
         (ki_setting.screen_width, ki_setting.screen_height))# 设置窗口长宽
     pygame.display.set_caption("Kirara Leoworld")           # 设置窗口名称
-    # 创建首页四个button列表
+                                                            # 创建首页四个button列表
     button_girls = Button(400, 100, screen, "girls", 100, 50)
     button_works = Button(400, 100, screen, "works", 700, 50)
     button_lottery = Button(400, 100, screen, "lottery", 100, 250)
     button_achievement = Button(400, 100, screen, "selfstudy", 700, 250)
-    # 判断是否可签到,不可签设置Button clickable=0
+                                                            # 判断是否可签到,不可签设置Button clickable=0
     if checkin_check() == 2 or checkin_check() == 3 or checkin_check() == 4:
         button_checkin = Button(400, 100, screen, "checkin", 100, 450)
     else:
         button_checkin = Button(400, 100, screen, "checkin", 100, 450, 0)
+    admission_fee()                                         # 收取每日入场料
     button_kirara_log = Button(195, 100, screen, "klog", 700, 450)
     button_lottery_log =  Button(195, 100, screen, "llog", 905, 450)
     button_list = [button_girls, button_works, button_lottery,
                    button_achievement, button_checkin, button_kirara_log,
                    button_lottery_log]
-    update_screen(screen, ki_setting, button_list)         # 开始游戏
+    update_screen(screen, ki_setting, button_list)          # 开始游戏
     check_events(button_list)
 

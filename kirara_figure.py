@@ -143,8 +143,8 @@ class TextBasic():
         self.screen = screen
         self.screen_rect = screen.get_rect()
         self.width, self.height = width, height
-        self.bg_color = (240,128,128)
-        self.text_color = (255, 255, 255)
+        self.bg_color = (102,205,170)       # MediumAquamarine
+        self.text_color = (0, 0, 0)
         self.font = pygame.font.SysFont('KaiTi', 20)
         self.positionX = positionX
         self.positionY = positionY
@@ -181,7 +181,7 @@ class TextBasic():
 # 显示投入事件进度条文字块类，左一右二带左进度条
 class AchievementBasic():
     def __init__(self, width, height, screen, positionX, positionY, name,
-                 startdate, planinvest, nowinvest):
+                 startdate, planinvest, nowinvest, achiid):
         self.screen = screen
         self.screen_rect = screen.get_rect()
         self.width, self.height = width, height
@@ -195,12 +195,17 @@ class AchievementBasic():
         self.startdate = str(startdate)
         self.planinvest = str(round(planinvest / 60,1)) + "h"
         self.percent = round(nowinvest * 100 / planinvest, 2)
+        self.id = str(achiid) + "."
         self.prep_msg()                     # 文字标签
 
     def prep_msg(self): # 将标签渲染为图像
+        self.id_image = self.font.render(self.id, True, self.text_color,
+                                          self.bg_color)
+        self.id_image_rect = pygame.Rect(self.positionX + 20,
+                                           self.positionY + 20, 70, 50)
         self.name_image = self.font.render(self.name, True, self.text_color,
                                           self.bg_color)
-        self.name_image_rect = pygame.Rect(self.positionX + 20,
+        self.name_image_rect = pygame.Rect(self.positionX + 50,
                                            self.positionY + 20, 150, 50)
         self.startdate_image = self.font.render(self.startdate, True, self.text_color,
                                            self.bg_color)
@@ -218,6 +223,7 @@ class AchievementBasic():
 
     def draw_textbasic(self):
         self.screen.fill(self.bg_color, self.rect)
+        self.screen.blit(self.id_image, self.id_image_rect)
         self.screen.blit(self.name_image, self.name_image_rect)
         self.screen.blit(self.startdate_image, self.startdate_image_rect)
         self.screen.blit(self.planinvest_image, self.planinvest_image_rect)
@@ -350,10 +356,10 @@ class LotteryBasic():
 
 # 倒计时类
 class DecTime(object):
-    def __init__(self, screen, totalTime):
+    def __init__(self, screen, totalTime, small_bg):
         self.screen = screen
         self.bg_color = (255, 236, 139)
-        self.bg_image = pygame.image.load(r"image//79270076_46.jpg")
+        self.bg_image = pygame.image.load("image//" + small_bg)
         self.font1 = pygame.font.SysFont('KaiTi', 60)
         self.font2 = pygame.font.SysFont('KaiTi', 70)
         self.font1_color = (255, 0, 128)    # 亮粉色
@@ -394,8 +400,8 @@ class GirlBasic():
         self.screen = screen
         self.screen_rect = screen.get_rect()
         self.width, self.height = width, height
-        self.bg_color = (240,128,128)
-        self.text_color = (255, 255, 255)
+        self.bg_color = (238,213,210)       # MistyRose2
+        self.text_color = (0, 0, 0)
         self.font = pygame.font.SysFont('KaiTi', 20)
         self.positionX = positionX
         self.positionY = positionY
