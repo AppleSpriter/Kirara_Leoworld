@@ -10,6 +10,7 @@ from kirara_figure import *
 FPS = 30
 highFPS = 80
 fpsClock = pygame.time.Clock()
+KiraraL_icon_path = "icon/Adobe_Indesign.ico"
 
 mouse_rollup = 0        # 鼠标滑轮转动
 text_len = 30           # 单个字符长度
@@ -402,6 +403,8 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                     # 先判断是否返回
                     if button.rect.collidepoint(mouse_x, mouse_y):
                         mouse_rollup = 0
+                        if clicked:
+                            toaster.custom_destroy()
                         run_game()
                     # 抽奖主程序
                     if text_list[0] >= 280 and clicked == False and \
@@ -488,7 +491,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         pygame.display.flip()
                         # 气泡以及控制台输出提示
                         toaster.show_toast(u'抽卡提示', u'' + write_time + " 获得奖励：" + reward_text +
-                                     "; 剩余水晶： " + str(text_list[0] - 280))
+                                     "; 剩余水晶： " + str(text_list[0] - 280), dbm=True)
                         print(write_time + " 获得奖励：" + reward_text +
                                      "; 剩余水晶： " + str(text_list[0] - 280))
                         # 写入log文件
@@ -511,6 +514,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
         toaster = ToastNotifier()   # win10气泡提示
         finishAchievement = False   # 判断是否完成这一事件
         small_bg = small_bg_random()
+        toaster_destroy = True
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -520,7 +524,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                     before_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
                     duration_minutes = 0                    # 专注持续时间
                     # 看论文做实验,50分钟倒计时
-                    if button_list[0].rect.collidepoint(mouse_x, mouse_y):
+                    if button_list[0].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
                         pygame.display.set_caption("倒计时……") # 设置标题
                         duration_minutes = 50
                         achievement_dt = DecTime(screen, duration_minutes * 60, small_bg)     # 倒计时3000s
@@ -544,7 +548,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             achievement_str = "看论文做实验50min 获得了220水晶！剩余水晶："
 
                     # 读书整理书爱培,50分钟倒计时
-                    if button_list[1].rect.collidepoint(mouse_x, mouse_y):
+                    if button_list[1].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
                         pygame.display.set_caption("倒计时……") # 设置标题
                         duration_minutes = 50
                         achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
@@ -568,7 +572,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             achievement_str = "读书整理书爱培50min 获得了200水晶！剩余水晶："
 
                     # 一个番茄钟,25分钟倒计时
-                    if button_list[2].rect.collidepoint(mouse_x, mouse_y):
+                    if button_list[2].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
                         pygame.display.set_caption("倒计时……") # 设置标题
                         duration_minutes = 25
                         achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
@@ -592,7 +596,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             achievement_str = "一个番茄钟25min 获得了90水晶！剩余水晶："
 
                     # 游戏娱乐,20分钟倒计时
-                    if button_list[3].rect.collidepoint(mouse_x, mouse_y):
+                    if button_list[3].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
                         pygame.display.set_caption("倒计时……") # 设置标题
                         duration_minutes = 20
                         achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
@@ -621,6 +625,8 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         mouse_rollup = 0
                         lottery_mouse_x = 0
                         lottery_mouse_y = 0
+                        if not toaster_destroy:
+                            toaster.custom_destroy()
                         read_achievements()
 
                     if finishAchievement == True:       # 完成奖励
@@ -654,8 +660,12 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         # 关闭log文件写入
                         file_w.close()
                         # 弹出气泡进行通知
-                        toaster.show_toast(u'番茄完成！', u'' + achievement_str + str(crystal_number) 
-                            + u' 已经为' + text_list[0]['name'] + u'投资了' + str(duration_minutes) + '分钟')
+                        toaster.show_toast(u'番茄完成！', 
+                                           u'' + achievement_str + str(crystal_number) 
+                                           + u' 已经为' + text_list[0]['name'] + u'投资了' + str(duration_minutes) + '分钟',
+                                           icon_path=KiraraL_icon_path,
+                                           dbm=True)
+                        toaster_destroy = False
                         print(before_time + "-" + after_time + achievement_str + str(crystal_number)
                             + ' 已经为' + text_list[0]['name'] + '投资了' + str(duration_minutes) + '分钟')
                         if finish_one_achievement != "null":    # 成就事件完成提示
