@@ -359,7 +359,7 @@ class DecTime(object):
     def __init__(self, screen, totalTime, small_bg):
         self.screen = screen
         self.bg_color = (255, 236, 139)
-        self.bg_image = pygame.image.load("image//" + small_bg)
+        self.bg_image = pygame.image.load("image//small_bg//" + small_bg)
         self.font1 = pygame.font.SysFont('KaiTi', 60)
         self.font2 = pygame.font.SysFont('KaiTi', 70)
         self.font1_color = (255, 0, 128)    # 亮粉色

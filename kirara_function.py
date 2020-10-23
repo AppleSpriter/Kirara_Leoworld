@@ -5,7 +5,17 @@ import MySQLdb
 import os
 from win10toast import ToastNotifier
 from kirara_figure import *
+import logging
 
+"""
+CRITICAL    50
+ERROR       40
+WARNING     30
+INFO        20
+DEBUG       10
+NOTSET       0
+"""
+logging.basicConfig(level=logging.DEBUG)  # 调试选项,设置日志级别
 # 设置frames per second
 FPS = 30
 highFPS = 80
@@ -16,6 +26,7 @@ mouse_rollup = 0        # 鼠标滑轮转动
 text_len = 30           # 单个字符长度
 lottery_mouse_x = 0     # 鼠标x坐标
 lottery_mouse_y = 0     # 鼠标y坐标
+big_bg = 1              # 全局背景图编号,从1开始
 
 # mysqlclient连接数据库
 db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
@@ -25,6 +36,7 @@ cursor = db.cursor()
 
 # 监视鼠标和键盘事件
 def check_events(button_list):
+    global big_bg
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -50,6 +62,14 @@ def check_events(button_list):
                         click_button_log("kirara")
                     elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 7:
                         click_button_log("lottery")
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_h:
+                    big_bg -= 1
+                elif event.key  == pygame.K_l:
+                    big_bg += 1
+                run_game()
+
+
         # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
         fpsClock.tick(FPS)
 
@@ -175,7 +195,7 @@ def click_button_achievement(achi):
     screen_achievement = pygame.display.set_mode((achieve_setting.screen_width, achieve_setting.screen_height))
     button_paper = Button(500, 100, screen_achievement, "看论文做实验", 50, 50)
     button_learn = Button(500, 100, screen_achievement, "读书整理书爱培", 50, 200)
-    button_language = Button(500, 100, screen_achievement, "一个番茄钟", 50, 350)
+    button_language = Button(500, 100, screen_achievement, "半个番茄钟", 50, 350)
     button_play = Button(500, 100, screen_achievement, "玩游戏看视频", 50, 500)
     button_back = Button(150, 100, screen_achievement, "返回", 50, 650)
     button_list = [button_paper, button_learn, button_language, button_play, button_back]
@@ -253,8 +273,8 @@ def click_button_checkin():
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
-        print("已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
+        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal),duration=3)
+        logging.debug("已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
         file_w.write(str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal) + "\n")
@@ -264,8 +284,8 @@ def click_button_checkin():
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'午间签到', u"已经于" + str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
-        print("已经于" + str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
+        toaster.show_toast(u'午间签到', u"已经于" + str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal),duration=3)
+        logging.debug("已经于" + str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
         file_w.write(str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal) + "\n")
@@ -275,18 +295,18 @@ def click_button_checkin():
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'夜间签到', u"已经于" + str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
-        print("已经于" + str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
+        toaster.show_toast(u'夜间签到', u"已经于" + str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal),duration=3)
+        logging.debug("已经于" + str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
         file_w.write(str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal) + "\n")
         file_w.close()
     elif last_checkin_time == 5:
-        toaster.show_toast(u'签到提示', u"目前不在签到时间内~")
-        print("目前不在签到时间内~")
+        toaster.show_toast(u'签到提示', u"目前不在签到时间内~",duration=2)
+        logging.debug("目前不在签到时间内~")
     else:
-        toaster.show_toast(u'签到提示', u"已经于" + str(last_checkin_time) + "签到,无法重复签到！")
-        print("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
+        toaster.show_toast(u'签到提示', u"已经于" + str(last_checkin_time) + "签到,无法重复签到！",duration=3)
+        logging.debug("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
     db.commit()      # 提交数据库
     run_game()       # 刷新页面
 
@@ -299,15 +319,28 @@ def click_button_log(log):
 
 # 小窗口背景图随机
 def small_bg_random():
-    small_bg = ["48785626.png", "76182830.png", "79270076_46.jpg", "79630371.jpg", 
+    small_bg_list = ["48785626.png", "76182830.png", "79270076_46.jpg", "79630371.jpg", 
                 "79766498.png", "82730039.png", "82651099.png", "82778068.png", 
                 "82788872.png","82977478.png", "83408932(1).png", "83980327.png",
                 "85057160_p0.png", "85102162_p0.png"]
-    return random.choice(small_bg)
+    return random.choice(small_bg_list)
+
+# 主窗口背景图顺序
+def big_bg_queue(sequence):
+    global big_bg
+    big_bg_list = ["73700395.png", "62593374.jpg", "64457976_7.jpg", "63119355.png",   
+              "76717514.jpg", "81925889.png", "83410346.jpg", "83667969.png"]
+    if sequence < 1:            # 最左侧背景图不能小于序号1
+        sequence = 1
+        big_bg = 1
+    if sequence > len(big_bg_list):
+        sequence = sequence % len(big_bg_list) + 1
+    logging.debug(sequence)
+    return big_bg_list[sequence-1]
 
 # 更新屏幕函数
 def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
-                  typed=''):
+                  typed='', big_bg=4):
     # 全局变量声明
     global text_len
     global mouse_rollup
@@ -318,10 +351,10 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
     if typed == 'work' or typed == 'achievements_previous' or typed == 'girl' or\
        typed == 'one' or typed == 'achievement':
         small_bg = "85102162_p0.png"
-        background = pygame.image.load("image//" + small_bg)   # 小窗口背景图片
+        background = pygame.image.load("image//small_bg//" + small_bg)   # 小窗口背景图片
         screen.blit(background,(0,0))
     elif typed != 'lottery':
-        background = pygame.image.load(r"image//73700395.png")   # 主窗口背景图片
+        background = pygame.image.load(r"image//big_bg//" + big_bg_queue(big_bg))   # 主窗口背景图片
         screen.blit(background,(0,0))
     # 绘制按钮列表(主要是返回按钮)
     for button in button_list:
@@ -492,7 +525,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         # 气泡以及控制台输出提示
                         toaster.show_toast(u'抽卡提示', u'' + write_time + " 获得奖励：" + reward_text +
                                      "; 剩余水晶： " + str(text_list[0] - 280), dbm=True)
-                        print(write_time + " 获得奖励：" + reward_text +
+                        logging.debug(write_time + " 获得奖励：" + reward_text +
                                      "; 剩余水晶： " + str(text_list[0] - 280))
                         # 写入log文件
                         file_w = open("kirara_lottery.log", 'a+')
@@ -503,7 +536,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                        pygame.Rect(positionx, positiony, width, height).collidepoint(mouse_x, mouse_y):
                         # 气泡以及控制台输出提示
                         toaster.show_toast(u'温馨提示(穷就快去工作吖', u'没有足够水晶')
-                        print("没有足够水晶")
+                        logging.debug("没有足够水晶")
 
                 pygame.display.flip()
 
@@ -571,7 +604,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 要说的话
                             achievement_str = "读书整理书爱培50min 获得了200水晶！剩余水晶："
 
-                    # 一个番茄钟,25分钟倒计时
+                    # 半个番茄钟,25分钟倒计时
                     if button_list[2].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
                         pygame.display.set_caption("倒计时……") # 设置标题
                         duration_minutes = 25
@@ -582,7 +615,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                                 if event.type == pygame.QUIT:
                                     sys.exit()
                             ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
-                            achievement_dt.draw_timedec("一个番茄钟", ch)
+                            achievement_dt.draw_timedec("半个番茄钟", ch)
                             achievement_dt.subTime()
                             # 休眠1秒刷新屏幕
                             pygame.time.delay(1000)
@@ -593,7 +626,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 水晶奖励
                             crystal_add = 90
                             # 要说的话
-                            achievement_str = "一个番茄钟25min 获得了90水晶！剩余水晶："
+                            achievement_str = "半个番茄钟25min 获得了90水晶！剩余水晶："
 
                     # 游戏娱乐,20分钟倒计时
                     if button_list[3].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
@@ -666,11 +699,11 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                                            icon_path=KiraraL_icon_path,
                                            dbm=True)
                         toaster_destroy = False
-                        print(before_time + "-" + after_time + achievement_str + str(crystal_number)
+                        logging.debug(before_time + "-" + after_time + achievement_str + str(crystal_number)
                             + ' 已经为' + text_list[0]['name'] + '投资了' + str(duration_minutes) + '分钟')
                         if finish_one_achievement != "null":    # 成就事件完成提示
                             toaster.show_toast(finish_one_achievement)
-                            print(finish_one_achievement)
+                            logging.debug(finish_one_achievement)
                 button.draw_button()    # 返回主页面按钮绘制
                 pygame.display.flip()
             fpsClock.tick(FPS)          # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
@@ -754,18 +787,18 @@ def click_to_one_girl(girl):
 
                     if 1 <= sig <= 5:
                         toaster.show_toast(u'抽卡提示', u'恭喜你获得S角色卡！好感度+70')
-                        print("恭喜你获得S角色卡！好感度+70")
+                        logging.debug("恭喜你获得S角色卡！好感度+70")
                         increment = 70
                     elif 6 <= sig <= 15:
                         toaster.show_toast(u'抽卡提示', u'恭喜你获得New角色！')
-                        print("恭喜你获得New角色！")
+                        logging.debug("恭喜你获得New角色！")
                     elif 16 <= sig <= 50:
                         toaster.show_toast(u'抽卡提示', u'恭喜你获得A角色卡！好感度+18')
-                        print("恭喜你获得A角色卡！好感度+18")
+                        logging.debug("恭喜你获得A角色卡！好感度+18")
                         increment = 18
                     elif 61 <= sig <= 100:
                         toaster.show_toast(u'抽卡提示', u'好感度+1！')
-                        print("好感度+1！")
+                        logging.debug("好感度+1！")
                         increment = 1
 
 
@@ -831,19 +864,19 @@ def click_to_one_girl(girl):
 
                     if 1 <= sig <= 5:
                         toaster.show_toast(u'升级提示', u'极限训练！等级+10！')
-                        print("极限训练！等级+10！")
+                        logging.debug("极限训练！等级+10！")
                         increment = 10
                     elif 6 <= sig <= 15:
                         toaster.show_toast(u'抽卡提示', u'高效充实的训练！等级+5')
-                        print("高效充实的训练！等级+5")
+                        logging.debug("高效充实的训练！等级+5")
                         increment = 5
                     elif 16 <= sig <= 35:
                         toaster.show_toast(u'抽卡提示', u'注意力集中的训练！等级+2')
-                        print("注意力集中的训练！等级+2")
+                        logging.debug("注意力集中的训练！等级+2")
                         increment = 2
                     elif 36 <= sig <= 100:
                         toaster.show_toast(u'抽卡提示', u'训练完成！等级+1')
-                        print("训练完成！等级+1")
+                        logging.debug("训练完成！等级+1")
                         increment = 1
 
                     # 查询好感度并设置其值增加increment
@@ -887,19 +920,19 @@ def click_to_one_girl(girl):
 
                     if 1 <= sig <= 5:
                         toaster.show_toast(u'技能提升提示', u'极限训练！技能等级+5！')
-                        print("极限训练！技能等级+5！")
+                        logging.debug("极限训练！技能等级+5！")
                         increment = 5
                     elif 6 <= sig <= 15:
                         toaster.show_toast(u'技能提升提示', u'高效充实的训练！技能等级+3')
-                        print("高效充实的训练！技能等级+3")
+                        logging.debug("高效充实的训练！技能等级+3")
                         increment = 3
                     elif 16 <= sig <= 35:
                         toaster.show_toast(u'技能提升提示', u'意力集中的训练！技能等级+2')
-                        print("注意力集中的训练！技能等级+2")
+                        logging.debug("注意力集中的训练！技能等级+2")
                         increment = 2
                     elif 36 <= sig <= 100:
                         toaster.show_toast(u'技能提升提示', u'训练完成！技能等级+1')
-                        print("训练完成！技能等级+1")
+                        logging.debug("训练完成！技能等级+1")
                         increment = 1
 
                     # 查询好感度并设置其值增加increment
@@ -1037,7 +1070,7 @@ def admission_fee():
                 + str(lottery_crystal))
 
 # 游戏运行主函数
-def run_game():
+def run_game():                              # 初始背景图
     pygame.init()                                           # 初始化游戏
     os.environ['SDL_VIDEO_CENTERED'] = '1'                  # 屏幕居中显示
     ki_setting = Settings()                                 # 加载通用设置
@@ -1045,21 +1078,23 @@ def run_game():
         (ki_setting.screen_width, ki_setting.screen_height))# 设置窗口长宽
     pygame.display.set_caption("Kirara Leoworld")           # 设置窗口名称
                                                             # 创建首页四个button列表
-    button_girls = Button(400, 100, screen, "girls", 100, 50)
-    button_works = Button(400, 100, screen, "works", 700, 50)
-    button_lottery = Button(400, 100, screen, "lottery", 100, 250)
-    button_achievement = Button(400, 100, screen, "selfstudy", 700, 250)
+    basic_y = 350
+    interval_y = 150
+    button_girls = Button(400, 100, screen, "girls", 100, basic_y)
+    button_works = Button(400, 100, screen, "works", 700, basic_y)
+    button_lottery = Button(400, 100, screen, "lottery", 100, basic_y + interval_y)
+    button_achievement = Button(400, 100, screen, "selfstudy", 700, basic_y + interval_y)
                                                             # 判断是否可签到,不可签设置Button clickable=0
     if checkin_check() == 2 or checkin_check() == 3 or checkin_check() == 4:
-        button_checkin = Button(400, 100, screen, "checkin", 100, 450)
+        button_checkin = Button(400, 100, screen, "checkin", 100, basic_y + interval_y * 2)
     else:
-        button_checkin = Button(400, 100, screen, "checkin", 100, 450, 0)
+        button_checkin = Button(400, 100, screen, "checkin", 100, basic_y + interval_y * 2, 0)
     admission_fee()                                         # 收取每日入场料
-    button_kirara_log = Button(195, 100, screen, "klog", 700, 450)
-    button_lottery_log =  Button(195, 100, screen, "llog", 905, 450)
+    button_kirara_log = Button(195, 100, screen, "klog", 700, basic_y + interval_y * 2)
+    button_lottery_log =  Button(195, 100, screen, "llog", 905, basic_y + interval_y * 2)
     button_list = [button_girls, button_works, button_lottery,
                    button_achievement, button_checkin, button_kirara_log,
                    button_lottery_log]
-    update_screen(screen, ki_setting, button_list)          # 开始游戏
+    update_screen(screen, ki_setting, button_list, big_bg=big_bg)          # 开始游戏
     check_events(button_list)
 
