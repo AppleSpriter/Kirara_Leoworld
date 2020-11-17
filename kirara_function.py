@@ -27,6 +27,8 @@ text_len = 30           # 单个字符长度
 lottery_mouse_x = 0     # 鼠标x坐标
 lottery_mouse_y = 0     # 鼠标y坐标
 big_bg = 1              # 全局背景图编号,从1开始
+toaster = ToastNotifier() # 全局toaster，方便destroy
+toaster_destroy = True  # toaster已经被destroy
 
 # mysqlclient连接数据库
 db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
@@ -36,7 +38,7 @@ cursor = db.cursor()
 
 # 监视鼠标和键盘事件
 def check_events(button_list):
-    global big_bg
+    global big_bg, toaster, toaster_destroy
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -45,6 +47,10 @@ def check_events(button_list):
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 tmp = 0
+                # 销毁toaster内存占用
+                if not toaster_destroy:
+                    toaster.custom_destroy()
+                    toaster_destroy = True
                 # 查看鼠标点击在哪个范围内，使用tmp确定是第几个按钮
                 for button in button_list:
                     tmp += 1
@@ -63,10 +69,12 @@ def check_events(button_list):
                     elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 7:
                         click_button_log("lottery")
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_h:
+                if event.key == pygame.K_h:         # 主页面背景图向左切换
                     big_bg -= 1
-                elif event.key  == pygame.K_l:
+                elif event.key  == pygame.K_l:      # 主页面背景图向右切换
                     big_bg += 1
+                elif event.key == pygame.K_r:       # reset主页面背景图
+                    big_bg = 1
                 run_game()
 
 
@@ -149,6 +157,7 @@ def read_achievements():   # 读取成就
             achi_list.append({'name': achievements[1], 'startdate': achievements[2],
                               'enddate': achievements[3], 'planinvest': achievements[4],
                               'nowinvest': achievements[5], 'achievementid': achievements[0]})
+    achi_list = sorted(achi_list, key=lambda key:int(key['achievementid']))  # 按照id排序
     achieve_setting = Settingssmallwindow()
     screen_works = pygame.display.set_mode((achieve_setting.screen_width, achieve_setting.screen_height))
     button_back = Button(150, 100, screen_works, "返回", 50, 650)
@@ -210,11 +219,11 @@ def click_button_achievement(achi):
 def checkin_check():
     # 设置三个签到时间段,6:30-8:10   13:00-13:30    22:30-23:00
     morning_t1 = datetime.time(6, 30, 0, 0)
-    morning_t2 = datetime.time(8, 10, 0, 0)
+    morning_t2 = datetime.time(8, 11, 0, 0)
     noon_t1 = datetime.time(13, 0, 0, 0)
-    noon_t2 = datetime.time(13, 30, 0, 0)
+    noon_t2 = datetime.time(13, 31, 0, 0)
     night_t1 = datetime.time(22, 30, 0, 0)
-    night_t2 = datetime.time(23, 0, 0, 0)
+    night_t2 = datetime.time(23, 1, 0, 0)
 
     nowtime = datetime.datetime.now()
     # 查询上次签到时间
@@ -267,13 +276,17 @@ def click_button_checkin():
     lottery_crystal += 80
     last_checkin_time=checkin_check()
     # 气泡通知
-    toaster = ToastNotifier()
+    global toaster,toaster_destroy
     # 早间签到
     if last_checkin_time == 2:
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal),duration=3)
+        # # 2020/10/26特别活动，连续7天早上签到三倍水晶奖励
+        # cursor.execute(update_check_lottery_sql)
+        # cursor.execute(update_check_lottery_sql)
+        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal),dbm=True)
+        toaster_destroy = False
         logging.debug("已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
@@ -284,7 +297,8 @@ def click_button_checkin():
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'午间签到', u"已经于" + str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal),duration=3)
+        toaster.show_toast(u'午间签到', u"已经于" + str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal),dbm=True)
+        toaster_destroy = False
         logging.debug("已经于" + str(nowtime_str) + "午间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
@@ -295,17 +309,20 @@ def click_button_checkin():
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'夜间签到', u"已经于" + str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal),duration=3)
+        toaster.show_toast(u'夜间签到', u"已经于" + str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal),dbm=True)
+        toaster_destroy = False
         logging.debug("已经于" + str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
         file_w.write(str(nowtime_str) + "夜间签到,水晶+80; 剩余水晶：" + str(lottery_crystal) + "\n")
         file_w.close()
     elif last_checkin_time == 5:
-        toaster.show_toast(u'签到提示', u"目前不在签到时间内~",duration=2)
+        toaster.show_toast(u'签到提示', u"目前不在签到时间内~",dbm=True)
+        toaster_destroy = False
         logging.debug("目前不在签到时间内~")
     else:
-        toaster.show_toast(u'签到提示', u"已经于" + str(last_checkin_time) + "签到,无法重复签到！",duration=3)
+        toaster.show_toast(u'签到提示', u"已经于" + str(last_checkin_time) + "签到,无法重复签到！",dbm=True)
+        toaster_destroy = False
         logging.debug("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
     db.commit()      # 提交数据库
     run_game()       # 刷新页面
@@ -333,10 +350,10 @@ def big_bg_queue(sequence):
     if sequence < 1:            # 最左侧背景图不能小于序号1
         sequence = 1
         big_bg = 1
-    if sequence > len(big_bg_list):
+    if sequence >= len(big_bg_list):            # 序号超过列表长度时利用余数找图
         sequence = sequence % len(big_bg_list) + 1
     logging.debug(sequence)
-    return big_bg_list[sequence-1]
+    return big_bg_list[sequence - 1]
 
 # 更新屏幕函数
 def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
@@ -346,6 +363,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
     global mouse_rollup
     global lottery_mouse_y
     global lottery_mouse_x
+    global toaster, toaster_destroy   # win10气泡提示
 
     screen.fill(setting.bg_color)                              # 绘制背景色
     if typed == 'work' or typed == 'achievements_previous' or typed == 'girl' or\
@@ -408,7 +426,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
         # 鼠标事件
         clicked = False
         is_hover = False
-        toaster = ToastNotifier()
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -433,11 +451,13 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                     button.draw_button()
                 # 按下按钮事件
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    # 先判断是否返回
+                    # 判断是否销毁toaster
+                    if not toaster_destroy:
+                        toaster.custom_destroy()
+                        toaster_destroy = True
+                    # 判断是否返回
                     if button.rect.collidepoint(mouse_x, mouse_y):
                         mouse_rollup = 0
-                        if clicked:
-                            toaster.custom_destroy()
                         run_game()
                     # 抽奖主程序
                     if text_list[0] >= 280 and clicked == False and \
@@ -525,6 +545,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         # 气泡以及控制台输出提示
                         toaster.show_toast(u'抽卡提示', u'' + write_time + " 获得奖励：" + reward_text +
                                      "; 剩余水晶： " + str(text_list[0] - 280), dbm=True)
+                        toaster_destroy = False
                         logging.debug(write_time + " 获得奖励：" + reward_text +
                                      "; 剩余水晶： " + str(text_list[0] - 280))
                         # 写入log文件
@@ -535,7 +556,8 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                     elif text_list[0] < 280 and clicked == False and \
                        pygame.Rect(positionx, positiony, width, height).collidepoint(mouse_x, mouse_y):
                         # 气泡以及控制台输出提示
-                        toaster.show_toast(u'温馨提示(穷就快去工作吖', u'没有足够水晶')
+                        toaster.show_toast(u'温馨提示(穷就快去工作吖', u'没有足够水晶', dbm=True)
+                        toaster_destroy = False
                         logging.debug("没有足够水晶")
 
                 pygame.display.flip()
@@ -544,10 +566,9 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
             fpsClock.tick(FPS)
 
     if typed == 'achievement':
-        toaster = ToastNotifier()   # win10气泡提示
+        
         finishAchievement = False   # 判断是否完成这一事件
         small_bg = small_bg_random()
-        toaster_destroy = True
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -660,6 +681,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         lottery_mouse_y = 0
                         if not toaster_destroy:
                             toaster.custom_destroy()
+                            toaster_destroy = True
                         read_achievements()
 
                     if finishAchievement == True:       # 完成奖励
@@ -676,8 +698,14 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         if (text_list[0]['nowinvest'] + duration_minutes) >= text_list[0]['planinvest']:
                             set_end_sql = "update achievement set enddate=%s where name=%s" # 结束事件时间
                             cursor.execute(set_end_sql,[after_time, text_list[0]['name']])
-                            finish_one_achievement = "恭喜你已经于" + str(after_time) + "完成了事件" + text_list[0]['name'] +\
-                                                     "如果想继续请开启下一期！"
+                            if text_list[0]['planinvest'] > 1200:       # 完成一个大于20h的事件奖励800Cys
+                                add_achievement_cys_sql = "update lottery set lottery_crystal=lottery_crystal+800" # 完成事件水晶+800
+                                cursor.execute(add_achievement_cys_sql)
+                                finish_one_achievement = "恭喜你已经于" + str(after_time) + "完成了事件" + text_list[0]['name'] +\
+                                                         " 水晶增加800"
+                            else:
+                                finish_one_achievement = "恭喜你已经于" + str(after_time) + "完成了事件" + text_list[0]['name'] +\
+                                                         " 计划时长未大于20h无法获得奖励"
                         # 提交数据库
                         db.commit()
                         # 不重复获得奖励
@@ -692,18 +720,20 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             file_w.write(finish_one_achievement + "\n")
                         # 关闭log文件写入
                         file_w.close()
-                        # 弹出气泡进行通知
-                        toaster.show_toast(u'番茄完成！', 
-                                           u'' + achievement_str + str(crystal_number) 
-                                           + u' 已经为' + text_list[0]['name'] + u'投资了' + str(duration_minutes) + '分钟',
-                                           icon_path=KiraraL_icon_path,
-                                           dbm=True)
-                        toaster_destroy = False
-                        logging.debug(before_time + "-" + after_time + achievement_str + str(crystal_number)
-                            + ' 已经为' + text_list[0]['name'] + '投资了' + str(duration_minutes) + '分钟')
                         if finish_one_achievement != "null":    # 成就事件完成提示
-                            toaster.show_toast(finish_one_achievement)
+                            toaster.show_toast(finish_one_achievement, icon_path=KiraraL_icon_path, dbm=True)
+                            toaster_destroy = False
                             logging.debug(finish_one_achievement)
+                        else:
+                            # 弹出气泡进行通知
+                            toaster.show_toast(u'番茄完成！', 
+                                               u'' + achievement_str + str(crystal_number) 
+                                               + u' 已经为' + text_list[0]['name'] + u'投资了' + str(duration_minutes) + '分钟',
+                                               icon_path=KiraraL_icon_path,
+                                               dbm=True)
+                            toaster_destroy = False
+                            logging.debug(before_time + "-" + after_time + achievement_str + str(crystal_number)
+                                + ' 已经为' + text_list[0]['name'] + '投资了' + str(duration_minutes) + '分钟')
                 button.draw_button()    # 返回主页面按钮绘制
                 pygame.display.flip()
             fpsClock.tick(FPS)          # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
@@ -754,6 +784,7 @@ def click_to_one_girl(girl):
     global mouse_rollup
     global lottery_mouse_x
     global lottery_mouse_y
+    global toaster
 
     onegirl_setting = Settingssmallwindow()
     screen_one = pygame.display.set_mode((onegirl_setting.screen_width, onegirl_setting.screen_height))
@@ -764,7 +795,6 @@ def click_to_one_girl(girl):
     button_list = [button_back, button_lottery, button_level, button_skill]
     one_setting = Settings()
     text_list = [girl]
-    toaster = ToastNotifier()
     # 进入girls查看页面
     while True:
         # 监视器
@@ -1039,15 +1069,24 @@ def click_to_girls(button):
 
 # 入场料收取
 def admission_fee():
+    global toaster, toaster_destroy
     fee = 1500                                              # 入场费用1500氵
     select_addate_sql = "Select admission_date from lottery"# 查询上次入场时间
     cursor.execute(select_addate_sql)
     tuple_tmp = cursor.fetchall()
     last_admission_time = tuple_tmp[0][0]
-    today_date = datetime.datetime.now().date()
-    toaster = ToastNotifier()
-
+    today_date = datetime.datetime.now()
+    # 销毁toaster内存占用
+    if not toaster_destroy:
+        toaster.custom_destroy()
+        toaster_destroy = True
+    # 入场料收取延时，修改凌晨四点刷新
+    check_postpone = 4
+    today_date += datetime.timedelta(hours = -check_postpone)
+    last_admission_time += datetime.timedelta(hours = -check_postpone)
     if today_date.__gt__(last_admission_time):              # 每日时间入场费
+        today_date_exact = today_date + datetime.timedelta(hours = +check_postpone)   # 签到时间修改为当前时间
+        today_date = today_date.date()
         select_lottery_sql = "Select lottery_crystal from lottery"
         cursor.execute(select_lottery_sql)
         tuple_tmp = cursor.fetchall()
@@ -1056,10 +1095,11 @@ def admission_fee():
             update_crystal_sql = "update lottery set lottery_crystal=lottery_crystal-%s"
             update_addate_sql = "update lottery set admission_date=%s"
             cursor.execute(update_crystal_sql, (str(fee), ))
-            cursor.execute(update_addate_sql, (str(today_date), ))
+            cursor.execute(update_addate_sql, (str(today_date_exact), ))
                                                             # 通知和记录
             toaster.show_toast(u'入场料收取', u"已经收取" + str(today_date) + "的费用,水晶-" + str(fee) + 
-                                "; 剩余水晶：" + str(lottery_crystal-fee))
+                                "; 剩余水晶：" + str(lottery_crystal-fee), dbm=True)
+            toaster_destroy = False
             file_w = open("kirara_lottery.log", 'a+')       # 写入log文件
             file_w.write("\n" + str(today_date) + "入场收费收取,水晶-" + str(fee) + 
                          "; 剩余水晶：" + str(lottery_crystal-fee) + "\n")
@@ -1067,7 +1107,8 @@ def admission_fee():
             db.commit()                                     # 提交数据库
         else:                                               # 付不起的情况
             toaster.show_toast(u'入场料收取失效', u"你于" + str(today_date) + "的费用已经付不起了,白嫖入场; 剩余水晶：" 
-                + str(lottery_crystal))
+                + str(lottery_crystal), dbm=True)
+            toaster_destroy = False
 
 # 游戏运行主函数
 def run_game():                              # 初始背景图
