@@ -153,7 +153,7 @@ def read_achievements():   # 读取成就
     tuple_tmp = cursor.fetchall()
     achi_list = []
     for achievements in tuple_tmp:
-        if achievements[5] < achievements[4]:       # 仅显示未完成事件
+        if achievements[5] < achievements[4] and achievements[3] == None:       # 仅显示未完成事件
             achi_list.append({'name': achievements[1], 'startdate': achievements[2],
                               'enddate': achievements[3], 'planinvest': achievements[4],
                               'nowinvest': achievements[5], 'achievementid': achievements[0]})
@@ -282,15 +282,16 @@ def click_button_checkin():
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        # # 2020/10/26特别活动，连续7天早上签到三倍水晶奖励
-        # cursor.execute(update_check_lottery_sql)
-        # cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal),dbm=True)
+        # 2020/10/26特别活动，连续7天早上签到三倍水晶奖励
+        # 2020/12/18早上签到三倍水晶奖励
+        cursor.execute(update_check_lottery_sql)
+        cursor.execute(update_check_lottery_sql)
+        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到,水晶+240; 剩余水晶：" + str(lottery_crystal),dbm=True)
         toaster_destroy = False
-        logging.debug("已经于" + str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal))
+        logging.debug("已经于" + str(nowtime_str) + "早间签到,水晶+240; 剩余水晶：" + str(lottery_crystal))
         # 写入log文件
         file_w = open("kirara_lottery.log", 'a+')
-        file_w.write(str(nowtime_str) + "早间签到,水晶+80; 剩余水晶：" + str(lottery_crystal) + "\n")
+        file_w.write(str(nowtime_str) + "早间签到,水晶+240; 剩余水晶：" + str(lottery_crystal) + "\n")
         file_w.close()
     # 午间签到
     elif last_checkin_time == 3:
@@ -345,7 +346,7 @@ def small_bg_random():
 # 主窗口背景图顺序
 def big_bg_queue(sequence):
     global big_bg
-    big_bg_list = ["73700395.png", "62593374.jpg", "64457976_7.jpg", "63119355.png",   
+    big_bg_list = ["v1.1.png", "73700395.png", "62593374.jpg", "64457976_7.jpg", "63119355.png",   
               "76717514.jpg", "81925889.png", "83410346.jpg", "83667969.png"]
     if sequence < 1:            # 最左侧背景图不能小于序号1
         sequence = 1
@@ -599,7 +600,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 水晶奖励
                             crystal_add = 220
                             # 要说的话
-                            achievement_str = "看论文做实验50min 获得了220水晶！剩余水晶："
+                            achievement_str = "看论文做实验50min 获得了" + str(crystal_add) + "水晶！剩余水晶："
 
                     # 读书整理书爱培,50分钟倒计时
                     if button_list[1].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
@@ -623,7 +624,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 水晶奖励
                             crystal_add = 200
                             # 要说的话
-                            achievement_str = "读书整理书爱培50min 获得了200水晶！剩余水晶："
+                            achievement_str = "读书整理书爱培50min 获得了" + str(crystal_add) + "水晶！剩余水晶："
 
                     # 半个番茄钟,25分钟倒计时
                     if button_list[2].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
@@ -647,12 +648,13 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                             # 水晶奖励
                             crystal_add = 90
                             # 要说的话
-                            achievement_str = "半个番茄钟25min 获得了90水晶！剩余水晶："
+                            achievement_str = "半个番茄钟25min 获得了" + str(crystal_add) + "水晶！剩余水晶："
 
                     # 游戏娱乐,20分钟倒计时
+                    # v1.1修改为休息时间,10分钟倒计时
                     if button_list[3].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
                         pygame.display.set_caption("倒计时……") # 设置标题
-                        duration_minutes = 20
+                        duration_minutes = 10
                         achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
                         # 倒计时更新页面
                         while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
@@ -660,7 +662,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                                 if event.type == pygame.QUIT:
                                     sys.exit()
                             ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
-                            achievement_dt.draw_timedec("娱乐时间", ch)
+                            achievement_dt.draw_timedec("休息", ch)
                             achievement_dt.subTime()
                             # 休眠1秒刷新屏幕
                             pygame.time.delay(1000)
@@ -669,9 +671,9 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         if achievement_dt.sec == -1:
                             finishAchievement = True
                             # 水晶奖励
-                            crystal_add = 10
+                            crystal_add = 5
                             # 要说的话
-                            achievement_str = "进行了娱乐时间20min 获得了10水晶！剩余水晶："
+                            achievement_str = "进行了休息10min 获得了" + str(crystal_add) + "水晶！剩余水晶："
 
                     # 返回按钮绘制
                     if button_list[4].rect.collidepoint(mouse_x, mouse_y):
@@ -1070,7 +1072,7 @@ def click_to_girls(button):
 # 入场料收取
 def admission_fee():
     global toaster, toaster_destroy
-    fee = 1500                                              # 入场费用1500氵
+    fee = 1000                                              # 入场费用1000氵
     select_addate_sql = "Select admission_date from lottery"# 查询上次入场时间
     cursor.execute(select_addate_sql)
     tuple_tmp = cursor.fetchall()
@@ -1084,7 +1086,7 @@ def admission_fee():
     check_postpone = 4
     today_date += datetime.timedelta(hours = -check_postpone)
     last_admission_time += datetime.timedelta(hours = -check_postpone)
-    if today_date.__gt__(last_admission_time):              # 每日时间入场费
+    if today_date.date().__gt__(last_admission_time.date()):              # 每日时间入场费
         today_date_exact = today_date + datetime.timedelta(hours = +check_postpone)   # 签到时间修改为当前时间
         today_date = today_date.date()
         select_lottery_sql = "Select lottery_crystal from lottery"
