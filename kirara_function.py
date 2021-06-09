@@ -205,7 +205,7 @@ def click_button_achievement(achi):
     button_paper = Button(500, 100, screen_achievement, "看论文做实验", 50, 50)
     button_learn = Button(500, 100, screen_achievement, "读书整理书爱培", 50, 200)
     button_language = Button(500, 100, screen_achievement, "半个番茄钟", 50, 350)
-    button_play = Button(500, 100, screen_achievement, "玩游戏看视频", 50, 500)
+    button_play = Button(500, 100, screen_achievement, "休息", 50, 500)
     button_back = Button(150, 100, screen_achievement, "返回", 50, 650)
     button_list = [button_paper, button_learn, button_language, button_play, button_back]
     work_setting = Settings()
