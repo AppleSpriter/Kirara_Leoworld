@@ -99,6 +99,9 @@ class Button():
             仿宋：FangSong
             楷体：KaiTi
         '''
+        # 创建3d按钮（阴影）
+        self.shadow_color = (255, 222, 173)
+        self.shadow = pygame.Rect(positionX+10, positionY+10, self.width, self.height)
         # 创建按钮rect对象
         self.rect = pygame.Rect(positionX, positionY, self.width, self.height)
         # 按钮标签
@@ -113,14 +116,29 @@ class Button():
                                           self.button_color)
         self.msg_image_rect = self.msg_image.get_rect()
         self.msg_image_rect.center = self.rect.center
+        self.msg_image_shadow = self.msg_image.get_rect()
+        self.msg_image_shadow.center = self.shadow.center
 
     # 绘制按钮
     def draw_button(self):
         # 无法点击状态
         if self.clickable == 0:
             self.button_color = (105, 105, 105)
+        else:
+            self.screen.fill(self.shadow_color, self.shadow)
         self.screen.fill(self.button_color, self.rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)
+
+    # 绘制按下的按钮
+    def draw_pressed_button(self):
+        # 无法点击状态
+        if self.clickable == 0:
+            self.button_color = (105, 105, 105)
+            self.screen.fill(self.button_color, self.rect)
+            self.screen.blit(self.msg_image, self.msg_image_rect)
+        else:
+            self.screen.fill(self.button_color, self.shadow)
+            self.screen.blit(self.msg_image, self.msg_image_shadow)
 
 # 存储通用游戏设置
 class Settings():
