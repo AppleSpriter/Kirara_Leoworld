@@ -559,7 +559,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         set_sql = "update lottery set lottery_crystal=lottery_crystal-280"
                         cursor.execute(set_sql)
                         # 提交数据库
-                        #db.commit()
+                        db.commit()
                         # 设置为打开状态
                         clicked = True
                         reward_text, color, golden = open_one_card()
@@ -1114,19 +1114,34 @@ def click_to_girls(button):
             if button.rect.collidepoint(mouse_x, mouse_y):
                 click_button_girls()
 
-# 入场料收取
+# 入场料收取和登录时间记录
 def admission_fee():
     global toaster, toaster_destroy
     fee = 1000                                              # 入场费用1000氵
-    select_addate_sql = "Select admission_date from lottery"# 查询上次入场时间
+    select_addate_sql = "Select admission_date from lottery"# 查询上次收费时间
+    select_lgdate_sql = "Select login_date from lottery"
+    cursor.execute(select_addate_sql)                       #获取数据库记录时间
+    tuple_tmp = cursor.fetchall()
+    last_admission_time = tuple_tmp[0][0]
     cursor.execute(select_addate_sql)
     tuple_tmp = cursor.fetchall()
     last_admission_time = tuple_tmp[0][0]
+    last_login_time = tuple_tmp[0][0]
     today_date = datetime.datetime.now()
     # 销毁toaster内存占用
     if not toaster_destroy:
         toaster.custom_destroy()
         toaster_destroy = True
+    #文件录入登录时间
+    if today_date.date().__gt__(last_login_time.date()):
+        login_time = today_date.strftime('%Y-%m-%d %H:%M:%S')   #记录登录时刻并去掉秒后面的部分
+        update_lgdate_sql = "update lottery set login_date=%s"
+        cursor.execute(update_lgdate_sql, (str(today_date), ))
+        file_w = open("kirara_lottery.log", 'a+')       # 写入log文件
+        file_w.write("\n您已经于 " + str(login_time) + " 登录Kirara Leoworld, 欢迎归来！" + "\n")
+        file_w.close()
+        db.commit()
+
     # 入场料收取延时，修改凌晨四点刷新
     check_postpone = 4
     today_date += datetime.timedelta(hours = -check_postpone)
@@ -1148,7 +1163,7 @@ def admission_fee():
                                 "; 剩余水晶：" + str(lottery_crystal-fee), dbm=True)
             toaster_destroy = False
             file_w = open("kirara_lottery.log", 'a+')       # 写入log文件
-            file_w.write("\n" + str(today_date) + "入场收费收取,水晶-" + str(fee) + 
+            file_w.write(str(today_date) + "入场收费收取,水晶-" + str(fee) + 
                          "; 剩余水晶：" + str(lottery_crystal-fee) + "\n")
             file_w.close()
             db.commit()                                     # 提交数据库

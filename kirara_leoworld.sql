@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50528
 File Encoding         : 65001
 
-Date: 2021-06-09 16:31:11
+Date: 2021-06-22 11:52:33
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -36,18 +36,19 @@ INSERT INTO `achievement` VALUES ('1', '完成开题报告', '2020-10-19 14:47:5
 INSERT INTO `achievement` VALUES ('10', '完善数学导图', '2020-10-28 09:32:41', null, '4800', '275');
 INSERT INTO `achievement` VALUES ('11', '完成开题 第二期', '2020-10-29 16:38:08', '2020-11-25 16:40:28', '1200', '1000');
 INSERT INTO `achievement` VALUES ('12', '立直麻将进阶学习', '2020-10-30 22:54:48', null, '4800', '380');
-INSERT INTO `achievement` VALUES ('13', '行政日常', '2020-11-15 14:59:49', null, '6000', '1000');
-INSERT INTO `achievement` VALUES ('14', '理解tf 第三期', '2020-11-30 09:26:35', null, '6000', '1000');
-INSERT INTO `achievement` VALUES ('15', '论文撰写初级入门', '2021-06-09 15:59:03', null, '3000', '0');
-INSERT INTO `achievement` VALUES ('16', 'Blender初级入门', '2021-06-09 16:27:16', null, '3000', '0');
-INSERT INTO `achievement` VALUES ('2', '番剧鉴赏进阶学习', '2020-10-19 17:48:07', null, '6000', '885');
+INSERT INTO `achievement` VALUES ('13', '行政日常', '2020-11-15 14:59:49', null, '6000', '1125');
+INSERT INTO `achievement` VALUES ('14', '理解tf 第三期', '2020-11-30 09:26:35', '2021-06-22 11:25:27', '6000', '1050');
+INSERT INTO `achievement` VALUES ('15', '论文撰写初级入门', '2021-06-09 15:59:03', null, '3000', '825');
+INSERT INTO `achievement` VALUES ('16', 'Blender初级入门', '2021-06-09 16:27:16', null, '3000', '225');
+INSERT INTO `achievement` VALUES ('17', '游戏娱乐专业训练', '2021-06-21 11:12:00', null, '24000', '180');
+INSERT INTO `achievement` VALUES ('2', '番剧鉴赏进阶学习', '2020-10-19 17:48:07', null, '6000', '910');
 INSERT INTO `achievement` VALUES ('3', 'Golang初级入门', '2020-10-19 17:53:24', null, '2400', '175');
-INSERT INTO `achievement` VALUES ('4', '写作提升', '2020-10-19 17:56:56', null, '6000', '1925');
+INSERT INTO `achievement` VALUES ('4', '写作提升', '2020-10-19 17:56:56', null, '6000', '2150');
 INSERT INTO `achievement` VALUES ('5', '理解TF 第二期', '2020-10-19 17:58:46', '2020-11-29 23:02:57', '2400', '2415');
 INSERT INTO `achievement` VALUES ('6', '阅读晋升 第二期', '2020-10-19 18:01:48', null, '2000', '1125');
-INSERT INTO `achievement` VALUES ('7', '语言同化 第三期', '2020-10-19 18:03:02', null, '4800', '495');
-INSERT INTO `achievement` VALUES ('8', '视频娱乐二阶段', '2020-10-19 18:50:22', null, '6000', '1975');
-INSERT INTO `achievement` VALUES ('9', 'Coding初级入门', '2020-10-24 15:27:05', null, '2400', '1300');
+INSERT INTO `achievement` VALUES ('7', '语言同化 第三期', '2020-10-19 18:03:02', null, '4800', '570');
+INSERT INTO `achievement` VALUES ('8', '视频娱乐二阶段', '2020-10-19 18:50:22', null, '6000', '2455');
+INSERT INTO `achievement` VALUES ('9', 'Coding初级入门', '2020-10-24 15:27:05', null, '2400', '1900');
 
 -- ----------------------------
 -- Table structure for `figure`
@@ -92,13 +93,14 @@ DROP TABLE IF EXISTS `lottery`;
 CREATE TABLE `lottery` (
   `lottery_crystal` int(11) NOT NULL DEFAULT '0',
   `check_date` datetime NOT NULL,
-  `admission_date` datetime NOT NULL
+  `admission_date` datetime NOT NULL,
+  `login_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of lottery
 -- ----------------------------
-INSERT INTO `lottery` VALUES ('165', '2020-12-29 22:30:35', '2021-06-09 15:57:16');
+INSERT INTO `lottery` VALUES ('735', '2021-06-16 22:40:50', '2021-06-21 11:09:52', '2021-06-22 11:49:16');
 
 -- ----------------------------
 -- Table structure for `work`
