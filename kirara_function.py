@@ -42,7 +42,6 @@ def check_events(screen, button_list):
     global big_bg, toaster, toaster_destroy, pressed_button
     while True:
         for event in pygame.event.get():
-            print(event)
             if event.type == pygame.QUIT:
                 sys.exit()
             # 按下鼠标左键，button显示按下状态
@@ -1123,7 +1122,7 @@ def admission_fee():
     cursor.execute(select_addate_sql)                       #获取数据库记录时间
     tuple_tmp = cursor.fetchall()
     last_admission_time = tuple_tmp[0][0]
-    cursor.execute(select_addate_sql)
+    cursor.execute(select_lgdate_sql)
     tuple_tmp = cursor.fetchall()
     last_admission_time = tuple_tmp[0][0]
     last_login_time = tuple_tmp[0][0]
