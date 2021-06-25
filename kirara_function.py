@@ -172,10 +172,13 @@ def read_achievements():   # 读取成就
     achi_list = []
     for achievements in tuple_tmp:
         if achievements[5] < achievements[4] and achievements[3] == None:       # 仅显示未完成事件
+            timestamp = time.mktime(time.strptime(str(achievements[6]), "%Y-%m-%d %H:%M:%S"))
             achi_list.append({'name': achievements[1], 'startdate': achievements[2],
                               'enddate': achievements[3], 'planinvest': achievements[4],
-                              'nowinvest': achievements[5], 'achievementid': achievements[0]})
-    achi_list = sorted(achi_list, key=lambda key:int(key['achievementid']))  # 按照id排序
+                              'nowinvest': achievements[5], 'achievementid': achievements[0],
+                              'lastopendate': achievements[6],'lastopentimestamp': timestamp})
+
+    achi_list = sorted(achi_list, key=lambda key:float(key['lastopentimestamp']),reverse=True)  # 按照id排序
     achieve_setting = Settingssmallwindow()
     screen_works = pygame.display.set_mode((achieve_setting.screen_width, achieve_setting.screen_height))
     button_back = Button(150, 100, screen_works, "返回", 50, 650)
@@ -358,14 +361,19 @@ def small_bg_random():
     small_bg_list = ["48785626.png", "76182830.png", "79270076_46.jpg", "79630371.jpg", 
                 "79766498.png", "82730039.png", "82651099.png", "82778068.png", 
                 "82788872.png","82977478.png", "83408932(1).png", "83980327.png",
-                "85057160_p0.png", "85102162_p0.png"]
+                "85057160_p0.png", "85102162_p0.png",
+                #第二期背景图
+                "27421218.png", "50489348.jpg", "54968155.jpg", "63511691.png", "65646343.jpg",
+                "68068733_18.png", "68068733_19.png", "68485858_30.png", "69076928_14.png",
+                "69076928_19.png", "69485543_14.png", "73440912.jpg", "75746571.png"]
     return random.choice(small_bg_list)
 
 # 主窗口背景图顺序
 def big_bg_queue(sequence):
     global big_bg
     big_bg_list = ["v1.1.png", "73700395.png", "62593374.jpg", "64457976_7.jpg", "63119355.png",   
-              "76717514.jpg", "81925889.png", "83410346.jpg", "83667969.png"]
+              "76717514.jpg", "81925889.png", "83410346.jpg", "83667969.png", "85090331_p0.jpg",
+              "69296639_1.png", "60155475(1).png"]
     if sequence < 1:            # 最左侧背景图不能小于序号1
         sequence = 1
         big_bg = 1
@@ -493,7 +501,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
             for achi in text_list:
                 ab = AchievementBasic(width, height, screen, positionx,
                                positiony - mouse_rollup, achi['name'],
-                               achi['startdate'], achi['planinvest'], 
+                               achi['lastopendate'], achi['planinvest'], 
                                achi['nowinvest'], achi['achievementid'])
                 # 点击某一个具体事件后跳转
                 if positionx < lottery_mouse_x < positionx + width and \
@@ -717,12 +725,14 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         finish_one_achievement = "null"
                         set_crystal_sql = "update lottery set lottery_crystal=lottery_crystal+" + str(crystal_add)  # 水晶增加
                         query_crystal_sql = "Select lottery_crystal from lottery"   # 查询数据库
-                        cursor.execute(set_crystal_sql)     # 执行数据库指令
-                        cursor.execute(query_crystal_sql)
+                        cursor.execute(set_crystal_sql)     # 执行数据库水晶增加指令
+                        cursor.execute(query_crystal_sql)   #
                         crystal_number = cursor.fetchall()[0][0] # 取出水晶数量
 
-                        set_invest_sql = "update achievement set nowinvest=nowinvest+%s where name=%s"  # 投入时间增加
-                        cursor.execute(set_invest_sql,[duration_minutes, text_list[0]['name']])
+                        set_invest_sql = "update achievement set nowinvest=nowinvest+%s where achievementid=%s"  # 投入时间增加
+                        cursor.execute(set_invest_sql,[duration_minutes, text_list[0]['achievementid']])
+                        set_lastdate_sql = "update achievement set lastopendate=%s where achievementid=%s"
+                        cursor.execute(set_lastdate_sql, [after_time, text_list[0]['achievementid']])
                         if (text_list[0]['nowinvest'] + duration_minutes) >= text_list[0]['planinvest']:
                             set_end_sql = "update achievement set enddate=%s where name=%s" # 结束事件时间
                             cursor.execute(set_end_sql,[after_time, text_list[0]['name']])

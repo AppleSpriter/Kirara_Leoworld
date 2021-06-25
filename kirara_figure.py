@@ -199,7 +199,7 @@ class TextBasic():
 # 显示投入事件进度条文字块类，左一右二带左进度条
 class AchievementBasic():
     def __init__(self, width, height, screen, positionX, positionY, name,
-                 startdate, planinvest, nowinvest, achiid):
+                 lastopendate, planinvest, nowinvest, achiid):
         self.screen = screen
         self.screen_rect = screen.get_rect()
         self.width, self.height = width, height
@@ -210,7 +210,7 @@ class AchievementBasic():
         self.positionY = positionY
         self.rect = pygame.Rect(positionX, positionY, self.width, self.height)
         self.name = name
-        self.startdate = str(startdate)
+        self.lastopendate = str(lastopendate)
         self.planinvest = str(round(planinvest / 60,1)) + "h"
         self.percent = round(nowinvest * 100 / planinvest, 2)
         self.id = str(achiid) + "."
@@ -225,9 +225,9 @@ class AchievementBasic():
                                           self.bg_color)
         self.name_image_rect = pygame.Rect(self.positionX + 50,
                                            self.positionY + 20, 150, 50)
-        self.startdate_image = self.font.render(self.startdate, True, self.text_color,
+        self.lastopendate_image = self.font.render(self.lastopendate, True, self.text_color,
                                            self.bg_color)
-        self.startdate_image_rect = pygame.Rect(self.positionX + 300,
+        self.lastopendate_image_rect = pygame.Rect(self.positionX + 300,
                                            self.positionY + 20, 150, 50)
         self.planinvest_image = self.font.render(self.planinvest, True, self.text_color,
                                            self.bg_color)
@@ -243,7 +243,7 @@ class AchievementBasic():
         self.screen.fill(self.bg_color, self.rect)
         self.screen.blit(self.id_image, self.id_image_rect)
         self.screen.blit(self.name_image, self.name_image_rect)
-        self.screen.blit(self.startdate_image, self.startdate_image_rect)
+        self.screen.blit(self.lastopendate_image, self.lastopendate_image_rect)
         self.screen.blit(self.planinvest_image, self.planinvest_image_rect)
         self.screen.blit(self.percent_image, self.percent_image_rect)
         pygame.draw.rect(self.screen, (0,0,0), ((self.positionX + 20, self.positionY + 60),(340, 20)), 2)
