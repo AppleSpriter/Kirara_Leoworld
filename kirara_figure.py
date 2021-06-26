@@ -157,7 +157,7 @@ class Settingssmallwindow():
 # 显示基础文字块类，左一右二
 class TextBasic():
     def __init__(self, width, height, screen, positionX, positionY, msg1='',
-                 msg2='', msg3=''):
+                 msg2='', msg3='', msg4=''):
         self.screen = screen
         self.screen_rect = screen.get_rect()
         self.width, self.height = width, height
@@ -170,6 +170,7 @@ class TextBasic():
         self.msg1 = msg1
         self.msg2 = msg2
         self.msg3 = msg3
+        self.msg4 = msg4
         self.prep_msg()     # 文字标签
 
     # 将标签渲染为图像
@@ -189,12 +190,21 @@ class TextBasic():
         self.msg3_image_rect = pygame.Rect(self.positionX + 240,
                                            self.positionY + 60, 100, 50)
 
+        self.msg4_image = self.font.render(self.msg4, True, self.text_color,
+                                           self.bg_color)
+        self.msg4_image_rect = pygame.Rect(self.positionX, self.positionY, 200, 20)
+
     # 绘制基础文字块
     def draw_textbasic(self):
         self.screen.fill(self.bg_color, self.rect)
         self.screen.blit(self.msg1_image, self.msg1_image_rect)
         self.screen.blit(self.msg2_image, self.msg2_image_rect)
         self.screen.blit(self.msg3_image, self.msg3_image_rect)
+
+    # 绘制主页文字块
+    def draw_home_page_text(self):
+        self.screen.fill(self.bg_color, self.rect)
+        self.screen.blit(self.msg4_image, self.msg4_image_rect)
 
 # 显示投入事件进度条文字块类，左一右二带左进度条
 class AchievementBasic():

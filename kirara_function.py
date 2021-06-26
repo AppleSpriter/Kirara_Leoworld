@@ -38,7 +38,7 @@ db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
 cursor = db.cursor()
 
 # 监视鼠标和键盘事件
-def check_events(screen, button_list):
+def check_events(screen, button_list, text_list):
     global big_bg, toaster, toaster_destroy, pressed_button
     while True:
         for event in pygame.event.get():
@@ -53,13 +53,13 @@ def check_events(screen, button_list):
                 for button in button_list:
                     if button.rect.collidepoint(mouse_x, mouse_y):
                         pressed_button = button
-                        update_screen(screen, button_list=button_list)
+                        update_screen(screen, button_list=button_list, home_page_text=text_list)
 
             # 松开鼠标左键，button显示原本状态
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 #将按下按钮回归
                 pressed_button = ""
-                update_screen(screen, button_list=button_list)
+                update_screen(screen, button_list=button_list, home_page_text=text_list)
 
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 tmp = 0
@@ -94,7 +94,7 @@ def check_events(screen, button_list):
                     big_bg = 1
                 elif event.key == pygame.K_ESCAPE:
                     sys.exit()
-                update_screen(screen, button_list=button_list)
+                update_screen(screen, button_list=button_list, home_page_text=text_list)
 
 
         # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
@@ -167,8 +167,8 @@ def read_works():
 def read_achievements():   # 读取成就
     query_sql = "Select * from achievement"
     cursor.execute(query_sql)
-
     tuple_tmp = cursor.fetchall()
+
     achi_list = []
     for achievements in tuple_tmp:
         if achievements[5] < achievements[4] and achievements[3] == None:       # 仅显示未完成事件
@@ -452,7 +452,7 @@ def open_one_card():
 
 # 更新屏幕函数
 def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
-                  typed='', use_small_bg=""):
+                  typed='', use_small_bg="", home_page_text=[]):
     # 全局变量声明
     global text_len
     global mouse_rollup
@@ -474,7 +474,14 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
     # 绘制按钮列表(主要是返回按钮)
     for button in button_list:
         button.draw_pressed_button() if button == pressed_button else button.draw_button()
-
+    # 绘制总时间
+    if len(home_page_text)!=0:
+        hour = int(home_page_text[0]/60)
+        minute = home_page_text[0]%60
+        text = "总投入时间: " + str(hour) + "小时" + str(minute) + "分钟"
+        print(text)
+        hp = TextBasic(width=50, height=20, screen=screen, positionX=850, positionY=15, msg4=text)
+        hp.draw_home_page_text()
 
     if typed == 'work':
         # 绘制文字
@@ -495,7 +502,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
         # 绘制文字
         if text_list: 
             positionx = 30
-            positiony = 0
+            positiony = 10
             width = 500
             height = 100
             for achi in text_list:
@@ -726,13 +733,15 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         set_crystal_sql = "update lottery set lottery_crystal=lottery_crystal+" + str(crystal_add)  # 水晶增加
                         query_crystal_sql = "Select lottery_crystal from lottery"   # 查询数据库
                         cursor.execute(set_crystal_sql)     # 执行数据库水晶增加指令
-                        cursor.execute(query_crystal_sql)   #
+                        cursor.execute(query_crystal_sql)        # 查询水晶数量
                         crystal_number = cursor.fetchall()[0][0] # 取出水晶数量
-
+                        #更新数据库中的时间
                         set_invest_sql = "update achievement set nowinvest=nowinvest+%s where achievementid=%s"  # 投入时间增加
                         cursor.execute(set_invest_sql,[duration_minutes, text_list[0]['achievementid']])
                         set_lastdate_sql = "update achievement set lastopendate=%s where achievementid=%s"
                         cursor.execute(set_lastdate_sql, [after_time, text_list[0]['achievementid']])
+                        add_sum_time_sql = "update lottery set sum_time=sum_time+" + str(duration_minutes)  # 总投入时间增加
+                        cursor.execute(add_sum_time_sql)
                         if (text_list[0]['nowinvest'] + duration_minutes) >= text_list[0]['planinvest']:
                             set_end_sql = "update achievement set enddate=%s where name=%s" # 结束事件时间
                             cursor.execute(set_end_sql,[after_time, text_list[0]['name']])
@@ -1108,7 +1117,7 @@ def click_lottery_and_index(button):
 
             if event.button == 5 and mouse_rollup < (text_len - 800):
                 mouse_rollup += mouse_roll_dis
-            elif event.button == 4 and mouse_rollup >= 0:
+            elif event.button == 4 and mouse_rollup > 0:
                 mouse_rollup -= mouse_roll_dis
 
 
@@ -1210,6 +1219,12 @@ def run_game():                              # 初始背景图
     button_list = [button_girls, button_works, button_lottery,
                    button_achievement, button_checkin, button_kirara_log,
                    button_lottery_log]
-    update_screen(screen, ki_setting, button_list)          # 开始游戏
-    check_events(screen, button_list)
+
+    select_sum_time_sql = "Select sum_time from lottery"# 查询总投入时间
+    cursor.execute(select_sum_time_sql)                 #获取数据库记录时间
+    tuple_tmp = cursor.fetchall()
+    sum_time = tuple_tmp[0][0]
+
+    update_screen(screen, ki_setting, button_list, home_page_text=[sum_time])          # 开始游戏
+    check_events(screen, button_list, text_list=[sum_time])
 
