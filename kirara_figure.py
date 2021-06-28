@@ -89,8 +89,12 @@ class Button():
         self.screen_rect = screen.get_rect()
         # 设置按钮长宽
         self.width, self.height = width, height
-        self.button_color = (205,133,63)
-        self.text_color = (255, 255, 255)
+        #v1.1橙色+黄色配色
+        # self.button_color = (205,133,63)
+        # self.text_color = (255, 255, 255)
+        # v1.2紫罗兰色+灰色配色
+        self.button_color = ( 216, 191, 216)
+        self.text_color = ( 139, 131, 134)
         self.font = pygame.font.SysFont('KaiTi', 58)
         self.clickable = clickable
         '''

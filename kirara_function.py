@@ -365,9 +365,9 @@ def small_bg_random():
 # 主窗口背景图顺序
 def big_bg_queue(sequence):
     global big_bg
-    big_bg_list = ["v1.1.png", "73700395.png", "62593374.jpg", "64457976_7.jpg", "63119355.png",   
+    big_bg_list = ["v1.2.png", "v1.1.png", "73700395.png", "62593374.jpg", "64457976_7.jpg", "63119355.png",   
               "76717514.jpg", "81925889.png", "83410346.jpg", "83667969.png", "85090331_p0.jpg",
-              "69296639_1.png", "60155475(1).png", "90803945_p0.jpg"]
+              "69296639_1.png", "60155475(1).png"]
     if sequence < 1:            # 最左侧背景图不能小于序号1
         sequence = 1
         big_bg = 1
