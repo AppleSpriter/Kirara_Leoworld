@@ -68,13 +68,13 @@ def check_events(screen, button_list, text_list):
                     toaster.custom_destroy()
                     toaster_destroy = True
                 # 查看鼠标点击在哪个范围内，使用tmp确定是第几个按钮
-                # 由于button是在list中不确定，没有tmp就会只进入第一个click_button_girls()函数
+                # 由于button是在list中不确定，没有tmp就会只进入第一个read_girls()函数
                 for button in button_list:
                     tmp += 1
                     if button.rect.collidepoint(mouse_x, mouse_y) and tmp == 1:
-                        click_button_girls()
+                        read_girls()
                     elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 2:
-                        click_button_works()
+                        read_works()
                     elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 3:
                         click_button_lottery()
                     elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 4:
@@ -99,11 +99,6 @@ def check_events(screen, button_list, text_list):
 
         # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
         fpsClock.tick(FPS)
-
-# 按下girls按钮事件
-def click_button_girls():
-    # 列出女孩子的列表
-    read_girls()
 
 # 更新查询figure列中某一项
 def sql_update_one(girl):
@@ -192,11 +187,6 @@ def read_achievements():   # 读取成就
         update_screen(screen_works, work_setting, button_list, achi_list,
                       "achievements_previous")
 
-# 按下mission按钮事件
-# 10.06修改为作品按钮
-def click_button_works():
-    read_works()
-
 # 按下lottery按钮事件
 def click_button_lottery():
     # 查询数据库
@@ -223,10 +213,10 @@ def click_button_lottery():
 def click_button_achievement(achi):
     achieve_setting = Settingssmallwindow()
     screen_achievement = pygame.display.set_mode((achieve_setting.screen_width, achieve_setting.screen_height))
-    button_paper = Button(500, 100, screen_achievement, "看论文做实验", 50, 50)
-    button_learn = Button(500, 100, screen_achievement, "读书整理书爱培", 50, 200)
-    button_language = Button(500, 100, screen_achievement, "半个番茄钟", 50, 350)
-    button_play = Button(500, 100, screen_achievement, "休息", 50, 500)
+    button_paper = Button(500, 80, screen_achievement, "看论文做实验", 50, 240)
+    button_learn = Button(500, 80, screen_achievement, "读书整理书爱培", 50, 340)
+    button_language = Button(500, 80, screen_achievement, "半个番茄钟", 50, 440)
+    button_play = Button(500, 80, screen_achievement, "休息", 50, 540)
     button_back = Button(150, 100, screen_achievement, "返回", 50, 650)
     button_list = [button_back, button_paper, button_learn, button_language, button_play]
     work_setting = Settings()
@@ -365,7 +355,11 @@ def small_bg_random():
                 #第二期背景图
                 "27421218.png", "50489348.jpg", "54968155.jpg", "63511691.png", "65646343.jpg",
                 "68068733_18.png", "68068733_19.png", "68485858_30.png", "69076928_14.png",
-                "69076928_19.png", "69485543_14.png", "73440912.jpg", "75746571.png"]
+                "69076928_19.png", "69485543_14.png", "73440912.jpg", "75746571.png",
+                #第三期背景图
+                "63261643_p0.jpg", "73796140_p0.jpg", "74990422_p0.png", "75689551_p2.jpg",
+                "88605301_p0.jpg", "89286311_p0.jpg", "89920989_p0.jpg", "90436688_p23.jpg",
+                "90722077_p0.png" ]
     return random.choice(small_bg_list)
 
 # 主窗口背景图顺序
@@ -373,7 +367,7 @@ def big_bg_queue(sequence):
     global big_bg
     big_bg_list = ["v1.1.png", "73700395.png", "62593374.jpg", "64457976_7.jpg", "63119355.png",   
               "76717514.jpg", "81925889.png", "83410346.jpg", "83667969.png", "85090331_p0.jpg",
-              "69296639_1.png", "60155475(1).png"]
+              "69296639_1.png", "60155475(1).png", "90803945_p0.jpg"]
     if sequence < 1:            # 最左侧背景图不能小于序号1
         sequence = 1
         big_bg = 1
@@ -612,11 +606,19 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
         
         finishAchievement = False   # 判断是否完成这一事件
         small_bg = small_bg_random()
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
                 mouse_x, mouse_y = pygame.mouse.get_pos()   # 鼠标位置
+                #画出点击事件具体信息
+                achi = text_list[0]
+                ab = AchievementBasic(500, 100, screen, 30, 100, achi['name'],
+                               achi['lastopendate'], achi['planinvest'], 
+                               achi['nowinvest'], achi['achievementid'])
+                ab.draw_textbasic()
+                # 下面函数跳转一次u_s函数后又进入click_button_achievement中
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     #选择哪个按钮被按下
                     #画出按下的按钮
@@ -875,7 +877,7 @@ def click_to_one_girl(girl):
                     mouse_rollup = 0
                     lottery_mouse_x = 0
                     lottery_mouse_y = 0
-                    click_button_girls()
+                    read_girls()
                 elif button_lottery.rect.collidepoint(mouse_x, mouse_y) \
                         and event.button == 1:
                     sig = random.randint(1, 100)
@@ -1131,7 +1133,7 @@ def click_to_girls(button):
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if button.rect.collidepoint(mouse_x, mouse_y):
-                click_button_girls()
+                read_girls()
 
 # 入场料收取和登录时间记录
 def admission_fee():
@@ -1225,6 +1227,6 @@ def run_game():                              # 初始背景图
     tuple_tmp = cursor.fetchall()
     sum_time = tuple_tmp[0][0]
 
-    update_screen(screen, ki_setting, button_list, home_page_text=[sum_time])          # 开始游戏
-    check_events(screen, button_list, text_list=[sum_time])
+    update_screen(screen, ki_setting, button_list, home_page_text=[sum_time])   # 首先更新一次页面
+    check_events(screen, button_list, text_list=[sum_time])                     # 获取鼠标键盘命令
 
