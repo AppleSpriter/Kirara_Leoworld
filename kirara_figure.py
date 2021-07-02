@@ -217,7 +217,7 @@ class AchievementBasic():
         self.screen = screen
         self.screen_rect = screen.get_rect()
         self.width, self.height = width, height
-        self.bg_color = (224,238,224)       # 颜色名: Honeydew2
+        self.bg_color = self.choose_bg_color(achiid)
         self.text_color = (0, 0, 0)
         self.font = pygame.font.SysFont('KaiTi', 20)
         self.positionX = positionX
@@ -227,11 +227,19 @@ class AchievementBasic():
         self.lastopendate = str(lastopendate)
         self.planinvest = str(round(planinvest / 60,1)) + "h"
         self.percent = round(nowinvest * 100 / planinvest, 2)
-        self.id = str(achiid) + "."
+        self.str_id = str(achiid) + "."
         self.prep_msg()                     # 文字标签
 
+    # 按照顺序换背景颜色
+    def choose_bg_color(self, idNumber):
+        # 颜色名按顺序：Honeydew2浅绿、Aquamarine鲜艳蓝绿、LightSteelBlue1牛仔蓝、LightGoldenrod1金黄、
+        #               LightSalmon1橙红、Thistle紫罗兰、PeachPuff2棕色
+        color_list = [(224,238,224),(127, 255, 212),(202, 225, 255),(255, 236, 139),(255, 160, 122),
+                      (216, 191, 216),(238, 203, 173)]
+        return color_list[int(idNumber)%len(color_list) - 1]
+
     def prep_msg(self): # 将标签渲染为图像
-        self.id_image = self.font.render(self.id, True, self.text_color,
+        self.id_image = self.font.render(self.str_id, True, self.text_color,
                                           self.bg_color)
         self.id_image_rect = pygame.Rect(self.positionX + 20,
                                            self.positionY + 20, 70, 50)

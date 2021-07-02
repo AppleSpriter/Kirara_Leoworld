@@ -42,7 +42,7 @@ def check_events(screen, button_list, text_list):
     global big_bg, toaster, toaster_destroy, pressed_button
     while True:
         for event in pygame.event.get():
-            print(event)
+            #print(event)
             if event.type == pygame.QUIT:
                 sys.exit()
             # 按下鼠标左键，button显示按下状态
@@ -497,7 +497,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
         if text_list: 
             positionx = 30
             positiony = 10
-            width = 500
+            width = 530
             height = 100
             for achi in text_list:
                 ab = AchievementBasic(width, height, screen, positionx,
@@ -1141,14 +1141,15 @@ def admission_fee():
     fee = 1000                                              # 入场费用1000氵
     select_addate_sql = "Select admission_date from lottery"# 查询上次收费时间
     select_lgdate_sql = "Select login_date from lottery"
-    cursor.execute(select_addate_sql)                       #获取数据库记录时间
 
+    cursor.execute(select_addate_sql)                       #获取数据库记录上次收入场费时间
     tuple_tmp = cursor.fetchall()
     last_admission_time = tuple_tmp[0][0]
-    cursor.execute(select_lgdate_sql)
+
+    cursor.execute(select_lgdate_sql)                       #获取上次登录时间
     tuple_tmp = cursor.fetchall()
-    last_admission_time = tuple_tmp[0][0]
     last_login_time = tuple_tmp[0][0]
+
     today_date = datetime.datetime.now()
     # 销毁toaster内存占用
     if not toaster_destroy:
@@ -1168,6 +1169,8 @@ def admission_fee():
     check_postpone = 4
     today_date += datetime.timedelta(hours = -check_postpone)
     last_admission_time += datetime.timedelta(hours = -check_postpone)
+    print(last_admission_time.date())
+    print(today_date.date())
     if today_date.date().__gt__(last_admission_time.date()):              # 每日时间入场费
         today_date_exact = today_date + datetime.timedelta(hours = +check_postpone)   # 签到时间修改为当前时间
         today_date = today_date.date()
@@ -1175,6 +1178,7 @@ def admission_fee():
         cursor.execute(select_lottery_sql)
         tuple_tmp = cursor.fetchall()
         lottery_crystal = tuple_tmp[0][0]
+        print("sssssssssssssssss")
         if lottery_crystal - fee >= 0:                      # 付得起的情况
             update_crystal_sql = "update lottery set lottery_crystal=lottery_crystal-%s"
             update_addate_sql = "update lottery set admission_date=%s"
