@@ -708,14 +708,18 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         # v1.1修改为休息时间,10分钟倒计时
                         if button_list[4].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
                             pygame.display.set_caption("倒计时……") # 设置标题
-                            duration_minutes = 10
-                            achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
+                            duration_minutes = 2
+                            achievement_dt = DecTime(screen, duration_minutes * 1, small_bg) 
                             # 倒计时更新页面
                             while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
                                 for event in pygame.event.get():
                                     if event.type == pygame.QUIT:
                                         sys.exit()
-                                ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
+                                # 规范时间显示
+                                str_hour = "0" + str(achievement_dt.hour) if achievement_dt.hour < 10 else str(achievement_dt.hour)
+                                str_minute = "0" + str(achievement_dt.minute) if achievement_dt.minute < 10 else str(achievement_dt.minute)
+                                str_sec = "0" + str(achievement_dt.sec) if achievement_dt.sec < 10 else str(achievement_dt.sec)
+                                ch = str_hour+':'+str_minute+':'+str_sec
                                 achievement_dt.draw_timedec("休息", ch)
                                 achievement_dt.subTime()
                                 # 休眠1秒刷新屏幕
@@ -728,6 +732,9 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                                 crystal_add = 5
                                 # 要说的话
                                 achievement_str = "进行了休息10min 获得了" + str(crystal_add) + "水晶！剩余水晶："
+                                # 页面更新
+                                achievement_dt.draw_complete_text("休息结束", achievement_str)
+                                pygame.display.flip()
 
                     if finishAchievement == True:       # 完成奖励
                         after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))    # 当前时间
