@@ -213,10 +213,10 @@ def click_button_lottery():
 def click_button_achievement(achi):
     achieve_setting = Settingssmallwindow()
     screen_achievement = pygame.display.set_mode((achieve_setting.screen_width, achieve_setting.screen_height))
-    button_paper = Button(500, 80, screen_achievement, "看论文做实验", 50, 240)
-    button_learn = Button(500, 80, screen_achievement, "读书整理书爱培", 50, 340)
-    button_language = Button(500, 80, screen_achievement, "半个番茄钟", 50, 440)
-    button_play = Button(500, 80, screen_achievement, "休息", 50, 540)
+    button_paper = Button(500, 80, screen_achievement, "一个番茄50min", 50, 240)
+    button_learn = Button(500, 80, screen_achievement, "爱好培养60min", 50, 340)
+    button_language = Button(500, 80, screen_achievement, "半个番茄25min", 50, 440)
+    button_play = Button(500, 80, screen_achievement, "修生养息10min", 50, 540)
     button_back = Button(150, 100, screen_achievement, "返回", 50, 650)
     button_list = [button_back, button_paper, button_learn, button_language, button_play]
     work_setting = Settings()
@@ -446,7 +446,8 @@ def open_one_card():
 
 # 更新屏幕函数
 def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
-                  typed='', use_small_bg="", home_page_text=[]):
+                  typed='', use_small_bg="", home_page_text=[], draw_achi=[],
+                  draw_text=[]):
     # 全局变量声明
     global text_len
     global mouse_rollup
@@ -465,6 +466,10 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
     elif typed != 'lottery':
         background = pygame.image.load(r"image//big_bg//" + big_bg_queue(big_bg))   # 主窗口背景图片
         screen.blit(background,(0,0))
+    # 绘制事件结束的文字
+    if(len(draw_text)!=0):
+        for text in draw_text:
+            text.draw_complete_text()
     # 绘制按钮列表(主要是返回按钮)
     for button in button_list:
         button.draw_pressed_button() if button == pressed_button else button.draw_button()
@@ -473,9 +478,12 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
         hour = int(home_page_text[0]/60)
         minute = home_page_text[0]%60
         text = "总投入时间: " + str(hour) + "小时" + str(minute) + "分钟"
-        print(text)
         hp = TextBasic(width=50, height=20, screen=screen, positionX=850, positionY=15, msg4=text)
         hp.draw_home_page_text()
+    # 绘制一个成就事件
+    if(len(draw_achi)!=0):
+        for achi_ in draw_achi:
+            achi_.draw_textbasic()
 
     if typed == 'work':
         # 绘制文字
@@ -603,21 +611,20 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
             fpsClock.tick(FPS)
 
     if typed == 'achievement':
-        
         finishAchievement = False   # 判断是否完成这一事件
         small_bg = small_bg_random()
-
+        #画出点击事件具体信息
+        achi = text_list[0]
+        ab = AchievementBasic(500, 100, screen, 30, 100, achi['name'],
+                               achi['lastopendate'], achi['planinvest'], 
+                               achi['nowinvest'], achi['achievementid'])
+        ab.draw_textbasic()
+        draw_text = []
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
                 mouse_x, mouse_y = pygame.mouse.get_pos()   # 鼠标位置
-                #画出点击事件具体信息
-                achi = text_list[0]
-                ab = AchievementBasic(500, 100, screen, 30, 100, achi['name'],
-                               achi['lastopendate'], achi['planinvest'], 
-                               achi['nowinvest'], achi['achievementid'])
-                ab.draw_textbasic()
                 # 下面函数跳转一次u_s函数后又进入click_button_achievement中
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     #选择哪个按钮被按下
@@ -625,116 +632,32 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                     for button in button_list:
                         if button.rect.collidepoint(mouse_x, mouse_y):
                             pressed_button = button
-                            update_screen(screen, setting, button_list, text_list, use_small_bg=small_bg)
+                            update_screen(screen, setting, button_list, text_list, use_small_bg=small_bg, draw_achi=[ab], draw_text=draw_text)
 
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:      # 按下按钮事件
                     before_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                    duration_minutes = 0                    # 专注持续时间
                     #当倒计时结束后,list将只保留返回按钮,列表长度正确性判断
                     if len(button_list) > 1:
                         # 看论文做实验,50分钟倒计时
                         if button_list[1].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
-                            pygame.display.set_caption("倒计时……") # 设置标题
-                            duration_minutes = 50
-                            achievement_dt = DecTime(screen, duration_minutes * 60, small_bg)     # 倒计时3000s
-                            # 倒计时更新页面
-                            while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
-                                for event in pygame.event.get():
-                                    if event.type == pygame.QUIT:
-                                        sys.exit()
-                                ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
-                                achievement_dt.draw_timedec("看论文做实验", ch)
-                                achievement_dt.subTime()
-                                # 休眠1秒刷新屏幕
-                                pygame.time.delay(1000)
-                                pygame.display.flip()
-                            # 判断成功完成
-                            if achievement_dt.sec == -1:
-                                finishAchievement = True
-                                # 水晶奖励
-                                crystal_add = 220
-                                # 要说的话
-                                achievement_str = "看论文做实验50min 获得了" + str(crystal_add) + "水晶！剩余水晶："
+                           finishAchievement, duration_minutes, crystal_add, \
+                           achievement_str, achievement_dt = countdown(screen, 0, small_bg)
 
                         # 读书整理书爱培,50分钟倒计时
                         if button_list[2].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
-                            pygame.display.set_caption("倒计时……") # 设置标题
-                            duration_minutes = 50
-                            achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
-                            # 倒计时更新页面
-                            while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
-                                for event in pygame.event.get():
-                                    if event.type == pygame.QUIT:
-                                        sys.exit()
-                                ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
-                                achievement_dt.draw_timedec("读书整理书爱培", ch)
-                                achievement_dt.subTime()
-                                # 休眠1秒刷新屏幕
-                                pygame.time.delay(1000)
-                                pygame.display.flip()
-                            # 判断成功完成
-                            if achievement_dt.sec == -1:
-                                finishAchievement = True
-                                # 水晶奖励
-                                crystal_add = 200
-                                # 要说的话
-                                achievement_str = "读书整理书爱培50min 获得了" + str(crystal_add) + "水晶！剩余水晶："
+                            finishAchievement,duration_minutes, crystal_add, \
+                            achievement_str, achievement_dt = countdown(screen, 1, small_bg)
 
                         # 半个番茄钟,25分钟倒计时
                         if button_list[3].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
-                            pygame.display.set_caption("倒计时……") # 设置标题
-                            duration_minutes = 25
-                            achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
-                            # 倒计时更新页面
-                            while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
-                                for event in pygame.event.get():
-                                    if event.type == pygame.QUIT:
-                                        sys.exit()
-                                ch = str(achievement_dt.hour)+':'+str(achievement_dt.minute)+':'+str(achievement_dt.sec)
-                                achievement_dt.draw_timedec("半个番茄钟", ch)
-                                achievement_dt.subTime()
-                                # 休眠1秒刷新屏幕
-                                pygame.time.delay(1000)
-                                pygame.display.flip()
-                            # 判断成功完成
-                            if achievement_dt.sec == -1:
-                                finishAchievement = True
-                                # 水晶奖励
-                                crystal_add = 90
-                                # 要说的话
-                                achievement_str = "半个番茄钟25min 获得了" + str(crystal_add) + "水晶！剩余水晶："
+                            finishAchievement,duration_minutes, crystal_add, \
+                            achievement_str, achievement_dt = countdown(screen, 2, small_bg)
 
                         # 游戏娱乐,20分钟倒计时
                         # v1.1修改为休息时间,10分钟倒计时
                         if button_list[4].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
-                            pygame.display.set_caption("倒计时……") # 设置标题
-                            duration_minutes = 2
-                            achievement_dt = DecTime(screen, duration_minutes * 1, small_bg) 
-                            # 倒计时更新页面
-                            while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
-                                for event in pygame.event.get():
-                                    if event.type == pygame.QUIT:
-                                        sys.exit()
-                                # 规范时间显示
-                                str_hour = "0" + str(achievement_dt.hour) if achievement_dt.hour < 10 else str(achievement_dt.hour)
-                                str_minute = "0" + str(achievement_dt.minute) if achievement_dt.minute < 10 else str(achievement_dt.minute)
-                                str_sec = "0" + str(achievement_dt.sec) if achievement_dt.sec < 10 else str(achievement_dt.sec)
-                                ch = str_hour+':'+str_minute+':'+str_sec
-                                achievement_dt.draw_timedec("休息", ch)
-                                achievement_dt.subTime()
-                                # 休眠1秒刷新屏幕
-                                pygame.time.delay(1000)
-                                pygame.display.flip()
-                            # 判断成功完成
-                            if achievement_dt.sec == -1:
-                                finishAchievement = True
-                                # 水晶奖励
-                                crystal_add = 5
-                                # 要说的话
-                                achievement_str = "进行了休息10min 获得了" + str(crystal_add) + "水晶！剩余水晶："
-                                # 页面更新
-                                achievement_dt.draw_complete_text("休息结束", achievement_str)
-                                pygame.display.flip()
+                           finishAchievement,duration_minutes, crystal_add, \
+                           achievement_str, achievement_dt = countdown(screen, 3, small_bg)
 
                     if finishAchievement == True:       # 完成奖励
                         after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))    # 当前时间
@@ -795,6 +718,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                                 + ' 已经为' + text_list[0]['name'] + '投资了' + str(duration_minutes) + '分钟')
                         #绘制返回按钮
                         button_list = [button_list[0]]
+                        draw_text.append(achievement_dt)
 
                     # 返回按钮点击事件
                     if button_list[0].rect.collidepoint(mouse_x, mouse_y):
@@ -808,7 +732,7 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
                         read_achievements()
                     #一旦进入倒计时画面,button_list将只保留返回按钮,否则还是原先的按钮
                     pressed_button = ""
-                    update_screen(screen, setting, button_list, text_list, use_small_bg=small_bg)
+                    update_screen(screen, setting, button_list, text_list, use_small_bg=small_bg, draw_achi=[ab], draw_text=draw_text)
 
                 pygame.display.flip()   #刷新屏幕
             fpsClock.tick(FPS)          # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
@@ -851,6 +775,45 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[],
     
     # 显示窗口
     pygame.display.flip()
+
+
+# 进行倒计时
+def countdown(screen, option, small_bg):
+    duration_minutes_list = [50, 60, 25, 10]             # 4种不同选项的数据
+    text_list = ["一个番茄", "爱好培养", "半个番茄", "修生养息"]
+    duration_minutes = duration_minutes_list[option]    # 持续时间
+    text = text_list[option]                            # 显示文字
+
+    pygame.display.set_caption("倒计时……") # 设置标题
+    achievement_dt = DecTime(screen, duration_minutes * 60, small_bg) 
+    # 倒计时更新页面
+    while (achievement_dt.hour>0) or (achievement_dt.minute>0) or (achievement_dt.sec>=0):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+        # 规范时间显示
+        str_hour = "0" + str(achievement_dt.hour) if achievement_dt.hour < 10 else str(achievement_dt.hour)
+        str_minute = "0" + str(achievement_dt.minute) if achievement_dt.minute < 10 else str(achievement_dt.minute)
+        str_sec = "0" + str(achievement_dt.sec) if achievement_dt.sec < 10 else str(achievement_dt.sec)
+        ch = str_hour+':'+str_minute+':'+str_sec
+        achievement_dt.draw_timedec(text, ch)
+        achievement_dt.subTime()
+        # 休眠1秒刷新屏幕
+        pygame.time.delay(1000)
+        pygame.display.flip()
+    # 判断成功完成
+    if achievement_dt.sec == -1:
+        finishAchievement = True
+        # 水晶奖励
+        crystal_add_list = [220, 260, 90, 5]
+        crystal_add = crystal_add_list[option]
+        # 要说的话
+        return_str = "进行了" + text + str(duration_minutes) + "min 获得了" + str(crystal_add) + "水晶！剩余水晶： "
+        achievement_str = "进行了" + text + str(duration_minutes) + "min获得了" + str(crystal_add) + "水晶"
+        # 更新类属性
+        achievement_dt.public_text = text + "结束"
+        achievement_dt.public_ch = achievement_str
+        return finishAchievement, duration_minutes, crystal_add, return_str, achievement_dt
 
 # 进入单个女孩页面,可以完成抽卡升级操作
 def click_to_one_girl(girl):
@@ -1185,7 +1148,6 @@ def admission_fee():
         cursor.execute(select_lottery_sql)
         tuple_tmp = cursor.fetchall()
         lottery_crystal = tuple_tmp[0][0]
-        print("sssssssssssssssss")
         if lottery_crystal - fee >= 0:                      # 付得起的情况
             update_crystal_sql = "update lottery set lottery_crystal=lottery_crystal-%s"
             update_addate_sql = "update lottery set admission_date=%s"

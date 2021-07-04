@@ -200,7 +200,7 @@ class TextBasic():
 
     # 绘制基础文字块
     def draw_textbasic(self):
-        self.screen.fill(self.bg_color, self.rect)
+        #self.screen.fill(self.bg_color, self.rect)
         self.screen.blit(self.msg1_image, self.msg1_image_rect)
         self.screen.blit(self.msg2_image, self.msg2_image_rect)
         self.screen.blit(self.msg3_image, self.msg3_image_rect)
@@ -402,7 +402,6 @@ class DecTime(object):
         self.bg_image = pygame.image.load("image//small_bg//" + small_bg)
         self.font1 = pygame.font.SysFont('KaiTi', 60)
         self.font2 = pygame.font.SysFont('KaiTi', 70)
-        self.font3 = pygame.font.SysFont('KaiTi', 40)
         self.font1_color = (255, 0, 128)    # 亮粉色
         self.font2_color = (181, 230, 29)   # 酸橙色
         # 将秒转化为时分秒
@@ -411,18 +410,23 @@ class DecTime(object):
         self.sec = self.sec % 3600
         self.minute = int(self.sec / 60)
         self.sec = int(self.sec % 60)
-
+        # 绘制事件结束的文字
+        self.font3 = pygame.font.SysFont('KaiTi', 38)
+        self.font3_color = (0, 0, 0)
+        self.public_text = ""
+        self.public_ch = "" 
+        
     def draw_timedec(self, text, ch):
         self.screen.fill(self.bg_color)
         self.screen.blit(self.bg_image, (0,0))
         self.screen.blit(self.font1.render(text, True, self.font1_color), (320-30*len(text), 200))  # 文字居中对齐
         self.screen.blit(self.font2.render(ch, True, self.font2_color), (180, 400))
 
-    def draw_complete_text(self, text, ch):
-        self.screen.fill(self.bg_color)
+    def draw_complete_text(self):
+        #self.screen.fill(self.bg_color)
         self.screen.blit(self.bg_image, (0,0))
-        self.screen.blit(self.font1.render(text, True, self.font1_color), (320-30*len(text), 200))  # 文字居中对齐
-        self.screen.blit(self.font3.render(ch, True, self.font1_color), (20, 400))
+        self.screen.blit(self.font1.render(self.public_text, True, self.font3_color), (320-30*len(self.public_text), 240))  # 文字居中对齐
+        self.screen.blit(self.font3.render(self.public_ch, True, self.font3_color), (20, 400))
 
     # 时间减    
     def subTime(self):
