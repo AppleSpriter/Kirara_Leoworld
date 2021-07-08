@@ -15,7 +15,7 @@ def proc_exist(process_name):
     for pid in pl:
         if psutil.Process(pid).name() == process_name:
             python_limit -= 1
-            logging.debug(python_limit)
+            #logging.debug(python_limit)
             if python_limit == 0:
                 return pid
             else:
@@ -26,5 +26,5 @@ if __name__ == '__main__':
         logging.debug('Kirara Leoworld is running')
         win32api.MessageBox(0, "Kirara Leoworld已经在运行", "提醒",win32con.MB_ICONWARNING)
     else:
-        logging.debug('no such process...')
+        logging.debug('Kirara Leoworld opened')
         run_game()

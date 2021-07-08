@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50528
 File Encoding         : 65001
 
-Date: 2021-06-22 11:52:33
+Date: 2021-07-06 15:02:44
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -26,29 +26,33 @@ CREATE TABLE `achievement` (
   `enddate` datetime DEFAULT NULL,
   `planinvest` bigint(20) NOT NULL,
   `nowinvest` bigint(20) NOT NULL,
+  `lastopendate` datetime NOT NULL,
   PRIMARY KEY (`achievementid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of achievement
 -- ----------------------------
-INSERT INTO `achievement` VALUES ('1', '完成开题报告', '2020-10-19 14:47:56', '2020-10-29 16:37:16', '1680', '1725');
-INSERT INTO `achievement` VALUES ('10', '完善数学导图', '2020-10-28 09:32:41', null, '4800', '275');
-INSERT INTO `achievement` VALUES ('11', '完成开题 第二期', '2020-10-29 16:38:08', '2020-11-25 16:40:28', '1200', '1000');
-INSERT INTO `achievement` VALUES ('12', '立直麻将进阶学习', '2020-10-30 22:54:48', null, '4800', '380');
-INSERT INTO `achievement` VALUES ('13', '行政日常', '2020-11-15 14:59:49', null, '6000', '1125');
-INSERT INTO `achievement` VALUES ('14', '理解tf 第三期', '2020-11-30 09:26:35', '2021-06-22 11:25:27', '6000', '1050');
-INSERT INTO `achievement` VALUES ('15', '论文撰写初级入门', '2021-06-09 15:59:03', null, '3000', '825');
-INSERT INTO `achievement` VALUES ('16', 'Blender初级入门', '2021-06-09 16:27:16', null, '3000', '225');
-INSERT INTO `achievement` VALUES ('17', '游戏娱乐专业训练', '2021-06-21 11:12:00', null, '24000', '180');
-INSERT INTO `achievement` VALUES ('2', '番剧鉴赏进阶学习', '2020-10-19 17:48:07', null, '6000', '910');
-INSERT INTO `achievement` VALUES ('3', 'Golang初级入门', '2020-10-19 17:53:24', null, '2400', '175');
-INSERT INTO `achievement` VALUES ('4', '写作提升', '2020-10-19 17:56:56', null, '6000', '2150');
-INSERT INTO `achievement` VALUES ('5', '理解TF 第二期', '2020-10-19 17:58:46', '2020-11-29 23:02:57', '2400', '2415');
-INSERT INTO `achievement` VALUES ('6', '阅读晋升 第二期', '2020-10-19 18:01:48', null, '2000', '1125');
-INSERT INTO `achievement` VALUES ('7', '语言同化 第三期', '2020-10-19 18:03:02', null, '4800', '570');
-INSERT INTO `achievement` VALUES ('8', '视频娱乐二阶段', '2020-10-19 18:50:22', null, '6000', '2455');
-INSERT INTO `achievement` VALUES ('9', 'Coding初级入门', '2020-10-24 15:27:05', null, '2400', '1900');
+INSERT INTO `achievement` VALUES ('1', '完成开题报告', '2020-10-19 14:47:56', '2020-10-29 16:37:16', '1680', '1725', '2021-06-01 14:49:31');
+INSERT INTO `achievement` VALUES ('10', '完善数学导图', '2020-10-28 09:32:41', null, '4800', '275', '2021-06-01 14:49:36');
+INSERT INTO `achievement` VALUES ('11', '完成开题 第二期', '2020-10-29 16:38:08', '2020-11-25 16:40:28', '1200', '1000', '2021-06-01 14:49:40');
+INSERT INTO `achievement` VALUES ('12', '立直麻将进阶学习', '2020-10-30 22:54:48', null, '4800', '380', '2021-06-01 14:49:51');
+INSERT INTO `achievement` VALUES ('13', '行政日常', '2020-11-15 14:59:49', null, '6000', '1250', '2021-06-25 18:05:58');
+INSERT INTO `achievement` VALUES ('14', '理解tf 第三期', '2020-11-30 09:26:35', '2021-06-22 11:25:27', '6000', '1050', '2021-06-01 14:49:58');
+INSERT INTO `achievement` VALUES ('15', '论文撰写初级入门', '2021-06-09 15:59:03', null, '3000', '1885', '2021-07-06 10:58:01');
+INSERT INTO `achievement` VALUES ('16', 'Blender初级入门', '2021-06-09 16:27:16', null, '3000', '225', '2021-06-01 14:50:04');
+INSERT INTO `achievement` VALUES ('17', '游戏娱乐专业训练', '2021-06-21 11:12:00', null, '24000', '1140', '2021-07-05 20:23:26');
+INSERT INTO `achievement` VALUES ('18', '整理初级入门', '2021-06-28 23:03:07', null, '3000', '100', '2021-07-01 21:20:59');
+INSERT INTO `achievement` VALUES ('19', '心理学初级入门', '2021-07-02 19:40:22', null, '3000', '660', '2021-07-06 14:26:08');
+INSERT INTO `achievement` VALUES ('2', '番剧鉴赏进阶学习', '2020-10-19 17:48:07', null, '6000', '1085', '2021-07-05 20:12:56');
+INSERT INTO `achievement` VALUES ('20', '音乐鉴赏初级入门', '2021-07-04 20:42:33', null, '2400', '35', '2021-07-05 10:51:51');
+INSERT INTO `achievement` VALUES ('3', 'Golang初级入门', '2020-10-19 17:53:24', null, '2400', '200', '2021-06-01 14:50:10');
+INSERT INTO `achievement` VALUES ('4', '写作提升', '2020-10-19 17:56:56', null, '6000', '2386', '2021-07-05 20:58:41');
+INSERT INTO `achievement` VALUES ('5', '理解TF 第二期', '2020-10-19 17:58:46', '2020-11-29 23:02:57', '2400', '2415', '2021-06-01 14:50:16');
+INSERT INTO `achievement` VALUES ('6', '阅读晋升 第二期', '2020-10-19 18:01:48', null, '2000', '1175', '2021-06-29 19:29:39');
+INSERT INTO `achievement` VALUES ('7', '语言同化 第三期', '2020-10-19 18:03:02', null, '4800', '631', '2021-07-04 17:26:34');
+INSERT INTO `achievement` VALUES ('8', '视频娱乐二阶段', '2020-10-19 18:50:22', null, '6000', '3055', '2021-07-06 13:23:26');
+INSERT INTO `achievement` VALUES ('9', 'Coding初级入门', '2020-10-24 15:27:05', null, '2400', '2210', '2021-07-06 14:37:01');
 
 -- ----------------------------
 -- Table structure for `figure`
@@ -94,13 +98,14 @@ CREATE TABLE `lottery` (
   `lottery_crystal` int(11) NOT NULL DEFAULT '0',
   `check_date` datetime NOT NULL,
   `admission_date` datetime NOT NULL,
-  `login_date` datetime NOT NULL
+  `login_date` datetime NOT NULL,
+  `sum_time` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of lottery
 -- ----------------------------
-INSERT INTO `lottery` VALUES ('735', '2021-06-16 22:40:50', '2021-06-21 11:09:52', '2021-06-22 11:49:16');
+INSERT INTO `lottery` VALUES ('380', '2021-07-06 13:03:51', '2021-07-06 13:03:50', '2021-07-06 10:06:37', '22882');
 
 -- ----------------------------
 -- Table structure for `work`

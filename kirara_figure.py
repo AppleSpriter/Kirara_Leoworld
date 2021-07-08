@@ -37,35 +37,6 @@ class Figure():
     def love_up_multi(self, diff):
         self.love += diff
 
-'''
-    # output the girl's short info
-    def output_figure_info_short(self):
-        print("姓名: " + str(self.name))
-        print("等级: " + str(self.level))
-        print("星级: " + str(self.grade))
-
-    # output the girl's basic info
-    def output_figure_info_basic(self):
-        print("姓名: " + str(self.name))
-        print("来源: " + str(self.root))
-        print("等级: " + str(self.level))
-        print("星级: " + str(self.grade))
-        print("武器: " + str(self.weapon))
-        print("技能等级: " + str(self.skilllevel))
-
-    # output the girl's full info
-    def output_figure_info_full(self):
-        print("姓名: " + str(self.name))
-        print("来源: " + str(self.root))
-        print("等级: " + str(self.level))
-        print("星级: " + str(self.grade))
-        print("武器: " + str(self.weapon))
-        print("声优: " + str(self.sound))
-        print("技能等级: " + str(self.skilllevel))
-        print("眼睛颜色: " + str(self.eyecolor))
-        print("头发颜色: " + str(self.haircolor))
-'''
-
 # 武器
 class Weapon():
     # to initialize weapons,level means its level limit
@@ -200,7 +171,15 @@ class TextBasic():
 
     # 绘制基础文字块
     def draw_textbasic(self):
-        #self.screen.fill(self.bg_color, self.rect)
+        self.screen.fill(self.bg_color, self.rect)
+        self.screen.blit(self.msg1_image, self.msg1_image_rect)
+        self.screen.blit(self.msg2_image, self.msg2_image_rect)
+        self.screen.blit(self.msg3_image, self.msg3_image_rect)
+
+    # 绘制选中文字块
+    def draw_pressed_textbasic(self):
+        self.color = (76, 45, 51)
+        self.screen.fill(self.bg_color, self.rect)
         self.screen.blit(self.msg1_image, self.msg1_image_rect)
         self.screen.blit(self.msg2_image, self.msg2_image_rect)
         self.screen.blit(self.msg3_image, self.msg3_image_rect)
@@ -211,13 +190,15 @@ class TextBasic():
         self.screen.blit(self.msg4_image, self.msg4_image_rect)
 
 # 显示投入事件进度条文字块类，左一右二带左进度条
-class AchievementBasic():
+class AdventureBasic():
     def __init__(self, width, height, screen, positionX, positionY, name,
-                 lastopendate, planinvest, nowinvest, achiid):
+                 lastopendate, planinvest, nowinvest, achiid, duration_minutes=0):
         self.screen = screen
         self.screen_rect = screen.get_rect()
         self.width, self.height = width, height
-        self.bg_color = self.choose_bg_color(achiid)
+        self.id = achiid
+        self.bg_color = self.choose_bg_color(self.id)
+        self.pressed_color = (180, 238, 180)
         self.text_color = (0, 0, 0)
         self.font = pygame.font.SysFont('KaiTi', 20)
         self.positionX = positionX
@@ -226,9 +207,11 @@ class AchievementBasic():
         self.name = name
         self.lastopendate = str(lastopendate)
         self.planinvest = str(round(planinvest / 60,1)) + "h"
+        self.afterpercent = round((nowinvest + duration_minutes) * 100 / planinvest, 2)
         self.percent = round(nowinvest * 100 / planinvest, 2)
         self.str_id = str(achiid) + "."
         self.prep_msg()                     # 文字标签
+        self.prep_msg_pressed()             # 选中的文字标签
 
     # 按照顺序换背景颜色
     def choose_bg_color(self, idNumber):
@@ -255,11 +238,32 @@ class AchievementBasic():
                                            self.bg_color)
         self.planinvest_image_rect = pygame.Rect(self.positionX + 440,
                                            self.positionY + 60, 50, 50)
-        self.percent_image = self.font.render(str(self.percent) + "%", True, self.text_color,
+        self.percent_image = self.font.render(str(self.afterpercent) + "%", True, self.text_color,
                                            self.bg_color)
         self.percent_image_rect = pygame.Rect(self.positionX + 370,
                                            self.positionY + 60, 50, 50)
 
+    def prep_msg_pressed(self): # 将选中标签渲染为图像
+        self.id_image_pressed = self.font.render(self.str_id, True, self.text_color,
+                                          self.pressed_color)
+        self.id_image_rect_pressed = pygame.Rect(self.positionX + 20,
+                                           self.positionY + 20, 70, 50)
+        self.name_image_pressed = self.font.render(self.name, True, self.text_color,
+                                          self.pressed_color)
+        self.name_image_rect_pressed = pygame.Rect(self.positionX + 50,
+                                           self.positionY + 20, 150, 50)
+        self.lastopendate_image_pressed = self.font.render(self.lastopendate, True, self.text_color,
+                                           self.pressed_color)
+        self.lastopendate_image_rect_pressed = pygame.Rect(self.positionX + 300,
+                                           self.positionY + 20, 150, 50)
+        self.planinvest_image_pressed = self.font.render(self.planinvest, True, self.text_color,
+                                           self.pressed_color)
+        self.planinvest_image_rect_pressed = pygame.Rect(self.positionX + 440,
+                                           self.positionY + 60, 50, 50)
+        self.percent_image_pressed = self.font.render(str(self.afterpercent) + "%", True, self.text_color,
+                                           self.pressed_color)
+        self.percent_image_rect_pressed = pygame.Rect(self.positionX + 370,
+                                           self.positionY + 60, 50, 50)
 
     def draw_textbasic(self):
         self.screen.fill(self.bg_color, self.rect)
@@ -268,6 +272,18 @@ class AchievementBasic():
         self.screen.blit(self.lastopendate_image, self.lastopendate_image_rect)
         self.screen.blit(self.planinvest_image, self.planinvest_image_rect)
         self.screen.blit(self.percent_image, self.percent_image_rect)
+        pygame.draw.rect(self.screen, (0,0,0), ((self.positionX + 20, self.positionY + 60),(340, 20)), 2)
+        if self.afterpercent != self.percent:
+            pygame.draw.rect(self.screen, (0,0,0), ((self.positionX + 22 + 3.4*self.percent, self.positionY + 62),(1, 17)), 0)
+        pygame.draw.rect(self.screen, (240,128,128), ((self.positionX + 22, self.positionY + 62),(3.4*self.percent, 17)), 0)
+
+    def draw_pressed_textbasic(self):
+        self.screen.fill(self.pressed_color, self.rect)
+        self.screen.blit(self.id_image_pressed, self.id_image_rect_pressed)
+        self.screen.blit(self.name_image_pressed, self.name_image_rect_pressed)
+        self.screen.blit(self.lastopendate_image_pressed, self.lastopendate_image_rect_pressed)
+        self.screen.blit(self.planinvest_image_pressed, self.planinvest_image_rect_pressed)
+        self.screen.blit(self.percent_image_pressed, self.percent_image_rect_pressed)
         pygame.draw.rect(self.screen, (0,0,0), ((self.positionX + 20, self.positionY + 60),(340, 20)), 2)
         pygame.draw.rect(self.screen, (240,128,128), ((self.positionX + 22, self.positionY + 62),(3.4*self.percent, 17)), 0)
 
@@ -411,7 +427,7 @@ class DecTime(object):
         self.minute = int(self.sec / 60)
         self.sec = int(self.sec % 60)
         # 绘制事件结束的文字
-        self.font3 = pygame.font.SysFont('KaiTi', 38)
+        self.font3 = pygame.font.SysFont('KaiTi', 36)
         self.font3_color = (0, 0, 0)
         self.public_text = ""
         self.public_ch = "" 
@@ -426,7 +442,7 @@ class DecTime(object):
         #self.screen.fill(self.bg_color)
         self.screen.blit(self.bg_image, (0,0))
         self.screen.blit(self.font1.render(self.public_text, True, self.font3_color), (320-30*len(self.public_text), 240))  # 文字居中对齐
-        self.screen.blit(self.font3.render(self.public_ch, True, self.font3_color), (20, 400))
+        self.screen.blit(self.font3.render(self.public_ch, True, self.font3_color), (10, 400))
 
     # 时间减    
     def subTime(self):
@@ -444,7 +460,6 @@ class DecTime(object):
                 else:
                     self.sec = -1
 
-
 # 显示基础女孩类，左一右二
 class GirlBasic():
     def __init__(self, width, height, screen, positionX, positionY, girl):
@@ -452,15 +467,16 @@ class GirlBasic():
         self.screen_rect = screen.get_rect()
         self.width, self.height = width, height
         self.bg_color = (238,213,210)       # MistyRose2
+        self.pressed_color = (180, 238, 180)
         self.text_color = (0, 0, 0)
         self.font = pygame.font.SysFont('KaiTi', 20)
         self.positionX = positionX
         self.positionY = positionY
         self.rect = pygame.Rect(positionX, positionY, self.width, self.height)
         self.girl = girl
-
         # 文字标签
         self.prep_msg()
+        self.prep_msg_pressed()
 
     # 将标签渲染为图像
     def prep_msg(self):
@@ -473,41 +489,12 @@ class GirlBasic():
                                            True, self.text_color, self.bg_color)
         self.msg2_image_rect = pygame.Rect(self.positionX + 20,
                                            self.positionY + 60, 50, 50)
-        if self.girl.grade == 'A':
-            self.msg3_image = self.font.render('星级:' + self.girl.grade +
-                                               '  好感:'
-                                               + str(self.girl.love) + "/50",
-                                               True, self.text_color, self.bg_color)
-        elif self.girl.grade == 'S':
-            self.msg3_image = self.font.render('星级:' + self.girl.grade +
-                                               '  好感:'
-                                               + str(self.girl.love) + "/150",
-                                               True, self.text_color,
-                                               self.bg_color)
-        elif self.girl.grade == 'SS':
-            self.msg3_image = self.font.render('星级:' + self.girl.grade +
-                                               '  好感:'
-                                               + str(self.girl.love) + "/350",
-                                               True, self.text_color,
-                                               self.bg_color)
-        elif self.girl.grade == 'SSS':
-            self.msg3_image = self.font.render('星级:' + self.girl.grade +
-                                               '  好感:'
-                                               + str(self.girl.love) + "/650",
-                                               True, self.text_color,
-                                               self.bg_color)
-        elif self.girl.grade == 'EX':
-            self.msg3_image = self.font.render('星级:' + self.girl.grade +
-                                               '  好感:'
-                                               + str(self.girl.love) + "/1000",
-                                               True, self.text_color,
-                                               self.bg_color)
-        elif self.girl.grade == 'MAX':
-            self.msg3_image = self.font.render('星级:' + self.girl.grade +
-                                               '  好感:'
-                                               + str(self.girl.love) + "/MAX",
-                                               True, self.text_color,
-                                               self.bg_color)
+        grade_to_love = {"A":50, "S":200, "SS": 500, "SSS":1000, "EX":2000}
+
+        self.msg3_image = self.font.render('星级:' + self.girl.grade +
+                                           '  好感:'
+                                           + str(self.girl.love) + "/" + str(grade_to_love[self.girl.grade]),
+                                           True, self.text_color, self.bg_color)
         self.msg3_image_rect = pygame.Rect(self.positionX + 140,
                                            self.positionY + 60, 100, 50)
 
@@ -530,7 +517,45 @@ class GirlBasic():
                                            True, self.text_color, self.bg_color)
         self.msg7_image_rect = pygame.Rect(self.positionX + 140,
                                            self.positionY + 20, 50, 50)
+    # 将标签渲染为图像
+    def prep_msg_pressed(self):
+        self.msg1_image_pressed = self.font.render(self.girl.name, True, self.text_color,
+                                           self.pressed_color)
+        self.msg1_image_rect_pressed = pygame.Rect(self.positionX + 20,
+                                           self.positionY + 20, 120, 50)
 
+        self.msg2_image_pressed = self.font.render('等级:' + str(self.girl.level),
+                                           True, self.text_color, self.pressed_color)
+        self.msg2_image_rect_pressed = pygame.Rect(self.positionX + 20,
+                                           self.positionY + 60, 50, 50)
+        grade_to_love = {"A":50, "S":200, "SS": 500, "SSS":1000, "EX":2000}
+
+        self.msg3_image_pressed = self.font.render('星级:' + self.girl.grade +
+                                           '  好感:'
+                                           + str(self.girl.love) + "/" + str(grade_to_love[self.girl.grade]),
+                                           True, self.text_color, self.pressed_color)
+        self.msg3_image_rect_pressed = pygame.Rect(self.positionX + 140,
+                                           self.positionY + 60, 100, 50)
+
+        self.msg4_image_pressed = self.font.render('武器:'+ self.girl.weapon, True,
+                                           self.text_color, self.pressed_color)
+        self.msg4_image_rect_pressed = pygame.Rect(self.positionX + 230,
+                                           self.positionY + 20, 50, 50)
+
+        self.msg5_image_pressed = self.font.render('眼色: ' + self.girl.eyecolor, True,
+                                           self.text_color, self.pressed_color)
+        self.msg5_image_rect_pressed = pygame.Rect(self.positionX + 370,
+                                           self.positionY + 20, 50, 50)
+
+        self.msg6_image_pressed = self.font.render('发色: ' + self.girl.haircolor, True,
+                                           self.text_color, self.pressed_color)
+        self.msg6_image_rect_pressed = pygame.Rect(self.positionX + 370,
+                                           self.positionY + 60, 50, 50)
+
+        self.msg7_image_pressed = self.font.render('技能:' + str(self.girl.skilllevel),
+                                           True, self.text_color, self.pressed_color)
+        self.msg7_image_rect_pressed = pygame.Rect(self.positionX + 140,
+                                           self.positionY + 20, 50, 50)
     # 绘制基础文字块
     def draw_textbasic(self):
         self.screen.fill(self.bg_color, self.rect)
@@ -541,13 +566,16 @@ class GirlBasic():
         self.screen.blit(self.msg5_image, self.msg5_image_rect)
         self.screen.blit(self.msg6_image, self.msg6_image_rect)
         self.screen.blit(self.msg7_image, self.msg7_image_rect)
-
-    def draw_infolottery(self):
-        self.screen.fill(self.bg_color, self.rect)
-        self.screen.blit(self.msg1_image, self.msg1_image_rect)
-        self.screen.blit(self.msg2_image, self.msg2_image_rect)
-        self.screen.blit(self.msg3_image, self.msg3_image_rect)
-        self.screen.blit(self.msg4_image, self.msg4_image_rect)
-        self.screen.blit(self.msg5_image, self.msg5_image_rect)
-        self.screen.blit(self.msg6_image, self.msg6_image_rect)
-        self.screen.blit(self.msg7_image, self.msg7_image_rect)
+    # 绘制选中文字块
+    def draw_pressed_textbasic(self):
+        self.screen.fill(self.pressed_color, self.rect)
+        self.screen.blit(self.msg1_image_pressed, self.msg1_image_rect_pressed)
+        self.screen.blit(self.msg2_image_pressed, self.msg2_image_rect_pressed)
+        self.screen.blit(self.msg3_image_pressed, self.msg3_image_rect_pressed)
+        self.screen.blit(self.msg4_image_pressed, self.msg4_image_rect_pressed)
+        self.screen.blit(self.msg5_image_pressed, self.msg5_image_rect_pressed)
+        self.screen.blit(self.msg6_image_pressed, self.msg6_image_rect_pressed)
+        self.screen.blit(self.msg7_image_pressed, self.msg7_image_rect_pressed)
+    # 用于获取女武神信息
+    def get_girl_text(self):
+        return self.girl
