@@ -33,7 +33,7 @@ is_press_text = 0       # 是否按下文本
 pressed_text1 = ""      # 按下的文本
 
 # mysqlclient连接数据库
-db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leowrold_developing",
+db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
                      charset='utf8')
 cursor = db.cursor()
 
@@ -796,7 +796,7 @@ def draw_lottery(screen, button_list, text_list):
     global toaster, toaster_destroy    # win10气泡提示
     lottery_crystal = text_list[0]
     must_num = query_how_long_to_5star_charc()  #剩余保底次数
-    up = "高坂桐乃"      #抽奖up池设置
+    up = "平泽唯"      #抽奖up池设置
     lottery_lb = LotteryBasic(screen, lottery_crystal, must_num, up)  
     positionx = 150
     positiony = 100
@@ -1204,7 +1204,7 @@ def adventure_end_with_girl_reward(duration_minutes, crystal_basic):
         update_sql = "update my_figure set love=" + str(love_after) + " where my_figure_name='" + girl.name + "'"
         cursor.execute(update_sql)
         #enthusiasm高品质材料加成
-        enthusiasm_rate = 1 + formula_four_dismension_add(girl.enthusiasm, girl.e_coefficient, girl.grade, girl.level, passive_enthusiasm) / 1000
+        enthusiasm_rate = 1 + passive_stuff_drop + formula_four_dismension_add(girl.enthusiasm, girl.e_coefficient, girl.grade, girl.level, passive_enthusiasm) / 1000
         stuff_drop, color_ret = adventure_end_material_acquisition(enthusiasm_rate)
         if stuff_drop=="100水晶":
             crystal_add += 100
@@ -1221,6 +1221,8 @@ def query_current_assist_girl():
     query_sql = "select current_girl from lottery" 
     cursor.execute(query_sql)
     query_ret = cursor.fetchall()[0][0]
+    if query_ret==None:
+        query_ret = ""
     return query_ret
 
 def query_current_assist_girl_feature():
@@ -1363,7 +1365,7 @@ def run_game():                              # 初始背景图
     interval_y = 150
     button_girls = Button(400, 100, screen, "女武神", 100, basic_y)
     assist_name = "无" if query_current_assist_girl()=="" else query_current_assist_girl()
-    button_my_girl = Button(400, 100, screen, "助战:"+assist_name, 700, basic_y)
+    button_my_girl = Button(400, 100, screen, "助:"+assist_name, 700, basic_y)
     button_lottery = Button(205, 100, screen, "抽卡", 100, basic_y + interval_y)
     button_pack = Button(185, 100, screen, "背包", 315, basic_y + interval_y)
     button_adventure = Button(400, 100, screen, "新的冒险", 700, basic_y + interval_y)

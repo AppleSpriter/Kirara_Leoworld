@@ -84,12 +84,11 @@ def formula_four_dismension_add(basic, coefficient, grade, level, passive=0):
         coefficient: 角色属性提升系数
         grade: 角色品质/阶级
         level: 角色的等级
-        passive: 角色特性的被动加成比例
+        passive: 角色特性的被动加成比例*1000的值
 
     Returns:
         add: 增加的比例
     """
-    passive = basic * passive
     add = basic + level*level*coefficient*0.05 + \
         formula_grade_four_dismension_limit(grade)*coefficient + passive
     return int(add)

@@ -3,7 +3,7 @@ import random
 import time
 
 # mysqlclient连接数据库
-db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leowrold",
+db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
                      charset='utf8')
 cursor = db.cursor()
 
@@ -224,6 +224,8 @@ def query_how_long_to_5star_charc():
     query_sql = "select max(log_id) from log_lottery_charc"     #查找当前抽奖id
     cursor.execute(query_sql)
     current_id = cursor.fetchall()[0][0]
+    if current_id==None:
+        current_id = 0
     #从未出现5星时
     if count==0:
         return 77 - current_id

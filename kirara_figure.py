@@ -557,20 +557,30 @@ class GirlBasic(object):
                                            True, self.text_color, self.bg_color)
         self.__rootp_image = self.font.render('作品:' + self.girl.root,
                                            True, self.text_color, self.pressed_color)
-        self.__moe_image = self.font.render('萌:' + str(int(self.girl.moe)),
+        passive_yxr = 0
+        passive_moe = 0
+        if self.girl.feature=="亲妹妹":
+            passive_yxr = 100
+        elif self.girl.feature=="天然呆":
+            passive_moe = 80
+        msg_moe = formula_four_dismension_add(self.girl.moe, self.girl.m_coefficient, self.girl.grade, self.girl.level, passive_moe)
+        msg_yxr = formula_four_dismension_add(self.girl.yxr, self.girl.y_coefficient, self.girl.grade, self.girl.level, passive_yxr)
+        msg_intimacy = formula_four_dismension_add(self.girl.intimacy, self.girl.i_coefficient, self.girl.grade, self.girl.level)
+        msg_enthu = formula_four_dismension_add(self.girl.enthusiasm, self.girl.e_coefficient, self.girl.grade, self.girl.level)
+        self.__moe_image = self.font.render('萌:' + str(msg_moe),
                                            True, self.text_color, self.bg_color)
         self.__moep_image = self.font.render('萌:' + str(self.girl.m_coefficient),
                                            True, self.text_color, self.pressed_color)
-        self.__yxr_image = self.font.render('幼驯染:' + str(int(self.girl.yxr)),
+        self.__yxr_image = self.font.render('幼驯染:' + str(msg_yxr),
                                            True, self.text_color, self.bg_color)
         self.__yxrp_image = self.font.render('幼驯染:' + 
             str(self.girl.y_coefficient), True, self.text_color, self.pressed_color)
-        self.__intimacy_image = self.font.render('熟悉:' + str(int(self.girl.intimacy)),
+        self.__intimacy_image = self.font.render('熟悉:' + str(msg_intimacy),
                                            True, self.text_color, self.bg_color)
         self.__intimacyp_image = self.font.render('熟悉:' + 
             str(self.girl.i_coefficient), True, self.text_color, self.pressed_color)
         self.__enthusiasm_image = self.font.render('积极性:' + 
-            str(int(self.girl.enthusiasm)),  True, self.text_color, self.bg_color)
+            str(msg_enthu),  True, self.text_color, self.bg_color)
         self.__enthusiasmp_image = self.font.render('积极性:' + 
             str(self.girl.e_coefficient), True, self.text_color, self.pressed_color)
         ret_temp = formula_grade_fragment_limit(self.girl.grade)
@@ -745,7 +755,6 @@ class TheSelectFigureBasic(object):
             passive_yxr = 100
         elif self.girl.feature=="天然呆":
             passive_moe = 80
-
         msg_moe = formula_four_dismension_add(self.girl.moe, self.girl.m_coefficient, self.girl.grade, self.girl.level, passive_moe)
         black_line = (4 - len(str(msg_moe))) * " "
         msg_temp = "萌 / " + black_line + str(msg_moe)
