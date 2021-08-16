@@ -3,7 +3,7 @@ import random
 import time
 
 # mysqlclient连接数据库
-db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leowrold_developing",
+db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leowrold",
                      charset='utf8')
 cursor = db.cursor()
 
