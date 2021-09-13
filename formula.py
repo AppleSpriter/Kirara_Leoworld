@@ -155,8 +155,9 @@ def formula_levelUp_with_expbook(level, before_exp, quantity_4=0, quantity_3=0, 
         ret_2: 升级之后的经验值
     """
     exp_book_dict = {4:1200, 3:400, 2:100}
-    exp_all = quantity_4*exp_book_dict[4] + quantity_3*exp_book_dict[3] + quantity_2*exp_book_dict[2]
-    while(exp_all>=0):
+    exp_all = quantity_4*exp_book_dict[4] + quantity_3*exp_book_dict[3] + \
+              quantity_2*exp_book_dict[2]
+    while(1):
         if level==80:   
             return 80, 0    #满级时返回0exp
         exp_limit = formula_level_exp_limit(level)
@@ -166,3 +167,20 @@ def formula_levelUp_with_expbook(level, before_exp, quantity_4=0, quantity_3=0, 
             exp_all -= exp_limit
             level += 1
             before_exp = 0
+
+def formula_format_add0(word, number=3):
+    """添加0的操作
+
+    根据给与的数字
+
+    Args:
+        word: 需要加0的字符串
+        number: 加完之后变为多少位
+
+    Returns:
+        word: format加0后的字符串
+    """
+    while(number>=len(word)):
+        number -= 1
+        word = "0" + word
+    return word

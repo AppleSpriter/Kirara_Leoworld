@@ -99,6 +99,7 @@ def draw_SAstar_charc(grade, up=""):
     query_sql = "Select * from figure where grade=%s"
     cursor.execute(query_sql, [grade])
     all_5star = cursor.fetchall()
+    ret = ""
     if up=="":
         ret = random.choice(all_5star)
     else:
@@ -106,10 +107,9 @@ def draw_SAstar_charc(grade, up=""):
             if charc == up:
                 if random.randint(1,5) <= 2:    #40%概率命中up池角色
                     ret = charc
-                else:
-                    ret = random.choice(all_5star)
-        ret = random.choice(all_5star)
-        print("未找到up角色")
+        if ret=="":
+            ret = random.choice(all_5star)
+            print("未找到up角色")
     new = insert_upgrade_charc(ret)
     return ret[1], new
 
@@ -288,7 +288,7 @@ def adventure_end_material_acquisition(stuff_drop_rate=1):
         color_ret = color[1]
     elif game_point <= sum(prob[:3]):
         reward_text = "记忆晶元"
-        add_memory_element()
+        add_memory_element(1)
         color_ret = color[2]
     elif game_point <= sum(prob[:4]):
         reward_text = add_material_book(1, 4)
@@ -314,7 +314,7 @@ def adventure_end_material_acquisition(stuff_drop_rate=1):
 
     return reward_text, color_ret
 
-def add_memory_element(number):
+def add_memory_element(number=0):
     """增加记忆晶元
 
     Args:

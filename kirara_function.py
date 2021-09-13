@@ -123,7 +123,8 @@ def read_girls_list():
                                  girls[4], girls[5], girls[6], girls[7], 
                                  girls[8], girls[9], girls[10], girls[11], 
                                  girls[12],  girls[13], girls[14], girls[15], 
-                                 girls[16],  girls[17], girls[18], girls[19]))
+                                 girls[16],  girls[17], girls[18], girls[19],
+                                 skin=girls[20]))
     girl_setting = Settingssmallwindow()
     screen_works = pygame.display.set_mode((girl_setting.screen_width, girl_setting.screen_height))
     button_back = Button(150, 100, screen_works, "返回", 50, 650)
@@ -153,12 +154,12 @@ def select_one_have_girl_all(name=""):
     cursor.execute(query_sql)
     info = cursor.fetchall()[0]
     ret = Figure(info[0], info[1], info[2], girl[14], 
-                             info[4], info[5], info[6], girl[8], 
-                             girl[9], girl[10], girl[11], info[11], 
-                             info[12], info[13], info[14], info[15],
-                             girl[7], girl[2], info[18], info[19],
-                             girl[3], girl[4], girl[5], girl[6],
-                             girl[12], girl[13], girl[15])
+                 info[4], info[5], info[6], girl[8], 
+                 girl[9], girl[10], girl[11], info[11], 
+                 info[12], info[13], info[14], info[15],
+                 girl[7], girl[2], info[18], info[19],
+                 girl[3], girl[4], girl[5], girl[6],
+                 girl[12], girl[13], girl[15])
     return ret
 
 def read_assist_girl():
@@ -309,7 +310,7 @@ def click_button_adventure(achi):
     button_paper = Button(500, 80, screen_adventure, "一个番茄50min", 50, 240)
     button_learn = Button(500, 80, screen_adventure, "爱好培养60min", 50, 340)
     button_language = Button(500, 80, screen_adventure, "半个番茄25min", 50, 440)
-    button_play = Button(500, 80, screen_adventure, "修生养息10min", 50, 540)
+    button_play = Button(500, 80, screen_adventure, "起来走走10min", 50, 540)
     button_back = Button(150, 100, screen_adventure, "返回", 50, 650)
     button_list = [button_back, button_paper, button_learn, button_language, button_play]
     work_setting = Settings()
@@ -401,6 +402,10 @@ def click_button_checkin():
     last_checkin_time=checkin_check()
     # 气泡通知
     global toaster,toaster_destroy
+    # 销毁toaster内存占用
+    if not toaster_destroy:
+        toaster.custom_destroy()
+        toaster_destroy = True
     # 早间签到
     if last_checkin_time == 2:
         # 更新checkdate
@@ -532,6 +537,9 @@ def update_screen(screen, setting=Settings(), button_list=[], text_list=[], type
     #绘制选择女武神页面
     if typed == 'one':
         draw_the_one_girl(screen, button_list, text_list)
+    #绘制详情页的女武神页面
+    if typed == 'one_only_read':
+        draw_the_one_girl_only_read(screen, button_list, text_list)
     # 获取文字列表总长度            
     text_len = len(text_list) * one_list_len
     # 显示窗口
@@ -615,7 +623,7 @@ def draw_adventure(screen, button_list, text_list):
                     cursor.execute(set_lastdate_sql, [after_time, text_list[0]['adventureid']])
                     add_sum_time_sql = "update lottery set sum_time=sum_time+" + str(duration_minutes)  # 总投入时间增加
                     cursor.execute(add_sum_time_sql)
-                    remark = ""     #备注信息
+                    remark = adventure_dt.public_stuff     #备注掉落品信息
                     if (text_list[0]['nowinvest'] + duration_minutes) >= text_list[0]['planinvest']:
                         set_end_sql = "update adventure set enddate=%s where name=%s" # 结束事件时间
                         cursor.execute(set_end_sql,[after_time, text_list[0]['name']])
@@ -708,79 +716,85 @@ def draw_list(screen, typed, button_list, text_list):
             tb = TextBasic(width, height, screen, positionx,
                            positiony - mouse_rollup, text['name'],
                            text['year'], text['company'])
-            # 同一文字块选中，不同区域刷新选中
-            if is_press_text == 2 and type(pressed_text1)!=str and pressed_text1.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
-                is_press_text = 0
-                logging.debug(text)
-            elif is_press_text == 2:
-                is_press_text = 0
-                pressed_text1 = ""
             # 按下高亮
             if is_press_text == 1 and tb.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
                 tb.draw_pressed_textbasic()
                 pressed_text1 = tb
             else:
                 tb.draw_textbasic()
+            # 同一文字块选中，不同区域刷新选中
+            if is_press_text == 2 and type(pressed_text1)!=str and pressed_text1.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
+                is_press_text = 0
+                if type(pressed_text1)==type(tb):
+                    logging.debug(text)
+            elif is_press_text == 2:
+                is_press_text = 0
+                pressed_text1 = ""
         #############################################################
         if typed=='girl':
             height = 135
             positiony_add = 145
             gb = GirlBasic(width, height, screen, positionx,
                                positiony - mouse_rollup, text)
-            # 同一文字块选中进入，不同区域刷新选中
-            if is_press_text == 2 and type(pressed_text1)!=str and pressed_text1.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
-                is_press_text = 0
-            elif is_press_text == 2:
-                is_press_text = 0
-                pressed_text1 = ""
             # 按下高亮
             if is_press_text == 1 and gb.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
                 gb.draw_girl_list_pressed_textbasic()
                 pressed_text1 = gb
             else:
                 gb.draw_girl_list_textbasic()
+            # 同一文字块选中进入，不同区域刷新选中
+            if is_press_text == 2 and type(pressed_text1)!=str and pressed_text1.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
+                is_press_text = 0
+                if type(pressed_text1)==type(gb):
+                    update_screen(screen, button_list=button_list, 
+                        text_list=[pressed_text1.get_girl_text()], typed="one_only_read", use_small_bg="1")
+            elif is_press_text == 2:
+                is_press_text = 0
+                pressed_text1 = ""
         #############################################################
         if typed=='my_girl':
             height = 135
             positiony_add = 145
             gb = GirlBasic(width, height, screen, positionx,
                                positiony - mouse_rollup, text)
-            # 同一文字块选中进入，不同区域刷新选中
-            if is_press_text == 2 and type(pressed_text1)!=str and pressed_text1.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
-                is_press_text = 0
-                update_screen(screen, button_list=button_list, 
-                    text_list=[pressed_text1.get_girl_text()], typed="one", 
-                    use_small_bg="1")
-            elif is_press_text == 2:
-                is_press_text = 0
-                pressed_text1 = ""
             # 按下高亮
             if is_press_text == 1 and gb.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
                 gb.draw_my_girl_list_pressed_textbasic()
                 pressed_text1 = gb
             else:
                 gb.draw_my_girl_list_textbasic()
+            # 同一文字块选中进入，不同区域刷新选中
+            if is_press_text == 2 and type(pressed_text1)!=str and pressed_text1.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
+                is_press_text = 0
+                if type(pressed_text1)==type(gb):
+                    update_screen(screen, button_list=button_list, 
+                        text_list=[pressed_text1.get_girl_text()], typed="one", 
+                        use_small_bg="1")
+            elif is_press_text == 2:
+                is_press_text = 0
+                pressed_text1 = ""
         #############################################################
         if typed=='adventures_previous':
             ab = AdventureBasic(width, height, screen, positionx,
                                positiony - mouse_rollup, text)
-            # 同一文字块选中进入，不同区域刷新选中
-            if is_press_text == 2 and type(pressed_text1)!=str and pressed_text1.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
-                is_press_text = 0
-                click_button_adventure(pressed_text1.get_adventurebasic_text())
-            elif is_press_text == 2:
-                is_press_text = 0
-                pressed_text1 = ""
             # 按下高亮
             if is_press_text == 1 and ab.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
                 ab.draw_pressed_textbasic()
                 pressed_text1 = ab
             else:
                 ab.draw_textbasic()
+            # 同一文字块选中进入，不同区域刷新选中
+            if is_press_text == 2 and type(pressed_text1)!=str and pressed_text1.rect.collidepoint(lottery_mouse_x, lottery_mouse_y):
+                is_press_text = 0
+                if type(pressed_text1)==type(ab):
+                        click_button_adventure(pressed_text1.get_adventurebasic_text())
+            elif is_press_text == 2:
+                is_press_text = 0
+                pressed_text1 = ""
         positiony += positiony_add  # 下一个文本间隔距离
         temp += 1                   # 点击进入哪个事件
-        # 每秒运行帧数
-        fpsClock.tick(highFPS)
+    # 每秒运行帧数
+    fpsClock.tick(highFPS)
     return positiony_add + 20
 
 def draw_lottery(screen, button_list, text_list):
@@ -796,7 +810,8 @@ def draw_lottery(screen, button_list, text_list):
     global toaster, toaster_destroy    # win10气泡提示
     lottery_crystal = text_list[0]
     must_num = query_how_long_to_5star_charc()  #剩余保底次数
-    up = "平泽唯"      #抽奖up池设置
+    up = ""      #抽奖up池设置
+    crystal_to_lottery = 280    #抽奖限制
     lottery_lb = LotteryBasic(screen, lottery_crystal, must_num, up)  
     positionx = 150
     positiony = 100
@@ -838,7 +853,7 @@ def draw_lottery(screen, button_list, text_list):
                     elif button.rect.collidepoint(mouse_x, mouse_y) and tmp == 2:
                         click_button_lottery()
                 # 抽奖主程序
-                if text_list[0] >= 280 and clicked == False and \
+                if text_list[0] >= crystal_to_lottery and clicked == False and \
                    pygame.Rect(positionx, positiony, width, height).collidepoint(mouse_x, mouse_y):
                     # 刷新screen
                     update_screen(screen, button_list=button_list, use_small_bg="1", button_height=0)
@@ -866,14 +881,14 @@ def draw_lottery(screen, button_list, text_list):
                     toaster_destroy = False
                     logging.debug(write_time + " 获得奖励：" + reward_text +
                                  "; 剩余水晶： " + str(text_list[0] - 280))
-                elif text_list[0] < 280 and clicked == False and \
+                elif text_list[0] < crystal_to_lottery and clicked == False and \
                    pygame.Rect(positionx, positiony, width, height).collidepoint(mouse_x, mouse_y):
                     # 气泡以及控制台输出提示
-                    toaster.show_toast(u'温馨提示(穷就快去工作吖', u'没有足够水晶', dbm=True)
+                    toaster.show_toast(u'温馨提示', u'没有足够水晶,水晶数大于' + str(crystal_to_lottery) + '才可抽卡', dbm=True)
                     toaster_destroy = False
                     logging.debug("没有足够水晶")
-
             pygame.display.flip()
+        fpsClock.tick(highFPS)
 
 def draw_the_one_girl(screen, button_list, text_list):
     """绘制进入单个女孩页面
@@ -1071,6 +1086,67 @@ def draw_the_one_girl(screen, button_list, text_list):
                 else:
                     pressed_button = ""
             # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
+            pygame.display.flip()
+        fpsClock.tick(highFPS)
+
+def draw_the_one_girl_only_read(screen, button_list, text_list):
+    """绘制详情页进入单个女孩页面
+
+    在此页面可以完成查看技能、好感度
+
+    Args:
+        screen: 当前surface
+        button_list: 返回按钮
+        text_list: [girl] - 该女武神的对象
+    """
+    # 全局变量声明
+    global mouse_rollup, lottery_mouse_x, lottery_mouse_y
+    global pressed_button
+    global toaster, toaster_destroy
+
+    girl = text_list[0]
+    one_tb = TheSelectFigureBasic(screen, girl)
+    one_tb.draw_theselectgirlbasic_only_read()
+    pygame.display.flip()
+    while True:
+        # 监视器
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            # 按下button事件
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if button_list[0].rect.collidepoint(mouse_x, mouse_y):
+                    pressed_button = button_list[0]
+                    update_screen(screen, button_list=button_list, text_list=text_list, typed="one_only_read", use_small_bg="1")
+                elif one_tb.rect_love.collidepoint(mouse_x, mouse_y):
+                    pressed_button = one_tb.rect_love
+                elif one_tb.rect_feature.collidepoint(mouse_x, mouse_y):
+                    pressed_button = one_tb.rect_feature
+            elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                # 判断是否销毁toaster
+                if not toaster_destroy:
+                    toaster.custom_destroy()
+                    toaster_destroy = True
+                if button_list[0].rect.collidepoint(mouse_x, mouse_y) and event.button == 1 and pressed_button == button_list[0]:
+                    mouse_rollup = 0
+                    lottery_mouse_x = 0
+                    lottery_mouse_y = 0
+                    read_girls_list()
+                #点击好感度详情
+                elif one_tb.rect_love.collidepoint(mouse_x, mouse_y) and event.button == 1 and pressed_button == one_tb.rect_love:
+                    update_screen(screen, button_list=button_list, text_list=text_list,  use_small_bg="1")
+                    one_tb.draw_theselectgirlbasic_only_read()
+                    one_tb.draw_click_rect_love()
+                #点击人物特性详情   
+                elif one_tb.rect_feature.collidepoint(mouse_x, mouse_y) and event.button == 1 and pressed_button == one_tb.rect_feature:
+                    update_screen(screen, button_list=button_list, text_list=text_list,  use_small_bg="1")
+                    one_tb.draw_theselectgirlbasic_only_read()
+                    one_tb.draw_click_rect_feature()
+
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 3:
+                    pressed_button = ""
+            # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
             fpsClock.tick(highFPS)
             pygame.display.flip()
 
@@ -1081,7 +1157,7 @@ def countdown(screen, option, small_bg):
 
     Args:
         screen：当前surface
-        option：0-3对应["一个番茄", "测试用例", "半个番茄", "修生养息"]
+        option：0-3对应["一个番茄", "测试用例", "半个番茄", "起来走走"]
         small_bg：背景小图
 
     Returns:
@@ -1094,10 +1170,11 @@ def countdown(screen, option, small_bg):
     """
     duration_minutes_list = [50, 60, 25, 10]            # 4种不同选项的数据
     a_minute_coeffi = 60                                #一分钟具有多少秒系数
-    text_list = ["一个番茄", "爱好培养", "半个番茄", "修生养息"]
+    text_list = ["一个番茄", "爱好培养", "半个番茄", "起来走走"]
     duration_minutes = duration_minutes_list[option]    # 持续时间
     text = text_list[option]                            # 显示文字
     passive_duration = 1                                #角色特性时间加成
+    assist_girl_name = query_current_assist_girl()
     if query_current_assist_girl_feature()=="单纯与幸运":
         passive_duration = 1.1
     pygame.display.set_caption("倒计时……") # 设置标题
@@ -1127,14 +1204,18 @@ def countdown(screen, option, small_bg):
         # 要说的话
         if stuff_drop!="":
             stuff_drop = "本次掉落物品:" + stuff_drop
-        return_str = "进行了" + text + str(duration_minutes) + "s 获得了" + str(crystal_add) + "水晶！" + stuff_drop + "。剩余水晶： "
-        adventure_str = "进行了" + text + str(duration_minutes) + "s获得了" + str(crystal_add) + "水晶"
+        return_str = "进行了" + text + str(duration_minutes) + "min 获得了" + str(crystal_add) + "水晶！" + stuff_drop + "。剩余水晶： "
+        adventure_str = "进行了" + text + str(duration_minutes) + "min 获得了" + str(crystal_add) + "水晶"
         # 更新类属性
         adventure_dt.public_text = text + "结束"
         adventure_dt.public_ch = adventure_str
         adventure_dt.public_stuff = stuff_drop
         adventure_dt.stuff_color_ret = color_ret
-        adventure_dt.love_add = love_add
+        if assist_girl_name!="":
+            if int(love_add)==0:
+                adventure_dt.love_add = assist_girl_name + "好感已经达到上限"
+            else:
+                adventure_dt.love_add = assist_girl_name + "好感增加" + str(round(love_add, 2)) + "点"
         return finishadventure, duration_minutes, crystal_add, return_str, adventure_dt
 
 def adventure_end_with_girl_reward(duration_minutes, crystal_basic):
@@ -1150,11 +1231,15 @@ def adventure_end_with_girl_reward(duration_minutes, crystal_basic):
         #enthusiasm高品质材料加成
         enthusiasm_rate = 1
         crystal_add = crystal_basic
-        stuff_drop, color_ret = adventure_end_material_acquisition(enthusiasm_rate)
-        if stuff_drop=="100水晶":
-            crystal_add += 100
-        elif stuff_drop=="50水晶":
-            crystal_add += 50
+        if duration_minutes >= 20:          #时间大于等于20分钟才会掉落物品
+            stuff_drop, color_ret = adventure_end_material_acquisition(enthusiasm_rate)
+            if stuff_drop=="100水晶":
+                crystal_add += 100
+            elif stuff_drop=="50水晶":
+                crystal_add += 50
+        elif duration_minutes <20:
+            stuff_drop = ""
+            color_ret = 2
         return crystal_add, stuff_drop, color_ret
     else:
         girl = select_one_have_girl_all(name=query_current_assist_girl())
@@ -1200,16 +1285,20 @@ def adventure_end_with_girl_reward(duration_minutes, crystal_basic):
         #好感度不能超过当前阶级上限
         if love_after > formula_grade_love_limit(girl.grade):
             love_after = formula_grade_love_limit(girl.grade)
-        print(love_after)
+            love_add = 0
         update_sql = "update my_figure set love=" + str(love_after) + " where my_figure_name='" + girl.name + "'"
         cursor.execute(update_sql)
         #enthusiasm高品质材料加成
-        enthusiasm_rate = 1 + passive_stuff_drop + formula_four_dismension_add(girl.enthusiasm, girl.e_coefficient, girl.grade, girl.level, passive_enthusiasm) / 1000
-        stuff_drop, color_ret = adventure_end_material_acquisition(enthusiasm_rate)
-        if stuff_drop=="100水晶":
-            crystal_add += 100
-        elif stuff_drop=="50水晶":
-            crystal_add += 50
+        if duration_minutes>=20:
+            enthusiasm_rate = 1 + passive_stuff_drop + formula_four_dismension_add(girl.enthusiasm, girl.e_coefficient, girl.grade, girl.level, passive_enthusiasm) / 1000
+            stuff_drop, color_ret = adventure_end_material_acquisition(enthusiasm_rate)
+            if stuff_drop=="100水晶":
+                crystal_add += 100
+            elif stuff_drop=="50水晶":
+                crystal_add += 50
+        elif duration_minutes<20:
+            stuff_drop = ""
+            color_ret = 2
         return int(crystal_add), stuff_drop, color_ret, love_add
 
 def query_current_assist_girl():
@@ -1249,7 +1338,7 @@ def click_mouse_and_index(button_list):
     # 全局变量声明
     global text_len
     global mouse_rollup, lottery_mouse_x, lottery_mouse_y
-    global is_press_text, pressed_text1
+    global is_press_text
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -1283,9 +1372,11 @@ def admission_fee():
     """入场料收取和登录时间记录
 
     每日根据延时时间第一次上线后收取入场料，并记录收取的时间
+
+    2021.8.30修改为入场料1000 - 1，不在收取较高费用
     """
     global toaster, toaster_destroy
-    fee = 1000                                              # 入场费用1000氵
+    fee = 1                                              # 入场费用1氵
     select_addate_sql = "Select admission_date from lottery"# 查询上次收费时间
     select_lgdate_sql = "Select login_date from lottery"
 
@@ -1302,14 +1393,11 @@ def admission_fee():
     if not toaster_destroy:
         toaster.custom_destroy()
         toaster_destroy = True
-    #文件录入登录时间
+    #录入登录时间
     if today_date.date().__gt__(last_login_time.date()):
         login_time = today_date.strftime('%Y-%m-%d %H:%M:%S')   #记录登录时刻并去掉秒后面的部分
         update_lgdate_sql = "update lottery set login_date=%s"
         cursor.execute(update_lgdate_sql, (str(today_date), ))
-        file_w = open("kirara_lottery.log", 'a+')       # 写入log文件
-        file_w.write("\n您已经于 " + str(login_time) + " 登录Kirara Leoworld, 欢迎归来！" + "\n")
-        file_w.close()
         db.commit()
 
     # 入场料收取延时，修改凌晨四点刷新
@@ -1333,10 +1421,6 @@ def admission_fee():
             toaster.show_toast(u'入场料收取', u"已经收取" + str(today_date) + "的费用,水晶-" + str(fee) + 
                                 "; 剩余水晶：" + str(lottery_crystal-fee), dbm=True)
             toaster_destroy = False
-            file_w = open("kirara_lottery.log", 'a+')       # 写入log文件
-            file_w.write(str(today_date) + "入场收费收取,水晶-" + str(fee) + 
-                         "; 剩余水晶：" + str(lottery_crystal-fee) + "\n")
-            file_w.close()
             db.commit()                                     # 提交数据库
         else:                                               # 付不起的情况
             toaster.show_toast(u'入场料收取失效', u"你于" + str(today_date) + "的费用已经付不起了,白嫖入场; 剩余水晶：" 

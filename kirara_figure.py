@@ -10,8 +10,16 @@ import os
 import datetime
 from formula import *
 
-# 作品集，程序设定
+
 class Work(object):
+    """番剧作品类
+
+    Attribute:
+        name: 番剧名
+        year: 播出年份
+        company: 制作公司
+
+    """
     def __init__(self, name, year, company):
         self.name = name
         self.year = year
@@ -465,31 +473,31 @@ class DecTime(object):
         self.font3 = pygame.font.SysFont('KaiTi', 36)
         self.font3_color = (0, 0, 0)
         self.stuff_color_ret = 2
-        self.love_add = 0
-        if self.stuff_color_ret==2:
-            self.stuff_color = (240,248,255)
-        elif self.stuff_color_ret==3:
-            self.stuff_color = (30,144,255)
-        elif self.stuff_color_ret==4:
-            self.stuff_color = (153,50,204)
-        elif self.stuff_color_ret==5:
-            self.stuff_color = (255,130,71)
         self.public_text = ""
         self.public_ch = ""
         self.public_stuff = ""
+        self.love_add = ""
         
     def draw_timedec(self, text, ch):
         self.screen.fill(self.bg_color)
         self.screen.blit(self.bg_image, (0,0))
-        self.screen.blit(self.font1.render(text, True, self.font1_color), (320-30*len(text), 200))  # 文字居中对齐
+        self.screen.blit(self.font1.render(text, True, self.font1_color), (298-30*formula_get_str_byte_len(text), 200))  # 文字居中对齐
         self.screen.blit(self.font2.render(ch, True, self.font2_color), (180, 400))
 
     def draw_complete_text(self):
         self.screen.blit(self.bg_image, (0,0))
-        self.screen.blit(self.font1.render(self.public_text, True, self.font3_color), (320-30*len(self.public_text), 240))  # 文字居中对齐
-        self.screen.blit(self.font3.render(self.public_ch, True, self.font3_color), (10, 400))
-        self.screen.blit(self.font3.render(self.public_stuff, True, self.stuff_color), (60, 440))
-        self.screen.blit(self.font3.render("好感增加" + str(round(self.love_add, 2)) + "点", True, self.font3_color), (100, 480))
+        self.screen.blit(self.font1.render(self.public_text, True, self.font3_color), (298-30*formula_get_str_byte_len(self.public_text), 240))  # 文字居中对齐
+        self.screen.blit(self.font3.render(self.public_ch, True, self.font3_color), (298-18*formula_get_str_byte_len(self.public_ch), 400))
+        if self.stuff_color_ret==2:
+            stuff_color = (240,248,255)
+        elif self.stuff_color_ret==3:
+            stuff_color = (30,144,255)
+        elif self.stuff_color_ret==4:
+            stuff_color = (153,50,204)
+        elif self.stuff_color_ret==5:
+            stuff_color = (255,130,71)
+        self.screen.blit(self.font3.render(self.public_stuff, True, stuff_color), (298-18*formula_get_str_byte_len(self.public_stuff), 460))
+        self.screen.blit(self.font3.render(self.love_add, True, self.font3_color), (298-18*formula_get_str_byte_len(self.love_add), 520))
 
     # 时间减    
     def subTime(self):
@@ -583,6 +591,14 @@ class GirlBasic(object):
             str(msg_enthu),  True, self.text_color, self.bg_color)
         self.__enthusiasmp_image = self.font.render('积极性:' + 
             str(self.girl.e_coefficient), True, self.text_color, self.pressed_color)
+        self.__moe_origin_image = self.font.render('萌:' + str(int(self.girl.moe)),
+                                           True, self.text_color, self.bg_color)
+        self.__yxr_origin_image = self.font.render('幼驯染:' + str(int(self.girl.yxr)),
+                                           True, self.text_color, self.bg_color)
+        self.__intimacy_origin_image = self.font.render('熟悉:' + str(int(self.girl.intimacy)),
+                                           True, self.text_color, self.bg_color)
+        self.__enthusiasm_origin_image = self.font.render('积极性:' + 
+            str(int(self.girl.enthusiasm)),  True, self.text_color, self.bg_color)
         ret_temp = formula_grade_fragment_limit(self.girl.grade)
         if self.girl.feature=="自强者":
             ret_temp = int(ret_temp*0.95)
@@ -628,10 +644,10 @@ class GirlBasic(object):
         self.screen.blit(self.__feature_image, self.__rect13s)
         self.screen.blit(self.__weapontype_image, self.__rect21l)
         self.screen.blit(self.__sound_image, self.__rect23l)
-        self.screen.blit(self.__moe_image, self.__rect31s)
-        self.screen.blit(self.__yxr_image, self.__rect32s)
-        self.screen.blit(self.__intimacy_image, self.__rect33s)
-        self.screen.blit(self.__enthusiasm_image, self.__rect34s)
+        self.screen.blit(self.__moe_origin_image, self.__rect31s)
+        self.screen.blit(self.__yxr_origin_image, self.__rect32s)
+        self.screen.blit(self.__intimacy_origin_image, self.__rect33s)
+        self.screen.blit(self.__enthusiasm_origin_image, self.__rect34s)
     # 绘制选中文字块
     def draw_girl_list_pressed_textbasic(self):
         self.screen.fill(self.pressed_color, self.rect)
@@ -692,7 +708,7 @@ class TheSelectFigureBasic(object):
         self.down_coordinate_y = 490
         self.down_interval = 40
         #多图片后缀
-        self.charc_image = "image//charc//黄前久美子_默认.png"
+        self.charc_image = pygame.image.load("image//charc//黄前久美子_默认.png")
         img_suffix = ['.png', '.jpg', '.jpeg']
         for suf in img_suffix:
             path_name = "image//charc//" + self.girl.skin + suf
@@ -715,6 +731,7 @@ class TheSelectFigureBasic(object):
         self.click_level_page()
         self.exp_book_page()
         self.exp_book_select_page()
+
     def init_page(self, isAssist=False):
         layout_px = 350
         layout_py = 110
@@ -860,9 +877,9 @@ class TheSelectFigureBasic(object):
         
     def exp_book_select_page(self, quantity_4=0, quantity_3=0, quantity_2=0):
         #点击角色书后增加
-        self.__msg_4exp_add =  self.font3.render("×" + str(quantity_4), True, self.text_color, self.white_color)
-        self.__msg_3exp_add =  self.font3.render("×" + str(quantity_3), True, self.text_color, self.white_color)
-        self.__msg_2exp_add =  self.font3.render("×" + str(quantity_2), True, self.text_color, self.white_color)
+        self.__msg_4exp_add =  self.font3.render("×" + formula_format_add0(str(quantity_4),3), True, self.text_color, self.white_color)
+        self.__msg_3exp_add =  self.font3.render("×" + formula_format_add0(str(quantity_3),3), True, self.text_color, self.white_color)
+        self.__msg_2exp_add =  self.font3.render("×" + formula_format_add0(str(quantity_2),3), True, self.text_color, self.white_color)
         position_y = 660
         interval = 60
         self.__rect_msg_4exp_add = pygame.Rect(280, position_y+interval,50, 25)
@@ -888,6 +905,19 @@ class TheSelectFigureBasic(object):
         self.screen.blit(self.__msg_intimacy, self.rect_intimacy)
         self.screen.blit(self.__msg_enthu, self.rect_enthu)
         self.screen.blit(self.__msg_assist, self.rect_assist)
+
+    def draw_theselectgirlbasic_only_read(self):     # 绘制详情页面
+        self.init_page()
+        self.screen.blit(self.charc_image, self.rect_charc_image)
+        self.screen.blit(self.__msg_skin, self.rect_skin)
+        self.screen.blit(self.__msg_name, self.__rect_name)          
+        self.screen.blit(self.__msg_level, self.rect_level)
+        self.screen.blit(self.__msg_love, self.rect_love)
+        self.screen.blit(self.__msg_feature, self.rect_feature)
+        self.screen.blit(self.__msg_moe, self.rect_moe)
+        self.screen.blit(self.__msg_yxr, self.rect_yxr)
+        self.screen.blit(self.__msg_intimacy, self.rect_intimacy)
+        self.screen.blit(self.__msg_enthu, self.rect_enthu)
 
     def draw_click_rect_level(self):
         self.screen.blit(self.__msg_clevel, self.rect_clevel)
