@@ -25,8 +25,8 @@ class Work(object):
         self.year = year
         self.producer = company
 
-#通用角色
 class Figure(object):
+    # 通用角色类
     # to initialize girls
     def __init__(self, gid, name, root, grade, weapon_type, feature, feature_info, moe, yxr, intimacy, enthusiasm, m_coefficient, y_coefficient, i_coefficient, e_coefficient, sound, love, level, eyecolor, haircolor, weapon_hold="", stigma_up="", stigma_mid="", stigma_down="", skin="", fragment=0, exp=0):
         self.id = gid
@@ -59,19 +59,49 @@ class Figure(object):
         self.exp = exp
 
 
-# 武器
 class Weapon(object):
-    # to initialize weapons,level means its level limit
-    def __init__(self, name, level, skill):
+    # 武器
+    def __init__(self, idx, name, level, moe, awaken, equip_figure_name, typed, grade, m_coefficient, feature, feature_info, value1, value2, value3, value4, value5):
+        self.idx = idx
         self.name = name
         self.level = level
-        self.skill = skill
+        self.moe = moe
+        self.awaken = awaken
+        self.equip_figure_name = equip_figure_name
+        self.typed = typed
+        self.grade = grade
+        self.m_coefficient = m_coefficient
+        self.feature = feature
+        self.feature_info = feature_info
+        self.value1 = value1
+        self.value2 = value2
+        self.value3 = value3
+        self.value4 = value4
+        self.value5 = value5
 
-    # output the weapon's info
-    def output_weapon_info(self):
-        print("武器名: " + str(self.name))
-        print("等级限制: " + str(self.level))
-        print("技能: " + str(self.level))
+class Material(object):
+    '''消耗品类
+    '''
+    def __init__(self, idx, name, number, typed):
+        self.idx = idx
+        self.name = name
+        self.number = number
+        self.typed = typed
+
+class Mission(object):
+    '''任务类
+    '''
+    def __init__(self, missionid, name, description, typed, addeddate, reward, complete, finish, getreward):
+        self.missionid = missionid
+        self.name = name
+        self.description = description
+        self.typed = typed
+        self.addeddate = addeddate
+        self.reward = reward
+        self.complete = complete
+        self.finish = finish
+        self.getreward = getreward
+
 
 # 创建按钮类
 class Button(object):
@@ -84,9 +114,14 @@ class Button(object):
         #v1.1橙色+黄色配色
         # self.button_color = (205,133,63)
         # self.text_color = (255, 255, 255)
-        # v1.2紫罗兰色+灰色配色
-        self.button_color = ( 216, 191, 216)
-        self.text_color = ( 139, 131, 134)
+        # v1.2紫罗兰色+灰色+灰色配色
+        # self.button_color = ( 216, 191, 216)
+        # self.text_color = ( 139, 131, 134)
+        # self.shadow_color = (255, 222, 173)
+        # v2.1黄色+红色+米色配色
+        self.button_color = ( 200, 0, 0)
+        self.text_color = ( 255, 242, 0)
+        self.shadow_color = ( 255, 228, 225)
         self.font = pygame.font.SysFont('KaiTi', 58)
         self.clickable = clickable
         '''
@@ -96,7 +131,6 @@ class Button(object):
             楷体：KaiTi
         '''
         # 创建3d按钮（阴影）
-        self.shadow_color = (255, 222, 173)
         self.shadow = pygame.Rect(positionX+10, positionY+10, self.width, self.height)
         # 创建按钮rect对象
         self.rect = pygame.Rect(positionX, positionY, self.width, self.height)
@@ -210,6 +244,72 @@ class TextBasic(object):
         self.screen.fill(self.bg_color, self.rect)
         self.screen.blit(self.msg4_image, self.msg4_image_rect)
 
+# 显示任务类
+class MissionBasic(object):
+    def __init__(self, width, height, screen, positionX, positionY, mission):
+        self.screen = screen
+        self.screen_rect = screen.get_rect()
+        self.width, self.height = width, height
+        self.bg_color = (187, 255, 255)
+        self.pressed_color = (180, 238, 180)
+        self.text_color = (0, 0, 0)
+        self.have_text_color = (255, 228, 196)
+        self.have_bg_color = (0, 197, 205)
+        self.already_bg_color = (190, 190, 190)
+        self.font = pygame.font.SysFont('KaiTi', 20)
+        self.have_font = pygame.font.SysFont('KaiTi', 40)
+        self.positionX = positionX
+        self.positionY = positionY
+        self.ready_to_click = False
+        self.rect = pygame.Rect(positionX, positionY, self.width, self.height)
+        self.mission = mission
+        self.prep_msg()                     # 文字标签
+        
+    def prep_msg(self): # 将标签渲染为图像
+        self.id_image = self.font.render(str(self.mission.missionid), True, self.text_color, self.bg_color)
+        self.id_image_rect = pygame.Rect(self.positionX + 20, self.positionY + 20, 70, 50)
+        self.name_image = self.font.render(self.mission.name, True, self.text_color, self.bg_color)
+        self.name_image_rect = pygame.Rect(self.positionX + 50, self.positionY + 20, 150, 50)
+        self.reward_image = self.font.render("奖励:" + self.mission.reward, True, self.text_color, self.bg_color)
+        self.reward_image_rect = pygame.Rect(self.positionX + 400, self.positionY + 20, 150, 50)
+        #如果不是浮点数就去掉后面的.0
+        if self.mission.complete%1 == 0:
+            self.mission.complete = int(self.mission.complete)
+        self.finish_image = self.font.render("完成度: " + str(self.mission.complete) + "/" 
+                                                + str(int(self.mission.finish)), True, self.text_color, self.bg_color)
+        self.finish_image_rect = pygame.Rect(self.positionX + 600, self.positionY + 20, 50, 50)
+        self.have_image = self.have_font.render("领取奖励", True, self.have_text_color, self.have_bg_color)
+        self.have_image_rect = pygame.Rect(self.positionX + 830, self.positionY+6, 200, 80)
+        self.already_image = self.have_font.render("已领取", True, self.have_text_color, self.already_bg_color)
+        self.already_image_rect = pygame.Rect(self.positionX + 850, self.positionY+6, 200, 80)
+
+    def draw_missionbasic(self):
+        self.screen.fill(self.bg_color, self.rect)
+        self.screen.blit(self.id_image, self.id_image_rect)
+        self.screen.blit(self.name_image, self.name_image_rect)
+        self.screen.blit(self.reward_image, self.reward_image_rect)
+        self.screen.blit(self.finish_image, self.finish_image_rect)
+        if self.mission.getreward==1:
+            self.screen.blit(self.already_image, self.already_image_rect)
+            self.ready_to_click = False
+        elif self.mission.finish <= self.mission.complete:
+            self.screen.blit(self.have_image, self.have_image_rect)
+            self.ready_to_click = True
+        # pygame.draw.rect(self.screen, (0,0,0), ((self.positionX + 20, self.positionY + 60),(340, 20)), 2)
+        # if self.afterpercent != self.percent:
+        #     pygame.draw.rect(self.screen, (0,0,0), ((self.positionX + 22 + 3.4*self.percent, self.positionY + 62),(1, 17)), 0)
+        # pygame.draw.rect(self.screen, (240,128,128), ((self.positionX + 22, self.positionY + 62),(3.4*self.percent, 17)), 0)
+
+    def get_mission(self):
+        return self.mission
+
+    def set_mission_complete(self):
+        '''设置任务完成，主要用于点击领取奖励后页面的即时刷新
+        '''
+        self.mission.getreward = 1
+        return self.mission
+
+
 # 显示投入事件进度条文字块类，左一右二带左进度条
 class AdventureBasic(object):
     def __init__(self, width, height, screen, positionX, positionY, adventure,
@@ -242,7 +342,7 @@ class AdventureBasic(object):
         #               LightSalmon1橙红、Thistle紫罗兰、PeachPuff2棕色
         color_list = [(224,238,224),(127, 255, 212),(202, 225, 255),(255, 236, 139),(255, 160, 122),
                       (216, 191, 216),(238, 203, 173)]
-        return color_list[int(idNumber)%len(color_list) - 1]
+        return color_list[(int(idNumber)-1)%len(color_list)]
 
     def prep_msg(self): # 将标签渲染为图像
         self.id_image = self.font.render(self.str_id, True, self.text_color,
@@ -861,9 +961,9 @@ class TheSelectFigureBasic(object):
             self.rect_cfeature_list.append(pygame.Rect(280, self.down_coordinate_y+self.down_interval+height_temp*height_delta, formula_get_str_byte_len(msg_temp)*self.font_size, 40))
 
     def exp_book_page(self, quantity_4=0, quantity_3=0, quantity_2=0):
-        self.__img_4exp = pygame.image.load("image//good//4星角色书.jpg")
-        self.__img_3exp = pygame.image.load("image//good//3星角色书.jpg")
-        self.__img_2exp = pygame.image.load("image//good//2星角色书.jpg")
+        self.__img_4exp = pygame.image.load("image//good//4星角色书.png")
+        self.__img_3exp = pygame.image.load("image//good//3星角色书.png")
+        self.__img_2exp = pygame.image.load("image//good//2星角色书.png")
         position_y = 660
         self.rect_4exp = pygame.Rect(260, position_y ,80, 80)
         self.rect_3exp = pygame.Rect(350, position_y ,80, 80)
@@ -953,3 +1053,129 @@ class TheSelectFigureBasic(object):
         self.screen.blit(self.__msg_3exp_add, self.__rect_msg_3exp_add)
         self.screen.blit(self.__msg_2exp_add, self.__rect_msg_2exp_add)
         self.screen.blit(self.__msg_levelUp, self.rect_levelUp)
+
+class KnapsackBasic(object):
+    '''背包类
+    '''
+    def __init__(self, screen, weapon_list, material_list):
+        self.screen = screen
+        self.bg_color = (216, 191, 216)
+        self.text_color = (205, 85, 85)
+        self.white_color = (255, 255, 255)
+        self.name_color = (238, 121, 159)
+
+        self.font = pygame.font.SysFont('KaiTi', 17)
+        self.font2 = pygame.font.SysFont('KaiTi', 15, bold=True, italic=True)
+        self.font3 = pygame.font.SysFont('KaiTi', 20)
+        self.littlefont_size = 20
+        self.littlefont = pygame.font.SysFont('KaiTi', self.littlefont_size)
+        self.wlen = len(weapon_list)
+        self.mlen = len(material_list)
+        #建立武器图片列表
+        self.weapon_list = weapon_list
+        self.material_list = material_list
+        self.left_pack_init()
+        
+    def left_pack_init(self):
+        self.image_list = []
+        self.rect_image_list = []
+        self.littlefont_list = []
+        self.rect_littlefont_list = []
+        self.levelornum_list = []
+        self.rect_levelornum_list = []
+        self.name_list = []
+        self.rect_name_list = []
+        self.delta_x, self.delta_y = 50, 170
+        self.width_x, self.height_y = 130, 110
+        stuff_num = self.wlen + self.mlen
+        pos_x, pos_y = 1, 1
+        weapon_num, material_num = 0, 0
+        for i in range(stuff_num):
+            if pos_x==6:
+                pos_x = 1
+                pos_y += 1
+            if weapon_num < self.wlen:
+                suffix = "_默认.png"
+                if self.weapon_list[weapon_num].awaken==4:
+                    suffix = "_突破.png"
+                self.image_list.append(pygame.image.load("image//good//" + self.weapon_list[weapon_num].name + suffix))
+                self.rect_image_list.append(pygame.Rect(self.width_x*pos_x+self.delta_x, self.height_y*pos_y+self.delta_y, 80, 80))
+                self.littlefont_list.append(self.littlefont.render(str(self.weapon_list[weapon_num].awaken), True, self.text_color, self.white_color))
+                self.rect_littlefont_list.append(pygame.Rect(self.width_x*pos_x+self.delta_x, self.height_y*pos_y+self.delta_y, 5, 5))
+                self.levelornum_list.append(self.font2.render("lv." + str(self.weapon_list[weapon_num].level), True, self.text_color, self.white_color))
+                self.rect_levelornum_list.append(pygame.Rect(self.width_x*pos_x+self.delta_x, self.height_y*pos_y+self.delta_y + 65, 10, 10))
+                self.name_list.append(self.font.render(self.weapon_list[weapon_num].name, True, self.text_color, self.white_color))
+                self.rect_name_list.append(pygame.Rect(self.width_x*pos_x+self.delta_x+5, self.height_y*pos_y+self.delta_y+85, 20, 20))
+                weapon_num += 1
+            else:
+                self.image_list.append(pygame.image.load("image//good//" + self.material_list[material_num].name + ".png"))
+                self.rect_image_list.append(pygame.Rect(self.width_x*pos_x+self.delta_x, self.height_y*pos_y+self.delta_y, 80, 80))
+                self.levelornum_list.append(self.font2.render("×" + str(self.material_list[material_num].number), True, self.text_color, self.white_color))
+                self.rect_levelornum_list.append(pygame.Rect(self.width_x*pos_x+self.delta_x, self.height_y*pos_y+self.delta_y + 65, 10, 10))
+                self.name_list.append(self.font.render(self.material_list[material_num].name, True, self.text_color, self.white_color))
+                self.rect_name_list.append(pygame.Rect(self.width_x*pos_x+self.delta_x+5, self.height_y*pos_y+self.delta_y+85, 20, 20))
+                material_num += 1
+            pos_x += 1
+
+    def weapon_detail(self, weapon):
+        suffix = "_默认.png"
+        if weapon.awaken==4:
+            suffix = "_突破.png"
+        self.__image_weapon = pygame.image.load("image//weapon//" + weapon.name + suffix)
+        self.__name_weapon = self.font3.render(weapon.name, True, self.text_color, self.white_color)
+        self.__level_weapon = self.font3.render("Lv." + str(weapon.level), True, self.text_color, self.white_color)
+        self.__moe_weapon = self.font3.render("moe值: " + str(weapon.moe), True, self.text_color, self.white_color)
+        self.__awaken_weapon = self.font3.render("突破等阶: " + str(weapon.awaken), True, self.text_color, self.white_color)
+        if weapon.equip_figure_name:
+            self.__equip_figure_name_weapon = self.font3.render("装备角色: " + weapon.equip_figure_name, True, self.text_color, self.white_color)
+        else:
+            self.__equip_figure_name_weapon = self.font3.render("装备角色: 无", True, self.text_color, self.white_color)
+        self.__typed_weapon = self.font3.render("武器类型: " + weapon.typed, True, self.text_color, self.white_color)
+        
+        interval_y = 25
+        pos_x = 850
+        self.__rect_image_weapon = pygame.Rect(pos_x, 280, 180, 180)
+        self.__rect_name_weapon = pygame.Rect(pos_x, 470, 40, 20)
+        self.__rect_level_weapon = pygame.Rect(pos_x, 470 + interval_y, 40, 20)
+        self.__rect_moe_weapon = pygame.Rect(pos_x, 470 + interval_y * 2, 40, 20)
+        self.__rect_awaken_weapon = pygame.Rect(pos_x, 470 + interval_y * 3, 40, 20)
+        self.__rect_equip_figure_name_weapon = pygame.Rect(pos_x, 470 + interval_y * 4, 40, 20)
+        self.__rect_typed_weapon = pygame.Rect(pos_x, 470 + interval_y * 5, 40, 20)
+        if weapon.feature:
+            self.__feature_weapon = self.font3.render("武器特性: " + weapon.feature, True, self.text_color, self.white_color)
+            self.__rect_feature_weapon = pygame.Rect(pos_x, 470 + interval_y * 6, 40, 20)
+            #特性说明居中显示
+            #self.__feature_info_weapon = self.font3.render("特性说明: " + weapon.feature_info, True, self.text_color, self.white_color)
+            #self.__rect_feature_info_weapon = pygame.Rect(720, 470 + interval_y * 7, 40, 40)
+            msg_list = formula_str_to_interval_list("特性说明:" + weapon.feature_info.replace("$1$", str(formula_weapon_awaken_value(weapon))), 13)
+            self.__feature_info_weapon = []
+            self.__rect_feature_info_weapon = []
+            for msg_temp, height_temp in zip(msg_list, range(0,len(msg_list))):
+                self.__feature_info_weapon.append(self.font3.render(msg_temp, True, self.text_color,self.white_color))
+                self.__rect_feature_info_weapon.append(pygame.Rect(pos_x, 470+(height_temp+7)*interval_y, formula_get_str_byte_len(msg_temp)*20, 40))
+
+    def draw_origin_pack(self):
+        for i in range(len(self.image_list)):
+            self.screen.blit(self.image_list[i], self.rect_image_list[i])
+            self.screen.blit(self.levelornum_list[i], self.rect_levelornum_list[i])
+            self.screen.blit(self.name_list[i], self.rect_name_list[i])
+            if(i<self.wlen):
+                self.screen.blit(self.littlefont_list[i], self.rect_littlefont_list[i])
+
+    def draw_special_pack(self, rect):
+        select_num = int((rect.left - self.delta_x)/self.width_x - 1 + ((rect.top - self.delta_y)/self.height_y - 1)*5)
+        if select_num < self.wlen:
+            self.weapon_detail(self.weapon_list[select_num])
+            self.screen.blit(self.__image_weapon, self.__rect_image_weapon)
+            self.screen.blit(self.__name_weapon, self.__rect_name_weapon)
+            self.screen.blit(self.__level_weapon, self.__rect_level_weapon)
+            self.screen.blit(self.__moe_weapon, self.__rect_moe_weapon)
+            self.screen.blit(self.__awaken_weapon, self.__rect_awaken_weapon)
+            self.screen.blit(self.__equip_figure_name_weapon, self.__rect_equip_figure_name_weapon)
+            self.screen.blit(self.__typed_weapon, self.__rect_typed_weapon)
+            if self.weapon_list[select_num].feature:
+                self.screen.blit(self.__feature_weapon, self.__rect_feature_weapon)
+                for i,j in zip(self.__feature_info_weapon, self.__rect_feature_info_weapon):
+                    self.screen.blit(i, j)
+        else:
+            print(self.material_list[select_num-self.wlen].name)

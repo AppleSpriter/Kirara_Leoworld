@@ -184,3 +184,25 @@ def formula_format_add0(word, number=3):
         number -= 1
         word = "0" + word
     return word
+
+def formula_weapon_awaken_value(weapon):
+    """根据武器的突破返回对应属性值
+
+    Args:
+        weapon: 武器对象
+
+    Returns:
+        value: 对应的属性值
+    """
+    if weapon.awaken==0:
+        return weapon.value1
+    elif weapon.awaken==1:
+        return weapon.value2
+    elif weapon.awaken==2:
+        return weapon.value3
+    elif weapon.awaken==3:
+        return weapon.value4
+    elif weapon.awaken==4:
+        return weapon.value5
+    else:
+        return 0

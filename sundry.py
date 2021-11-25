@@ -19,6 +19,8 @@ def small_bg_random():
                 #第三期背景图
                 "63261643_p0.jpg", "73796140_p0.jpg", "74990422_p0.png", "75689551_p2.jpg",
                 "88605301_p0.jpg", "89286311_p0.jpg", "89920989_p0.jpg", "90436688_p23.jpg",
-                "90722077_p0.png" ]
+                "90722077_p0.png",
+                #v2.1背景图
+                "hutao.jpg", "hutao2.jpg", "hutao3.jpg", "hutao4.jpg"]
     return random.choice(small_bg_list)
 

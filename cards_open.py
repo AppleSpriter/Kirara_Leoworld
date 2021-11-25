@@ -7,6 +7,10 @@ db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
                      charset='utf8')
 cursor = db.cursor()
 
+def commitDB():
+    #db.commit()
+    pass
+
 def open_girls_card(must_num, up=""):
     """抽奖lottery的判断程序
 
@@ -38,8 +42,11 @@ def open_girls_card(must_num, up=""):
     color = [5, 5, 4, 4, 4, 4, 3, 3, 2, 2]
     # 判断奖励
     if must_num<=23:
-        right = 45 * must_num - 35
-        game_point = random.randint(1, right)
+        legend_random_point = random.randint(1, 23)
+        if legend_random_point >= must_num:
+            game_point = random.randint(1, 10)
+        else:
+            game_point = random.randint(1, 1000)
     else:
         game_point = random.randint(1, 1000)            #debug测试修改lhhcxxg 概率为2000
     new = 0
@@ -79,7 +86,8 @@ def open_girls_card(must_num, up=""):
                      reward_text + "','" + now_time + "'," + str(color_ret) \
                      + ")"
     cursor.execute(insert_log_sql)
-    db.commit()     # 提交数据库
+    commitDB()
+    #db.commit()     # 提交数据库
     return reward_text, color_ret, new
 
 def draw_SAstar_charc(grade, up=""):
@@ -145,7 +153,8 @@ def insert_upgrade_charc(charc):
                      " where my_figure_name = '" + charc[1] + "'"
         cursor.execute(update_sql)
         new = 0
-    db.commit()     # 提交数据库
+    commitDB()
+    #db.commit()     # 提交数据库
     return new
 
 def draw_54star_weapon(grade):
@@ -174,8 +183,8 @@ def insert_weapon(weapon):
     Args:
         weapon: 获得新武器的名称
     """
-    insert_sql = "insert into my_weapon(name, type, level, moe, awaken) values('" + \
-                 weapon[1] + "','" +  weapon[2] + "',1,'" + str(weapon[4]) + "',0)"
+    insert_sql = "insert into my_weapon(name, level, moe, awaken) values('" + \
+                 weapon[1] + "',1,'" + str(weapon[4]) + "',0)"
     cursor.execute(insert_sql)
 
 def add_material_book(mob, level):
@@ -206,8 +215,8 @@ def add_material_book(mob, level):
     insert_sql = "update knapsack set number = number+" + str(number) + \
                  " where name = '" + str(level) + name + "'"
     cursor.execute(insert_sql)
-    db.commit()     # 提交数据库
-
+    commitDB()
+    #db.commit()     # 提交数据库
     return str(level) + name + str(number) + "个"
 
 def query_how_long_to_5star_charc():
@@ -323,4 +332,46 @@ def add_memory_element(number=0):
     insert_sql = "update knapsack set number = number+" + str(number) + \
                  " where name = '记忆晶元'"
     cursor.execute(insert_sql)
-    db.commit()     # 提交数据库
+    commitDB()
+    #db.commit()     # 提交数据库
+
+def mission_complete(num):
+    """任务完成奖励
+
+    Args:
+        num: 完成的missionid
+    """
+
+    #水晶奖励类
+    dic_cys = {1:20, 2:25, 3:10, 5:35, 6:20, 9:80, 16:120, 17:1000, 20:1000, 21:5000}
+    update_sql = ""
+    ret_sen = ""
+    if num==4:
+        update_sql = "update knapsack set number=number+1 where name='3星角色书'"
+        ret_sen = "3星角色书*1"
+    elif num==7:
+        update_sql = "update knapsack set number=number+5 where name='3星强化料'"
+        ret_sen = "3星强化料*5"
+    elif num==8:
+        update_sql = "update knapsack set number=number+1 where name='记忆晶元'"
+        ret_sen = "记忆晶元*1"
+    elif num==10 or num==11 or num==12:
+        update_sql = "update knapsack set number=number+3 where name='4星角色书'"
+        ret_sen = "4星角色书*3"
+    elif num==13 or num==14 or num==15:
+        update_sql = "update knapsack set number=number+3 where name='4星强化料'"
+        ret_sen = "4星强化料*3"
+    elif num==18:
+        update_sql = "update knapsack set number=number+7 where name='4星角色书'"
+        ret_sen = "4星角色书*7"
+    elif num==19:
+        update_sql = "update knapsack set number=number+5 where name='记忆晶元'"
+        ret_sen = "记忆晶元*5"
+    else:
+        update_sql = "update lottery set lottery_crystal=lottery_crystal+" + str(dic_cys[num])
+        ret_sen = str(dic_cys[num]) + "水晶"
+    cursor.execute(update_sql)
+    update_sql = "update mission set getreward=1 where missionid=" + str(num)
+    cursor.execute(update_sql)
+    commitDB()
+    return ret_sen
