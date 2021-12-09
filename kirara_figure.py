@@ -275,6 +275,8 @@ class MissionBasic(object):
         #如果不是浮点数就去掉后面的.0
         if self.mission.complete%1 == 0:
             self.mission.complete = int(self.mission.complete)
+        else:
+            self.mission.complete = round(self.mission.complete, 2)
         self.finish_image = self.font.render("完成度: " + str(self.mission.complete) + "/" 
                                                 + str(int(self.mission.finish)), True, self.text_color, self.bg_color)
         self.finish_image_rect = pygame.Rect(self.positionX + 600, self.positionY + 20, 50, 50)
@@ -328,11 +330,15 @@ class AdventureBasic(object):
         self.name = adventure['name']
         self.lastopendate = str(adventure['lastopendate'])
         self.planinvest = str(round(adventure['planinvest'] / 60,1)) + "h"
+        self.nowinvest = str(round(adventure['nowinvest'] / 60, 1))
         self.afterpercent = round((adventure['nowinvest'] + duration_minutes) * 100 
             / adventure['planinvest'], 2)
         self.percent = round(adventure['nowinvest'] * 100 / adventure['planinvest'], 2)
         self.str_id = str(adventure['adventureid']) + "."
         self.adventure = adventure
+        self.reward = "无"
+        if(adventure['planinvest']>1200):
+            self.reward = str(round(adventure['planinvest']*0.75)) + "水晶"
         self.prep_msg()                     # 文字标签
         self.prep_msg_pressed()             # 选中的文字标签
 
@@ -375,9 +381,13 @@ class AdventureBasic(object):
                                           self.pressed_color)
         self.name_image_rect_pressed = pygame.Rect(self.positionX + 50,
                                            self.positionY + 20, 150, 50)
-        self.lastopendate_image_pressed = self.font.render(self.lastopendate, True, self.text_color,
+        self.reward_image_pressed = self.font.render("奖励:" + self.reward, True, self.text_color,
+                                          self.pressed_color)
+        self.reward_image_rect_pressed = pygame.Rect(self.positionX + 250,
+                                           self.positionY + 20, 70, 50)
+        self.nowinvest_image_pressed = self.font.render("已投入:" + self.nowinvest + "h", True, self.text_color,
                                            self.pressed_color)
-        self.lastopendate_image_rect_pressed = pygame.Rect(self.positionX + 300,
+        self.nowinvest_image_rect_pressed = pygame.Rect(self.positionX + 400,
                                            self.positionY + 20, 150, 50)
         self.planinvest_image_pressed = self.font.render(self.planinvest, True, self.text_color,
                                            self.pressed_color)
@@ -404,7 +414,8 @@ class AdventureBasic(object):
         self.screen.fill(self.pressed_color, self.rect)
         self.screen.blit(self.id_image_pressed, self.id_image_rect_pressed)
         self.screen.blit(self.name_image_pressed, self.name_image_rect_pressed)
-        self.screen.blit(self.lastopendate_image_pressed, self.lastopendate_image_rect_pressed)
+        self.screen.blit(self.reward_image_pressed, self.reward_image_rect_pressed)
+        self.screen.blit(self.nowinvest_image_pressed, self.nowinvest_image_rect_pressed)
         self.screen.blit(self.planinvest_image_pressed, self.planinvest_image_rect_pressed)
         self.screen.blit(self.percent_image_pressed, self.percent_image_rect_pressed)
         pygame.draw.rect(self.screen, (0,0,0), ((self.positionX + 20, self.positionY + 60),(340, 20)), 2)
@@ -440,9 +451,9 @@ class LotteryBasic(object):
         self.reward_font = pygame.font.SysFont('KaiTi', 40)
         self.reward_color = (255, 255, 255)
         # 声音参数
-        self.unopen_sound = pygame.mixer.Sound("sound//unopened_pack.ogg")
-        self.card_sound = pygame.mixer.Sound("sound//rare.ogg")
-        self.over_sound = pygame.mixer.Sound("sound//card_over_rare.ogg")
+        self.unopen_sound = pygame.mixer.Sound("sound//unopened_pack.wav")
+        self.card_sound = pygame.mixer.Sound("sound//rare.wav")
+        self.over_sound = pygame.mixer.Sound("sound//card_over_rare.wav")
         # 文字、卡背标签
         self.prep_msg()
 
@@ -477,6 +488,10 @@ class LotteryBasic(object):
             # 绘制卡背位图
             self.screen.blit(self.bgbig_image, self.backbig_rect)
             # 播放音效
+            # pygame.mixer.init()
+            # unopen_sound = pygame.mixer.Sound("sound//secosmic_lo.wav")
+            # unopen_sound.set_volume(0.01)
+            # unopen_sound.play()
             self.unopen_sound.set_volume(0.01)
             self.unopen_sound.play()
             # 绘制剩余次数
@@ -504,33 +519,33 @@ class LotteryBasic(object):
             if color == 2 and new == 0:
                 self.reward_color = (240,248,255)
                 self.card_sound = False
-                self.over_sound = pygame.mixer.Sound("sound//card_over_normal.ogg")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_normal.wav")
             elif color == 3 and new == 0:
                 self.reward_color = (30,144,255)
             elif color == 4 and new == 0:
                 self.reward_color = (153,50,204)
-                self.card_sound = pygame.mixer.Sound("sound//epic.ogg")
-                self.over_sound = pygame.mixer.Sound("sound//card_over_epic.ogg")
+                self.card_sound = pygame.mixer.Sound("sound//epic.wav")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_epic.wav")
             elif color == 5 and new == 0:
                 self.reward_color = (255,130,71)
-                self.card_sound = pygame.mixer.Sound("sound//legend.ogg")
-                self.over_sound = pygame.mixer.Sound("sound//card_over_legend.ogg")
+                self.card_sound = pygame.mixer.Sound("sound//legend.wav")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_legend.wav")
             elif color == 2 and new == 1:
                 self.reward_color = (240,248,255)
-                self.card_sound = pygame.mixer.Sound("sound//new_C.ogg")
-                self.over_sound = pygame.mixer.Sound("sound//card_over_normal.ogg")
+                self.card_sound = pygame.mixer.Sound("sound//new_C.wav")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_normal.wav")
             elif color == 3 and new == 1:
                 self.reward_color = (30,144,255)
-                self.card_sound = pygame.mixer.Sound("sound//new_R.ogg")
-                self.over_sound = pygame.mixer.Sound("sound//card_over_rare.ogg")
+                self.card_sound = pygame.mixer.Sound("sound//new_R.wav")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_rare.wav")
             elif color == 4 and new == 1:
                 self.reward_color = (153,50,204)
-                self.card_sound = pygame.mixer.Sound("sound//new_E.ogg")
-                self.over_sound = pygame.mixer.Sound("sound//card_over_epic.ogg")
+                self.card_sound = pygame.mixer.Sound("sound//new_E.wav")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_epic.wav")
             elif color == 5 and new == 1:
                 self.reward_color = (255,130,71)
-                self.card_sound = pygame.mixer.Sound("sound//new_L.ogg")
-                self.over_sound = pygame.mixer.Sound("sound//card_over_legend.ogg")
+                self.card_sound = pygame.mixer.Sound("sound//new_L.wav")
+                self.over_sound = pygame.mixer.Sound("sound//card_over_legend.wav")
 
             # 图像转化为奖励,利用big_image的颜色框，里面一个背景框框着奖励文字
             self.screen.fill(self.reward_color, self.backbig_rect)

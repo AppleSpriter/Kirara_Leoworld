@@ -8,8 +8,8 @@ db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
 cursor = db.cursor()
 
 def commitDB():
-    #db.commit()
-    pass
+    db.commit()
+    #pass
 
 def open_girls_card(must_num, up=""):
     """抽奖lottery的判断程序

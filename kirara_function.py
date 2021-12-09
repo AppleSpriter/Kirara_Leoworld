@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.DEBUG)  # 调试选项,设置日志级别
 FPS = 30
 highFPS = 80
 fpsClock = pygame.time.Clock()
-KiraraL_icon_path = "icon/Adobe_Indesign.ico"
+KiraraL_icon_path = "icon/V2.1.ico"
 
 mouse_rollup = 0        # 鼠标滑轮转动
 mouse_roll_dis = 80     # 鼠标单次滑动敏感度
@@ -495,28 +495,35 @@ def click_button_checkin():
         cursor.execute(update_check_lottery_sql)
         # 2020/10/26特别活动，连续7天早上签到三倍水晶奖励
         # 2020/12/18早上签到三倍水晶奖励
-        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到," + toast_passive_msg + "水晶+"  + str(crystal_add*passive_onecheck) + "; 剩余水晶：" + str(lottery_crystal),dbm=True)
+        toaster.show_toast(u'早间签到', u"已经于" + str(nowtime_str) + "早间签到," + toast_passive_msg +
+                             "水晶+"  + str(crystal_add*passive_onecheck) + "; 剩余水晶：" + str(lottery_crystal),
+                             icon_path=KiraraL_icon_path, dbm=True)
         toaster_destroy = False
     # 午间签到
     elif last_checkin_time == 3:
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'午间签到', u"已经于" + str(nowtime_str) + "午间签到," + toast_passive_msg + "水晶+"  + str(crystal_add) + "; 剩余水晶：" + str(lottery_crystal),dbm=True)
+        toaster.show_toast(u'午间签到', u"已经于" + str(nowtime_str) + "午间签到," + toast_passive_msg + "水晶+"  
+                            + str(crystal_add) + "; 剩余水晶：" + str(lottery_crystal), 
+                            icon_path=KiraraL_icon_path, dbm=True)
         toaster_destroy = False
     # 夜间签到
     elif last_checkin_time == 4:
         # 更新checkdate
         cursor.execute(update_checkdate_sql, (str(nowtime), ))
         cursor.execute(update_check_lottery_sql)
-        toaster.show_toast(u'夜间签到', u"已经于" + str(nowtime_str) + "夜间签到," + toast_passive_msg + "水晶+"  + str(crystal_add) + "; 剩余水晶：" + str(lottery_crystal),dbm=True)
+        toaster.show_toast(u'夜间签到', u"已经于" + str(nowtime_str) + "夜间签到," + toast_passive_msg + "水晶+"  
+                            + str(crystal_add) + "; 剩余水晶：" + str(lottery_crystal), 
+                            icon_path=KiraraL_icon_path, dbm=True)
         toaster_destroy = False
     elif last_checkin_time == 5:
-        toaster.show_toast(u'签到提示', u"目前不在签到时间内~",dbm=True)
+        toaster.show_toast(u'签到提示', u"目前不在签到时间内~", icon_path=KiraraL_icon_path, dbm=True)
         toaster_destroy = False
         logging.debug("目前不在签到时间内~")
     else:
-        toaster.show_toast(u'签到提示', u"已经于" + str(last_checkin_time) + "签到,无法重复签到！",dbm=True)
+        toaster.show_toast(u'签到提示', u"已经于" + str(last_checkin_time) + "签到,无法重复签到！", 
+                            icon_path=KiraraL_icon_path, dbm=True)
         toaster_destroy = False
         logging.debug("已经于" + str(last_checkin_time) + "签到,无法重复签到！")
     commitDB()
@@ -682,6 +689,8 @@ def draw_knapsack(screen, button_list, weapon_list, material_list):
                 else:
                     for rect in one_tb.rect_image_list:
                         if rect.collidepoint(mouse_x, mouse_y) and pressed_button==rect:
+                            update_screen(screen, button_list=button_list, button_height=1)
+                            one_tb.draw_origin_pack()
                             one_tb.draw_special_pack(rect)
             # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
             pygame.display.flip()
@@ -731,7 +740,7 @@ def draw_mission(screen, button_list, text_list, typed):
                 click_button_checkin()
             else:
                 reward_text = mission_complete(selected_mission.missionid)
-                toaster.show_toast(u'提示', u"领取任务奖励: " + reward_text, dbm=True)
+                toaster.show_toast(u'提示', u"领取任务奖励: " + reward_text, icon_path=KiraraL_icon_path, dbm=True)
                 toaster_destroy = False
             read_mission(typed)
         elif is_press_text == 2:
@@ -1093,16 +1102,19 @@ def draw_lottery(screen, button_list, text_list):
                     pygame.display.flip()
                     # 气泡以及控制台输出提示
                     if new == 0:
-                        toaster.show_toast(u'抽卡提示', u'' + write_time + " 获得奖励：" + reward_text + "; 剩余水晶： " + str(text_list[0] - 280), dbm=True)
+                        toaster.show_toast(u'抽卡提示', u'' + write_time + " 获得奖励：" + reward_text + "; 剩余水晶： " + 
+                            str(text_list[0] - 280), icon_path=KiraraL_icon_path, dbm=True)
                     elif new == 1:
-                        toaster.show_toast(u'抽卡提示', u'' + write_time + " 获得新角色：" + reward_text + "! 剩余水晶： " + str(text_list[0] - 280), dbm=True)
+                        toaster.show_toast(u'抽卡提示', u'' + write_time + " 获得新角色：" + reward_text + "! 剩余水晶： " +
+                         str(text_list[0] - 280), icon_path=KiraraL_icon_path, dbm=True)
                     toaster_destroy = False
                     logging.debug(write_time + " 获得奖励：" + reward_text +
                                  "; 剩余水晶： " + str(text_list[0] - 280))
                 elif text_list[0] < crystal_to_lottery and clicked == False and \
                    pygame.Rect(positionx, positiony, width, height).collidepoint(mouse_x, mouse_y):
                     # 气泡以及控制台输出提示
-                    toaster.show_toast(u'温馨提示', u'没有足够水晶,水晶数大于' + str(crystal_to_lottery) + '才可抽卡', dbm=True)
+                    toaster.show_toast(u'温馨提示', u'没有足够水晶,水晶数大于' + str(crystal_to_lottery) + '才可抽卡', 
+                        icon_path=KiraraL_icon_path, dbm=True)
                     toaster_destroy = False
                     logging.debug("没有足够水晶")
             pygame.display.flip()
@@ -1198,7 +1210,7 @@ def draw_the_one_girl(screen, button_list, text_list):
                         cursor.execute(update_sql)
                         commitDB()
                         #db.commit()
-                        toaster.show_toast(u'提示', u"更改助战角色成功！" + girl.name + "正在待命", dbm=True)
+                        toaster.show_toast(u'提示', u"更改助战角色成功！" + girl.name + "正在待命", icon_path=KiraraL_icon_path, dbm=True)
                         toaster_destroy = False
                         one_tb = TheSelectFigureBasic(screen, girl)
                         update_screen(screen, button_list=button_list, text_list=[girl],  use_small_bg="1")
@@ -1209,7 +1221,7 @@ def draw_the_one_girl(screen, button_list, text_list):
                         cursor.execute(update_sql)
                         commitDB()
                         #db.commit()
-                        toaster.show_toast(u'提示', u"取消助战角色成功！目前没有助战角色", dbm=True)
+                        toaster.show_toast(u'提示', u"取消助战角色成功！目前没有助战角色", icon_path=KiraraL_icon_path, dbm=True)
                         toaster_destroy = False
                         one_tb = TheSelectFigureBasic(screen, girl)
                         update_screen(screen, button_list=button_list, text_list=[girl],  use_small_bg="1")
@@ -1227,14 +1239,15 @@ def draw_the_one_girl(screen, button_list, text_list):
                         cursor.execute(update_sql)
                         commitDB()
                         girl.grade = next_grade
-                        toaster.show_toast(u'升阶提示', u"升阶成功！" + girl.name + "成功升阶为" + girl.grade + "品质！", dbm=True)
+                        toaster.show_toast(u'升阶提示', u"升阶成功！" + girl.name + "成功升阶为" + girl.grade + "品质！", 
+                            icon_path=KiraraL_icon_path, dbm=True)
                         toaster_destroy = False
                         one_tb = TheSelectFigureBasic(screen, girl)
                         update_screen(screen, button_list=button_list, text_list=[girl],  use_small_bg="1")
                         one_tb.draw_theselectgirlbasic(query_current_assist_girl())
                         one_tb.draw_click_rect_level()
                     elif one_tb.cgradeup_color==one_tb.grey_color:
-                        toaster.show_toast(u'升阶提示', u'' + girl.name + "没有足够的角色碎片", dbm=True)
+                        toaster.show_toast(u'升阶提示', u'' + girl.name + "没有足够的角色碎片", icon_path=KiraraL_icon_path, dbm=True)
                         toaster_destroy = False
                 #消耗强化经验提高角色等级
                 elif one_tb.rect_clevel.collidepoint(mouse_x, mouse_y) and event.button == 1 and pressed_button == one_tb.rect_clevel:
@@ -1276,7 +1289,7 @@ def draw_the_one_girl(screen, button_list, text_list):
                     quantity_4 -= select_exp_book_4
                     quantity_3 -= select_exp_book_3
                     quantity_2 -= select_exp_book_2
-                    toaster.show_toast(u'升级提示', u"提升成功！" + girl.name + "目前等级为" + str(girl.level) + "！", dbm=True)
+                    toaster.show_toast(u'升级提示', u"提升成功！" + girl.name + "目前等级为" + str(girl.level) + "！", icon_path=KiraraL_icon_path, dbm=True)
                     toaster_destroy = False
                     one_tb = TheSelectFigureBasic(screen, girl)
                     update_screen(screen, button_list=button_list, text_list=[girl],  use_small_bg="1")
@@ -1391,7 +1404,7 @@ def countdown(screen, option, small_bg):
         adventure_dt: 绘制到页面的奖励文字
     """
     duration_minutes_list = [50, 60, 25, 10]            # 4种不同选项的数据
-    a_minute_coeffi = 0.1                                #一分钟具有多少秒系数
+    a_minute_coeffi = 60                                #一分钟具有多少秒系数
     text_list = ["一个番茄", "爱好培养", "半个番茄", "起来走走"]
     duration_minutes = duration_minutes_list[option]    # 持续时间
     text = text_list[option]                            # 显示文字
@@ -1668,12 +1681,12 @@ def admission_fee():
             cursor.execute(update_addate_sql, (str(today_date_exact), ))
                                                             # 通知和记录
             toaster.show_toast(u'入场料收取', u"已经收取" + str(today_date) + "的费用,水晶-" + str(fee) + 
-                                "; 剩余水晶：" + str(lottery_crystal-fee) + week_sen, dbm=True)
+                                "; 剩余水晶：" + str(lottery_crystal-fee) + week_sen, icon_path=KiraraL_icon_path, dbm=True)
             toaster_destroy = False
             commitDB()
         else:                                               # 付不起的情况
             toaster.show_toast(u'入场料收取失效', u"你于" + str(today_date) + "的费用已经付不起了,白嫖入场; 剩余水晶：" 
-                + str(lottery_crystal) + week_sen, dbm=True)
+                + str(lottery_crystal) + week_sen, icon_path=KiraraL_icon_path, dbm=True)
             toaster_destroy = False
 
 

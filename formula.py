@@ -161,7 +161,7 @@ def formula_levelUp_with_expbook(level, before_exp, quantity_4=0, quantity_3=0, 
         if level==80:   
             return 80, 0    #满级时返回0exp
         exp_limit = formula_level_exp_limit(level)
-        if exp_all < (exp_limit - before_exp):      #如果经验满足升级
+        if exp_all < (exp_limit - before_exp):      #如果经验未超过当前等级上限
             return level, before_exp + exp_all
         else:
             exp_all -= exp_limit
