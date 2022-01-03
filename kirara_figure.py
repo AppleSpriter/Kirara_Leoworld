@@ -34,28 +34,28 @@ class Figure(object):
         self.root = root
         self.grade = grade
         self.weapon_type = weapon_type
-        self.feature = feature
+        self.feature = feature                        #5
         self.feature_info = feature_info
         self.moe = moe
         self.yxr = yxr
         self.intimacy = intimacy
-        self.enthusiasm = enthusiasm
+        self.enthusiasm = enthusiasm                  #10
         self.m_coefficient = m_coefficient
         self.y_coefficient = y_coefficient
         self.i_coefficient = i_coefficient
         self.e_coefficient = e_coefficient
-        self.level = level
+        self.level = level                            #15
         self.sound = sound
         self.love = love
         self.eyecolor = eyecolor
         self.haircolor = haircolor
         #拥有角色属性
-        self.weapon_hold = "无" if weapon_hold==None else weapon_hold
+        self.weapon_hold = "无" if weapon_hold==None else weapon_hold   #20
         self.stigma_up = stigma_up
         self.stigma_mid = stigma_mid
         self.stigma_down = stigma_down
         self.skin = skin
-        self.fragment = fragment
+        self.fragment = fragment                      #25
         self.exp = exp
 
 
@@ -997,14 +997,14 @@ class TheSelectFigureBasic(object):
         self.__msg_2exp_add =  self.font3.render("×" + formula_format_add0(str(quantity_2),3), True, self.text_color, self.white_color)
         position_y = 660
         interval = 60
-        self.__rect_msg_4exp_add = pygame.Rect(280, position_y+interval,50, 25)
-        self.__rect_msg_3exp_add = pygame.Rect(370, position_y+interval,50, 25)
-        self.__rect_msg_2exp_add = pygame.Rect(460, position_y+interval,50, 25)
+        self.__rect_msg_4exp_add = pygame.Rect(280, position_y+interval, 50, 25)
+        self.__rect_msg_3exp_add = pygame.Rect(370, position_y+interval, 50, 25)
+        self.__rect_msg_2exp_add = pygame.Rect(460, position_y+interval, 50, 25)
         if quantity_4+quantity_3+quantity_2 > 0:
             self.__msg_levelUp = self.font2.render("升级", True, self.white_color, self.blue_color)
         else:
             self.__msg_levelUp = self.font2.render("升级", True, self.white_color, self.grey_color)
-        self.rect_levelUp = pygame.Rect(525, position_y+20, 50, 25)
+        self.rect_levelUp = pygame.Rect(525, position_y+20, self.font2_size*2, self.font2_size)
 
     def draw_theselectgirlbasic(self, assist):     # 绘制初始页面
         self.init_page(assist==self.girl.name)

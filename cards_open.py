@@ -8,8 +8,10 @@ db = MySQLdb.connect("localhost", "root", "sdffdaa1", "kirara_leoworld",
 cursor = db.cursor()
 
 def commitDB():
-    db.commit()
-    #pass
+    debug = 0
+    if debug==0:
+        db.commit()
+    return
 
 def open_girls_card(must_num, up=""):
     """抽奖lottery的判断程序
@@ -140,11 +142,11 @@ def insert_upgrade_charc(charc):
 
     if count==0:    #插入新角色
         insert_sql = "insert into my_figure(my_figure_name, level, love, moe, yxr, " + \
-                     "intimacy, enthusiasm, skin, fragment, grade) values('" + charc[1] \
+                     "intimacy, enthusiasm, skin, fragment, grade, exp) values('" + charc[1] \
                      + "','" +  str(charc[17]) + "','" + str(charc[16]) + "','" + \
                      str(charc[7]) + "','" + str(charc[8]) + "','" + str(charc[9]) + \
-                     "','" + str(charc[10]) + "','" + charc[1] + "_默认',0,'"+ charc[3] +\
-                     "')"
+                     "','" + str(charc[10]) + "','" + charc[20] + "',0,'"+ charc[3] + \
+                     "',0)"
         cursor.execute(insert_sql)
         new = 1
     elif count==1:  #为现有角色增加碎片

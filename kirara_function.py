@@ -388,13 +388,14 @@ def click_button_adventure(achi):
     button_paper = Button(500, 80, screen_adventure, "一个番茄50min", 50, 240)
     button_learn = Button(500, 80, screen_adventure, "爱好培养60min", 50, 340)
     button_language = Button(500, 80, screen_adventure, "半个番茄25min", 50, 440)
-    button_play = Button(500, 80, screen_adventure, "起来走走10min", 50, 540)
+    button_play = Button(240, 80, screen_adventure, "10min", 50, 540)
+    button_hplay = Button(240, 80, screen_adventure, "5min", 300, 540)
     button_back = Button(150, 100, screen_adventure, "返回", 50, 650)
-    button_list = [button_back, button_paper, button_learn, button_language, button_play]
+    button_list = [button_back, button_paper, button_learn, button_language, button_play, button_hplay]
     work_setting = Settings()
     update_screen(screen_adventure, work_setting, button_list, [achi],
                       "adventure", use_small_bg="1")
-        
+
 def checkin_check():
     """可签到判断函数
 
@@ -814,6 +815,11 @@ def draw_adventure(screen, button_list, text_list):
                        finishadventure,duration_minutes, crystal_add, \
                        adventure_str, adventure_dt = countdown(screen, 3, small_bg)
 
+                    # v2.1增加新休息时间,5分钟倒计时
+                    if button_list[5].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
+                       finishadventure,duration_minutes, crystal_add, \
+                       adventure_str, adventure_dt = countdown(screen, 4, small_bg)
+
                 if finishadventure == True:       # 完成奖励
                     after_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))    # 当前时间
                     finish_one_adventure = "null"
@@ -1034,7 +1040,7 @@ def draw_lottery(screen, button_list, text_list):
     global toaster, toaster_destroy    # win10气泡提示
     lottery_crystal = text_list[0]
     must_num = query_how_long_to_5star_charc()  #剩余保底次数
-    up = ""      #抽奖up角色池设置
+    up = "平泽唯"      #抽奖up角色池设置
     crystal_to_lottery = 280    #抽奖限制
     lottery_lb = LotteryBasic(screen, lottery_crystal, must_num, up)  
     positionx = 150
@@ -1392,7 +1398,7 @@ def countdown(screen, option, small_bg):
 
     Args:
         screen：当前surface
-        option：0-3对应["一个番茄", "测试用例", "半个番茄", "起来走走"]
+        option：0-4对应["一个番茄", "测试用例", "半个番茄", 10min休息, 5min休息]
         small_bg：背景小图
 
     Returns:
@@ -1403,9 +1409,10 @@ def countdown(screen, option, small_bg):
         return_str: toast通知的奖励文字
         adventure_dt: 绘制到页面的奖励文字
     """
-    duration_minutes_list = [50, 60, 25, 10]            # 4种不同选项的数据
+    duration_minutes_list = [50, 60, 25, 10, 5]         # 4种不同选项的数据
+    text_list = ["一个番茄", "爱好培养", "半个番茄", "起来走走", "小休息"]
+    crystal_add_list = [220, 260, 90, 5, 2]             # 基础水晶奖励
     a_minute_coeffi = 60                                #一分钟具有多少秒系数
-    text_list = ["一个番茄", "爱好培养", "半个番茄", "起来走走"]
     duration_minutes = duration_minutes_list[option]    # 持续时间
     text = text_list[option]                            # 显示文字
     passive_duration = 1                                #角色特性时间加成
@@ -1432,8 +1439,6 @@ def countdown(screen, option, small_bg):
     # 判断成功完成
     if adventure_dt.sec == -1:
         finishadventure = True
-        # 基础水晶奖励
-        crystal_add_list = [220, 260, 90, 5]
         crystal_basic = crystal_add_list[option]
         crystal_add, stuff_drop, color_ret, love_add = adventure_end_with_girl_reward(duration_minutes, crystal_basic)
         # 要说的话
@@ -1460,6 +1465,7 @@ def adventure_end_with_girl_reward(duration_minutes, crystal_basic):
         crystal_add: 加成后的水晶
         stuff_drop: 掉落的物品
         color_ret: 掉落物品的品质颜色
+        (love_add:  有助战角色时,增加的好感度)
     """
     #无助战角色时
     if query_current_assist_girl()=="":
