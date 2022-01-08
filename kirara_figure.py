@@ -344,10 +344,10 @@ class AdventureBasic(object):
 
     # 按照顺序换背景颜色
     def choose_bg_color(self, idNumber):
-        # 颜色名按顺序：Honeydew2浅绿、Aquamarine鲜艳蓝绿、LightSteelBlue1牛仔蓝、LightG oldenrod1金黄、
-        #               LightSalmon1橙红、Thistle紫罗兰、PeachPuff2棕色
-        color_list = [(224,238,224),(127, 255, 212),(202, 225, 255),(255, 236, 139),(255, 160, 122),
-                      (216, 191, 216),(238, 203, 173)]
+        # 颜色名按顺序：LavenderBlush薰衣草腮红、Aquamarine鲜艳蓝绿、LightSteelBlue1牛仔蓝、LightG oldenrod1金黄、
+        #               LightSalmon1橙红、Wheat1小麦色、DarkOliveGreen1深橄榄绿色
+        color_list = [(255, 240, 245),(127, 255, 212),(202, 225, 255),(255, 236, 139),(255, 160, 122),
+                      (255, 231, 186),(202, 255, 112)]
         return color_list[(int(idNumber)-1)%len(color_list)]
 
     def prep_msg(self): # 将标签渲染为图像

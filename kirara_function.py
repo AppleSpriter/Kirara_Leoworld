@@ -815,7 +815,7 @@ def draw_adventure(screen, button_list, text_list):
                        finishadventure,duration_minutes, crystal_add, \
                        adventure_str, adventure_dt = countdown(screen, 3, small_bg)
 
-                    # v2.1增加新休息时间,5分钟倒计时
+                    # v2.1增加休息时间,5分钟倒计时
                     if button_list[5].rect.collidepoint(mouse_x, mouse_y) and toaster_destroy==True:
                        finishadventure,duration_minutes, crystal_add, \
                        adventure_str, adventure_dt = countdown(screen, 4, small_bg)
@@ -869,7 +869,7 @@ def draw_adventure(screen, button_list, text_list):
                     addhours = round(duration_minutes / 60, 2)
                     cursor.execute("update mission set complete=complete+" + str(addhours) + " where missionid=7")
                     #周任务10-16
-                    week_num = (int(achi['adventureid']) - 1)%7
+                    week_num = (achi['adventureid'] - 1)%7
                     cursor.execute("update mission set complete=complete+" + str(addhours) + \
                                  " where missionid=10+" + str(week_num))
                     #专注40小时
@@ -914,6 +914,16 @@ def draw_adventure(screen, button_list, text_list):
                 #一旦进入倒计时画面,button_list将只保留返回按钮,否则还是原先的按钮
                 pressed_button = ""
                 update_screen(screen, button_list=button_list, text_list=text_list, use_small_bg=small_bg, draw_achi=[ab], draw_text=draw_text)
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_f:        # 按f启动全屏模式
+                screen = pygame.display.set_mode((1920, 1080), flags=pygame.FULLSCREEN)
+                update_screen(screen, button_list=button_list, text_list=text_list, use_small_bg=small_bg, draw_achi=[ab], draw_text=draw_text)
+
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_e:        # 按e退出全屏
+                ki_setting = Settingssmallwindow()
+                pygame.display.set_mode((ki_setting.screen_width, ki_setting.screen_height))
+                update_screen(screen, button_list=button_list, text_list=text_list, use_small_bg=small_bg, draw_achi=[ab], draw_text=draw_text)
+
 
             pygame.display.flip()   #刷新屏幕
         fpsClock.tick(FPS)          # 降低cpu占用率，减少主页面刷新频率，delay一秒从30%降到0.5%
